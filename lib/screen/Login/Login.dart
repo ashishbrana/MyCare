@@ -146,7 +146,7 @@ class _LoginState extends State<Login> {
                                           hintText: "Username*",
                                           labelText: "Username*",
                                           preFix: SvgPicture.asset(
-                                            "assets/SVG/user_login.svg",
+                                            "assets/svg/user_login.svg",
                                             height: 24,
                                             alignment: Alignment.centerLeft,
                                           ),
@@ -167,7 +167,7 @@ class _LoginState extends State<Login> {
                                           hintText: "Password",
                                           labelText: "Password",
                                           preFix: SvgPicture.asset(
-                                            "assets/SVG/lock-solid.svg",
+                                            "assets/svg/lock-solid.svg",
                                             height: 24,
                                             alignment: Alignment.centerLeft,
                                           ),
@@ -193,7 +193,7 @@ class _LoginState extends State<Login> {
                                           hintText: "Company Code",
                                           labelText: "Company Code",
                                           preFix: SvgPicture.asset(
-                                            "assets/svg/svg_BookTripTo.svg",
+                                            "assets/svg/key-solid.svg",
                                             height: 24,
                                             alignment: Alignment.centerLeft,
                                           ),
@@ -215,24 +215,28 @@ class _LoginState extends State<Login> {
                                 const SizedBox(height: spaceVertical),
                                 SizedBox(
                                   width: MediaQuery.of(context).size.width,
-                                  height: 50,
-                                  child: MaterialButton(
-                                    color: colorGreen,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.login,
-                                          color: colorWhite,
-                                        ),
-                                        ThemedText(
-                                          text: "Log In",
-                                          color: colorWhite,
-                                        )
-                                      ],
+                                  height: 60,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: MaterialButton(
+                                      color: colorGreen,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.login,
+                                            color: colorWhite,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          ThemedText(
+                                            text: "Log In",
+                                            color: colorWhite,
+                                          ),
+                                        ],
+                                      ),
+                                      onPressed: () {},
                                     ),
-                                    onPressed: () {},
                                   ),
                                 )
                                 /*  Container(
