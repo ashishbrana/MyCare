@@ -9,6 +9,8 @@ import '../Network/ApiUrls.dart';
 import '../Network/GlobalMethods.dart';
 import '../utils/ColorConstants.dart';
 import '../utils/Constants.dart';
+import '../utils/Constants.dart';
+import '../utils/Images.dart';
 import '../utils/ThemedWidgets.dart';
 import '../utils/methods.dart';
 
@@ -89,123 +91,153 @@ class _LoginState extends State<Login> {
       key: _keyScaffold,
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width ,
-            margin: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(0),
-                topRight: Radius.circular(0),
+        child: Stack(
+          children: [
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: Image.asset(
+                '${Constants.imagePath}login_bg.png',
+                fit: BoxFit.fitHeight,
               ),
             ),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 40, horizontal: spaceHorizontal),
+
+            Center(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Form(
-                      key: _keyFormField,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        color: Colors.grey.shade50,
-                        child: Column(
-                          children: [
-                            ThemedTextField(
-                              borderColor: Colors.black,
-                              controller: _controllerUsername,
-                              hintText: "Username*",
-                              preFix: const Icon(Icons.person_rounded),
-                              validator: (value) {
-                                if (value == null ||
-                                    value.isEmpty ||
-                                    value.trim().isEmpty) {
-                                  return "Please enter Username!";
-                                }
+                    Container(
 
-                              },
-                              backgroundColor: colorGreyExtraLightBackGround,
-                            ),
-                            const SizedBox(height: spaceVertical),
-                            ThemedTextField(
+                      width: double.infinity,
+                      child: Image.asset(
+                        '${Constants.imagePath}login_back.png',
+                        fit: BoxFit.contain,
+                        height: 100,
+                        width: 200,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Card(
+                        color: Colors.white,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.width ,
+                          margin: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
 
-                              borderColor: Colors.black,
-                              controller: _controllerPassword,
-                              hintText: "Password",
-                              preFix: const Icon(Icons.lock_clock_outlined),
-                              isPasswordTextField: true,
-                              validator: (value) {
-                                if (value == null ||
-                                    value.isEmpty ||
-                                    value.trim().isEmpty) {
-                                  return "Please enter password!";
-                                }
-                                if (value.length < 8 || value.length > 15) {
-                                  return "Please enter valid length(between 8 to 15) password!";
-                                }
-                              },
-                              backgroundColor: colorGreyExtraLightBackGround,
-                            ),
-                            const SizedBox(height: spaceVertical),
-                            ThemedTextField(
-                              borderColor: Colors.black,
-                              controller: _controllerCompanyCode,
-                              hintText: "Compnay Code",
-                              preFix: const Icon(Icons.key),
-                              isPasswordTextField: false,
-                              validator: (value) {
-                                if (value == null ||
-                                    value.isEmpty ||
-                                    value.trim().isEmpty) {
-                                  return "Please enter company code!";
-                                }
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 40, horizontal: spaceHorizontal),
+                            child: Column(
+                              children: [
+                                Form(
+                                  key: _keyFormField,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    color: Colors.grey.shade50,
+                                    child: Column(
+                                      children: [
+                                        ThemedTextField(
+                                          borderColor: Colors.black,
+                                          controller: _controllerUsername,
+                                          hintText: "Username*",
+                                          preFix: const Icon(Icons.person_rounded),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.trim().isEmpty) {
+                                              return "Please enter Username!";
+                                            }
 
-                              },
-                              backgroundColor: colorGreyExtraLightBackGround,
+                                          },
+                                          backgroundColor: colorGreyExtraLightBackGround,
+                                        ),
+                                        const SizedBox(height: spaceVertical),
+                                        ThemedTextField(
+
+                                          borderColor: Colors.black,
+                                          controller: _controllerPassword,
+                                          hintText: "Password",
+                                          preFix: const Icon(Icons.lock_clock_outlined),
+                                          isPasswordTextField: true,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.trim().isEmpty) {
+                                              return "Please enter password!";
+                                            }
+                                            if (value.length < 8 || value.length > 15) {
+                                              return "Please enter valid length(between 8 to 15) password!";
+                                            }
+                                          },
+                                          backgroundColor: colorGreyExtraLightBackGround,
+                                        ),
+                                        const SizedBox(height: spaceVertical),
+                                        ThemedTextField(
+                                          borderColor: Colors.black,
+                                          controller: _controllerCompanyCode,
+                                          hintText: "Compnay Code",
+                                          preFix: const Icon(Icons.key),
+                                          isPasswordTextField: false,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.trim().isEmpty) {
+                                              return "Please enter company code!";
+                                            }
+
+                                          },
+                                          backgroundColor: colorGreyExtraLightBackGround,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: spaceVertical),
+                                Container(
+                                  decoration: const BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(0),
+                                        topRight: Radius.circular(0),
+                                      )),
+                                  child: ThemedButton(
+                                    title: "Log In",
+                                    onTap: () {
+                                      sendToHome();
+                                      // if (_keyFormField.currentState != null &&
+                                      //     _keyFormField.currentState!.validate()) {
+                                      //   if (_controllerUsername.text == null ||
+                                      //       _controllerUsername.text.trim().isEmpty) {
+                                      //     showSnackBarWithText(_keyScaffold.currentState,
+                                      //         "Please Enter Email!");
+                                      //   } else if (_controllerPassword.text == null ||
+                                      //       _controllerUsername.text.trim().isEmpty) {
+                                      //     showSnackBarWithText(_keyScaffold.currentState,
+                                      //         "Please Enter Password!");
+                                      //   } else {
+                                      //     _loginApiCall(
+                                      //       widget.isLoginForBooking,
+                                      //       _controllerUsername.text.trim(),
+                                      //       _controllerPassword.text.trim(),
+                                      //       _controllerCompanyCode.text.trim()
+                                      //     );
+                                      //   }
+                                      // }
+                                    },
+                                  ),
+                                ),
+
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: spaceVertical),
-                    Container(
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(0),
-                            topRight: Radius.circular(0),
-                          )),
-                      child: ThemedButton(
-                        title: "Login",
-                        onTap: () {
-                          sendToHome();
-                          // if (_keyFormField.currentState != null &&
-                          //     _keyFormField.currentState!.validate()) {
-                          //   if (_controllerUsername.text == null ||
-                          //       _controllerUsername.text.trim().isEmpty) {
-                          //     showSnackBarWithText(_keyScaffold.currentState,
-                          //         "Please Enter Email!");
-                          //   } else if (_controllerPassword.text == null ||
-                          //       _controllerUsername.text.trim().isEmpty) {
-                          //     showSnackBarWithText(_keyScaffold.currentState,
-                          //         "Please Enter Password!");
-                          //   } else {
-                          //     _loginApiCall(
-                          //       widget.isLoginForBooking,
-                          //       _controllerUsername.text.trim(),
-                          //       _controllerPassword.text.trim(),
-                          //       _controllerCompanyCode.text.trim()
-                          //     );
-                          //   }
-                          // }
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 20),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -216,45 +248,23 @@ class _LoginState extends State<Login> {
                             // _buildForgotPassWordDialog();
                           },
                           child: const Text(
-                            'Forgot Password',
+                            'FORGOT YOUR PASSWORD ?',
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.w500,
-                              color: colorGreyLiteText,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ThemedText(
-                              text: 'Don\'t have an account yet?',
-                              color: colorGreyLiteText,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {});
-                              },
-                              child: const Text(
-                                ' Sign up now',
-                                style: TextStyle(
-                                  color: colorGreyDarkText,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 60),
+
                       ],
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
+            )
+          ],
         ),
       ),
     );

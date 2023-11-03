@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 bool trustSelfSigned = true;
 
+
 HttpClient getHttpClient() {
   HttpClient httpClient = HttpClient()
     ..connectionTimeout = const Duration(seconds: 10)
@@ -34,5 +35,5 @@ double elevation = 2;
 
 
 class Constants {
-
+  static final String imagePath = 'assets/images/';
 }
