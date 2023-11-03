@@ -25,7 +25,7 @@ List<BoxShadow> boxShadow = [
 ];
 
 
-const double spaceVertical = 8;
+const double spaceVertical = 15;
 const double spaceHorizontal = 10;
 const double radius = 6;
 

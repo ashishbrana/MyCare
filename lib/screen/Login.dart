@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:rcare_2/screen/HomeScreen/HomeScreen.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
 
 import '../Network/API.dart';
@@ -30,11 +31,13 @@ class _LoginState extends State<Login> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   String? firebaseToken;
-  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerUsername = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+
+  final TextEditingController _controllerCompanyCode = TextEditingController();
   final TextEditingController forgotEmailController = TextEditingController();
 
-  _loginApiCall(bool isFromBooking, String email, String password) {
+  _loginApiCall(bool isFromBooking, String username, String password,String comapnyCode) {
     var params = {
       'username': "Clark",
       'password': "Super@123",
@@ -84,172 +87,171 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
-      backgroundColor: colorGreyExtraLightBackGround,
+      backgroundColor: Colors.black,
       body: SafeArea(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(0),
-              topRight: Radius.circular(0),
+        child: Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width ,
+            margin: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(0),
+                topRight: Radius.circular(0),
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 40, horizontal: spaceHorizontal),
-              child: Column(
-                children: [
-                  Form(
-                    key: _keyFormField,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      color: Colors.grey.shade50,
-                      child: Column(
-                        children: [
-                          ThemedTextField(
-                            controller: _controllerEmail,
-                            hintText: "Username*",
-                            preFix: const Icon(Icons.email_outlined),
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.trim().isEmpty) {
-                                return "Please enter email!";
-                              }
-                              if (!isValidateEmail(value.trim())) {
-                                return "Please enter valid email!";
-                              }
-                            },
-                            backgroundColor: colorGreyExtraLightBackGround,
-                          ),
-                          const SizedBox(height: spaceVertical),
-                          ThemedTextField(
-                            controller: _controllerPassword,
-                            hintText: "Password",
-                            preFix: const Icon(Icons.password),
-                            isPasswordTextField: true,
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.trim().isEmpty) {
-                                return "Please enter password!";
-                              }
-                              if (value.length < 8 || value.length > 15) {
-                                return "Please enter valid length(between 8 to 15) password!";
-                              }
-                            },
-                            backgroundColor: colorGreyExtraLightBackGround,
-                          ),
-                          const SizedBox(height: spaceVertical),
-                          ThemedTextField(
-                            controller: _controllerPassword,
-                            hintText: "Compnay Code",
-                            preFix: const Icon(Icons.password),
-                            isPasswordTextField: true,
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.trim().isEmpty) {
-                                return "Please enter password!";
-                              }
-                              if (value.length < 8 || value.length > 15) {
-                                return "Please enter valid length(between 8 to 15) password!";
-                              }
-                            },
-                            backgroundColor: colorGreyExtraLightBackGround,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: spaceVertical),
-                  Container(
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(0),
-                          topRight: Radius.circular(0),
-                        )),
-                    child: ThemedButton(
-                      title: "Login",
-                      onTap: () {
-                        _loginApiCall(
-                          widget.isLoginForBooking,
-                          _controllerEmail.text.trim(),
-                          _controllerPassword.text.trim(),
-                        );
-                        // if (_keyFormField.currentState != null &&
-                        //     _keyFormField.currentState!.validate()) {
-                        //   if (_controllerEmail.text == null ||
-                        //       _controllerEmail.text.trim().isEmpty) {
-                        //     showSnackBarWithText(_keyScaffold.currentState,
-                        //         "Please Enter Email!");
-                        //   } else if (_controllerPassword.text == null ||
-                        //       _controllerEmail.text.trim().isEmpty) {
-                        //     showSnackBarWithText(_keyScaffold.currentState,
-                        //         "Please Enter Password!");
-                        //   } else {
-                        //     _loginApiCall(
-                        //       widget.isLoginForBooking,
-                        //       _controllerEmail.text.trim(),
-                        //       _controllerPassword.text.trim(),
-                        //     );
-                        //   }
-                        // }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 50),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // _buildForgotPassWordDialog();
-                        },
-                        child: const Text(
-                          'Forgot Password',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                            color: colorGreyLiteText,
-                          ),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 40, horizontal: spaceHorizontal),
+                child: Column(
+                  children: [
+                    Form(
+                      key: _keyFormField,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        color: Colors.grey.shade50,
+                        child: Column(
+                          children: [
+                            ThemedTextField(
+                              borderColor: Colors.black,
+                              controller: _controllerUsername,
+                              hintText: "Username*",
+                              preFix: const Icon(Icons.person_rounded),
+                              validator: (value) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value.trim().isEmpty) {
+                                  return "Please enter Username!";
+                                }
+
+                              },
+                              backgroundColor: colorGreyExtraLightBackGround,
+                            ),
+                            const SizedBox(height: spaceVertical),
+                            ThemedTextField(
+
+                              borderColor: Colors.black,
+                              controller: _controllerPassword,
+                              hintText: "Password",
+                              preFix: const Icon(Icons.lock_clock_outlined),
+                              isPasswordTextField: true,
+                              validator: (value) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value.trim().isEmpty) {
+                                  return "Please enter password!";
+                                }
+                                if (value.length < 8 || value.length > 15) {
+                                  return "Please enter valid length(between 8 to 15) password!";
+                                }
+                              },
+                              backgroundColor: colorGreyExtraLightBackGround,
+                            ),
+                            const SizedBox(height: spaceVertical),
+                            ThemedTextField(
+                              borderColor: Colors.black,
+                              controller: _controllerCompanyCode,
+                              hintText: "Compnay Code",
+                              preFix: const Icon(Icons.key),
+                              isPasswordTextField: false,
+                              validator: (value) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value.trim().isEmpty) {
+                                  return "Please enter company code!";
+                                }
+
+                              },
+                              backgroundColor: colorGreyExtraLightBackGround,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ThemedText(
-                            text: 'Don\'t have an account yet?',
-                            color: colorGreyLiteText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {});
-                            },
-                            child: const Text(
-                              ' Sign up now',
-                              style: TextStyle(
-                                color: colorGreyDarkText,
-                                fontWeight: FontWeight.w600,
-                              ),
+                    ),
+                    const SizedBox(height: spaceVertical),
+                    Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(0),
+                            topRight: Radius.circular(0),
+                          )),
+                      child: ThemedButton(
+                        title: "Login",
+                        onTap: () {
+                          sendToHome();
+                          // if (_keyFormField.currentState != null &&
+                          //     _keyFormField.currentState!.validate()) {
+                          //   if (_controllerUsername.text == null ||
+                          //       _controllerUsername.text.trim().isEmpty) {
+                          //     showSnackBarWithText(_keyScaffold.currentState,
+                          //         "Please Enter Email!");
+                          //   } else if (_controllerPassword.text == null ||
+                          //       _controllerUsername.text.trim().isEmpty) {
+                          //     showSnackBarWithText(_keyScaffold.currentState,
+                          //         "Please Enter Password!");
+                          //   } else {
+                          //     _loginApiCall(
+                          //       widget.isLoginForBooking,
+                          //       _controllerUsername.text.trim(),
+                          //       _controllerPassword.text.trim(),
+                          //       _controllerCompanyCode.text.trim()
+                          //     );
+                          //   }
+                          // }
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // _buildForgotPassWordDialog();
+                          },
+                          child: const Text(
+                            'Forgot Password',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w500,
+                              color: colorGreyLiteText,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 60),
-                    ],
-                  ),
-                ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ThemedText(
+                              text: 'Don\'t have an account yet?',
+                              color: colorGreyLiteText,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {});
+                              },
+                              child: const Text(
+                                ' Sign up now',
+                                style: TextStyle(
+                                  color: colorGreyDarkText,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 60),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -260,5 +262,19 @@ class _LoginState extends State<Login> {
 
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
+  }
+
+
+  sendToHome() {
+    Future.delayed(
+      const Duration(seconds: 3),
+          () {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(),
+            ));
+      },
+    );
   }
 }

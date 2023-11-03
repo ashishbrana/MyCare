@@ -128,26 +128,26 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
                 height: 30, width: 30, child: Center(child: widget.preFix))
             : null,
         prefixIconColor: colorGreyDarkText,
-        suffixIcon: widget.isPasswordTextField
-            ? InkWell(
-                onTap: () {
-                  setState(() {
-                    isShowPassWord = !isShowPassWord;
-                  });
-                },
-                child: SizedBox(
-                  height: 30,
-                  width: 30,
-                  child: Center(
-                    child: Icon(
-                      isShowPassWord
-                          ? CupertinoIcons.eye_solid
-                          : CupertinoIcons.eye_slash_fill,
-                    ),
-                  ),
-                ),
-              )
-            : null,
+        // suffixIcon: widget.isPasswordTextField
+        //     ? InkWell(
+        //         onTap: () {
+        //           setState(() {
+        //             isShowPassWord = !isShowPassWord;
+        //           });
+        //         },
+        //         child: SizedBox(
+        //           height: 30,
+        //           width: 30,
+        //           child: Center(
+        //             child: Icon(
+        //               isShowPassWord
+        //                   ? CupertinoIcons.eye_solid
+        //                   : CupertinoIcons.eye_slash_fill,
+        //             ),
+        //           ),
+        //         ),
+        //       )
+        //     : null,
         suffixIconColor: colorGreyDarkText,
         border: OutlineInputBorder(
           borderSide: BorderSide(
