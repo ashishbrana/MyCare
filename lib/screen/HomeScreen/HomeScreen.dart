@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
+import 'Tabs/ConfirmedTabScreen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int bottomCurrentIndex = 0;
 
   List<Widget> body = [
-    Container(),
+    ConfirmedTabScreen(),
   ];
 
   @override

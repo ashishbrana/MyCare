@@ -14,12 +14,14 @@ const MaterialColor colorPrimary = MaterialColor(0xFF221D79, {
 });
 
 const Color colorOrange = Color(0xFFFF6D00);
+const Color colorGreen = Color(0xFF23A585);
 const Color colorRed = Color(0xFFE7505A);
 const Color colorBlue = Color(0xFF221D79);
 const Color colorLightCyan = Color(0xFFE2FCF7); //BEF8EE old
 const Color colorDarkCyan = Color(0xFF33D4BE); //79f1dc old
 const Color colorWhite = Color(0xFFFFFFFF);
 const Color colorBlueLite = Color(0xFFC2CAD8);
+const Color colorGreyBorderD3 = Color(0xFFD3D3D3);
 const Color colorGreyDarkText = Color(0xFF505050);
 const Color colorGrey33 = Color(0xFF333333);
 const Color colorGreyLiteText = Color(0xFF9A9A9A);

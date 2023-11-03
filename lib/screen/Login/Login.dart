@@ -1,18 +1,19 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:rcare_2/screen/HomeScreen/HomeScreen.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
 
-import '../Network/API.dart';
-import '../Network/ApiUrls.dart';
-import '../Network/GlobalMethods.dart';
-import '../utils/ColorConstants.dart';
-import '../utils/Constants.dart';
-import '../utils/Constants.dart';
-import '../utils/Images.dart';
-import '../utils/ThemedWidgets.dart';
-import '../utils/methods.dart';
+import '../../Network/API.dart';
+import '../../Network/ApiUrls.dart';
+import '../../Network/GlobalMethods.dart';
+import '../../utils/ColorConstants.dart';
+import '../../utils/Constants.dart';
+import '../../utils/Constants.dart';
+import '../../utils/Images.dart';
+import '../../utils/ThemedWidgets.dart';
+import '../../utils/methods.dart';
 
 class Login extends StatefulWidget {
   bool isLoginForBooking = false;
@@ -39,7 +40,8 @@ class _LoginState extends State<Login> {
   final TextEditingController _controllerCompanyCode = TextEditingController();
   final TextEditingController forgotEmailController = TextEditingController();
 
-  _loginApiCall(bool isFromBooking, String username, String password,String comapnyCode) {
+  _loginApiCall(bool isFromBooking, String username, String password,
+      String comapnyCode) {
     var params = {
       'username': "Clark",
       'password': "Super@123",
@@ -101,7 +103,6 @@ class _LoginState extends State<Login> {
                 fit: BoxFit.fitHeight,
               ),
             ),
-
             Center(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
@@ -110,13 +111,12 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-
-                      width: double.infinity,
+                      // width: double/.infinity,
                       child: Image.asset(
-                        '${Constants.imagePath}login_back.png',
+                        '${Constants.imagePath}login_top.png',
                         fit: BoxFit.contain,
-                        height: 100,
-                        width: 200,
+                        // height: MediaQuery.of(context).size.height ,
+                        width: MediaQuery.of(context).size.width * .5,
                       ),
                     ),
                     Padding(
@@ -124,14 +124,13 @@ class _LoginState extends State<Login> {
                       child: Card(
                         color: Colors.white,
                         child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.width ,
-                          margin: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: spaceHorizontal),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 40, horizontal: spaceHorizontal),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Form(
                                   key: _keyFormField,
@@ -139,29 +138,39 @@ class _LoginState extends State<Login> {
                                     padding: const EdgeInsets.all(8),
                                     color: Colors.grey.shade50,
                                     child: Column(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         ThemedTextField(
-                                          borderColor: Colors.black,
+                                          borderColor: colorGreyBorderD3,
                                           controller: _controllerUsername,
                                           hintText: "Username*",
-                                          preFix: const Icon(Icons.person_rounded),
+                                          labelText: "Username*",
+                                          preFix: SvgPicture.asset(
+                                            "assets/SVG/user_login.svg",
+                                            height: 24,
+                                            alignment: Alignment.centerLeft,
+                                          ),
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
                                                 value.trim().isEmpty) {
                                               return "Please enter Username!";
                                             }
-
                                           },
-                                          backgroundColor: colorGreyExtraLightBackGround,
+                                          backgroundColor:
+                                              colorGreyExtraLightBackGround,
                                         ),
                                         const SizedBox(height: spaceVertical),
                                         ThemedTextField(
-
-                                          borderColor: Colors.black,
+                                          borderColor: colorGreyBorderD3,
                                           controller: _controllerPassword,
                                           hintText: "Password",
-                                          preFix: const Icon(Icons.lock_clock_outlined),
+                                          labelText: "Password",
+                                          preFix: SvgPicture.asset(
+                                            "assets/SVG/lock-solid.svg",
+                                            height: 24,
+                                            alignment: Alignment.centerLeft,
+                                          ),
                                           isPasswordTextField: true,
                                           validator: (value) {
                                             if (value == null ||
@@ -169,42 +178,72 @@ class _LoginState extends State<Login> {
                                                 value.trim().isEmpty) {
                                               return "Please enter password!";
                                             }
-                                            if (value.length < 8 || value.length > 15) {
+                                            if (value.length < 8 ||
+                                                value.length > 15) {
                                               return "Please enter valid length(between 8 to 15) password!";
                                             }
                                           },
-                                          backgroundColor: colorGreyExtraLightBackGround,
+                                          backgroundColor:
+                                              colorGreyExtraLightBackGround,
                                         ),
                                         const SizedBox(height: spaceVertical),
                                         ThemedTextField(
-                                          borderColor: Colors.black,
+                                          borderColor: colorGreyBorderD3,
                                           controller: _controllerCompanyCode,
-                                          hintText: "Compnay Code",
-                                          preFix: const Icon(Icons.key),
-                                          isPasswordTextField: false,
+                                          hintText: "Company Code",
+                                          labelText: "Company Code",
+                                          preFix: SvgPicture.asset(
+                                            "assets/svg/svg_BookTripTo.svg",
+                                            height: 24,
+                                            alignment: Alignment.centerLeft,
+                                          ),
+                                          isPasswordTextField: true,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
                                                 value.trim().isEmpty) {
                                               return "Please enter company code!";
                                             }
-
                                           },
-                                          backgroundColor: colorGreyExtraLightBackGround,
+                                          backgroundColor:
+                                              colorGreyExtraLightBackGround,
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
                                 const SizedBox(height: spaceVertical),
-                                Container(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.green,
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 50,
+                                  child: MaterialButton(
+                                    color: colorGreen,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.login,
+                                          color: colorWhite,
+                                        ),
+                                        ThemedText(
+                                          text: "Log In",
+                                          color: colorWhite,
+                                        )
+                                      ],
+                                    ),
+                                    onPressed: () {},
+                                  ),
+                                )
+                                /*  Container(
+                                    decoration: const BoxDecoration(
+                                      color: colorGreen,
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(0),
                                         topRight: Radius.circular(0),
-                                      )),
-                                  child: ThemedButton(
+                                      ),),
+                                    child:
+                                  */ /*ThemedButton(
                                     title: "Log In",
                                     onTap: () {
                                       sendToHome();
@@ -228,9 +267,8 @@ class _LoginState extends State<Login> {
                                       //   }
                                       // }
                                     },
-                                  ),
-                                ),
-
+                                  ),*/ /*
+                                ),*/
                               ],
                             ),
                           ),
@@ -257,7 +295,6 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
                       ],
                     ),
                   ],
@@ -274,11 +311,10 @@ class _LoginState extends State<Login> {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
   }
 
-
   sendToHome() {
     Future.delayed(
       const Duration(seconds: 3),
-          () {
+      () {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
