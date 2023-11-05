@@ -41,7 +41,7 @@ class HttpService {
     if (httpRequestModel.authMethod == '') {
       headers = {'Content-type': 'application/json'};
     } else {
-      String token = await Preferences().getPrefString(Preferences.prefToken);
+      String token = await Preferences().getPrefString("Tocken");
 
       headers = {
         'Content-type': 'application/json',
@@ -66,7 +66,7 @@ class HttpService {
       client = client ?? http.Client();
 
       ConnectionStatusSingleton connectionStatus =
-      ConnectionStatusSingleton.getInstance();
+          ConnectionStatusSingleton.getInstance();
       await setHeaders(httpRequestModel);
 
       log("URL : ${httpRequestModel.url} PARAMS : ${httpRequestModel.params}");
@@ -142,11 +142,11 @@ class HttpService {
     switch (response.statusCode) {
       case 200:
         {
-          return Future(() => response.body);
+          return Future(() => stripHtmlIfNeeded(response.body));
         }
       case 201:
         {
-          return Future(() => response.body);
+          return Future(() => stripHtmlIfNeeded(response.body));
         }
 
       case 400:
@@ -203,6 +203,10 @@ class HttpService {
           return Future(() => "");
         }
     }
+  }
+
+  static String stripHtmlIfNeeded(String text) {
+    return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
   }
 
   Future<http.Response> callGetMethod(String subUrl) {

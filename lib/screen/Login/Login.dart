@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rcare_2/screen/HomeScreen/HomeScreen.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
+import 'package:rcare_2/utils/Preferences.dart';
 
 import '../../Network/API.dart';
 import '../../Network/ApiUrls.dart';
@@ -14,6 +16,7 @@ import '../../utils/Constants.dart';
 import '../../utils/Images.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/methods.dart';
+import 'model/LoginResponseModel.dart';
 
 class Login extends StatefulWidget {
   bool isLoginForBooking = false;
@@ -36,12 +39,10 @@ class _LoginState extends State<Login> {
   String? firebaseToken;
   final TextEditingController _controllerUsername = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
-
   final TextEditingController _controllerCompanyCode = TextEditingController();
   final TextEditingController forgotEmailController = TextEditingController();
 
-  _loginApiCall(bool isFromBooking, String username, String password,
-      String comapnyCode) {
+  _loginApiCall(String username, String password, String comapnyCode) {
     var params = {
       'username': "Clark",
       'password': "Super@123",
@@ -60,13 +61,23 @@ class _LoginState extends State<Login> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           if (response != null && response != "") {
-            print('res ${stripHtmlIfNeeded(response)}');
+            print('res ${response}');
 
-            final jResponse = json.decode(stripHtmlIfNeeded(response));
-
+            final jResponse = json.decode(response);
+            LoginResponseModel responseModel =
+                LoginResponseModel.fromJson(jResponse);
             print('res ${jResponse['status']}');
-            if (jResponse['status'] == 1) {
+            if (responseModel.status == 1) {
               print('res success');
+              Preferences().setPrefString(
+                  Preferences.prefAuthCode, responseModel.authcode ?? "");
+              Preferences().setPrefInt(
+                  Preferences.prefAccountType, responseModel.accountType ?? 0);
+              Preferences().setPrefInt(
+                  Preferences.prefUserID, responseModel.userid ?? 0);
+              Preferences().setPrefString(
+                  Preferences.prefUserFullName, responseModel.fullName ?? "");
+              sendToHome();
             } else {
               showSnackBarWithText(
                   _keyScaffold.currentState, jResponse['Message']);
@@ -145,11 +156,9 @@ class _LoginState extends State<Login> {
                                           controller: _controllerUsername,
                                           hintText: "Username*",
                                           labelText: "Username*",
-                                          preFix: SvgPicture.asset(
-                                            "assets/svg/user_login.svg",
-                                            height: 24,
-                                            alignment: Alignment.centerLeft,
-                                          ),
+                                          preFix: const FaIcon(
+                                              FontAwesomeIcons.solidCircleUser,
+                                              color: colorPrimary),
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
@@ -166,11 +175,9 @@ class _LoginState extends State<Login> {
                                           controller: _controllerPassword,
                                           hintText: "Password",
                                           labelText: "Password",
-                                          preFix: SvgPicture.asset(
-                                            "assets/svg/lock-solid.svg",
-                                            height: 24,
-                                            alignment: Alignment.centerLeft,
-                                          ),
+                                          preFix: const FaIcon(
+                                              FontAwesomeIcons.lock,
+                                              color: colorPrimary),
                                           isPasswordTextField: true,
                                           validator: (value) {
                                             if (value == null ||
@@ -192,11 +199,9 @@ class _LoginState extends State<Login> {
                                           controller: _controllerCompanyCode,
                                           hintText: "Company Code",
                                           labelText: "Company Code",
-                                          preFix: SvgPicture.asset(
-                                            "assets/svg/key-solid.svg",
-                                            height: 24,
-                                            alignment: Alignment.centerLeft,
-                                          ),
+                                          preFix: const FaIcon(
+                                              FontAwesomeIcons.key,
+                                              color: colorPrimary),
                                           isPasswordTextField: true,
                                           validator: (value) {
                                             if (value == null ||
@@ -224,10 +229,9 @@ class _LoginState extends State<Login> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          const Icon(
-                                            Icons.login,
-                                            color: colorWhite,
-                                          ),
+                                          const FaIcon(
+                                              FontAwesomeIcons.powerOff,
+                                              color: Colors.white),
                                           const SizedBox(width: 10),
                                           ThemedText(
                                             text: "Log In",
@@ -235,44 +239,22 @@ class _LoginState extends State<Login> {
                                           ),
                                         ],
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        if (_keyFormField.currentContext !=
+                                                null &&
+                                            _keyFormField.currentState!
+                                                .validate()) {
+                                          _loginApiCall(
+                                              _controllerUsername.text.trim(),
+                                              _controllerPassword.text.trim(),
+                                              _controllerCompanyCode.text
+                                                  .trim());
+                                        }
+                                        // sendToHome();
+                                      },
                                     ),
                                   ),
                                 )
-                                /*  Container(
-                                    decoration: const BoxDecoration(
-                                      color: colorGreen,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0),
-                                        topRight: Radius.circular(0),
-                                      ),),
-                                    child:
-                                  */ /*ThemedButton(
-                                    title: "Log In",
-                                    onTap: () {
-                                      sendToHome();
-                                      // if (_keyFormField.currentState != null &&
-                                      //     _keyFormField.currentState!.validate()) {
-                                      //   if (_controllerUsername.text == null ||
-                                      //       _controllerUsername.text.trim().isEmpty) {
-                                      //     showSnackBarWithText(_keyScaffold.currentState,
-                                      //         "Please Enter Email!");
-                                      //   } else if (_controllerPassword.text == null ||
-                                      //       _controllerUsername.text.trim().isEmpty) {
-                                      //     showSnackBarWithText(_keyScaffold.currentState,
-                                      //         "Please Enter Password!");
-                                      //   } else {
-                                      //     _loginApiCall(
-                                      //       widget.isLoginForBooking,
-                                      //       _controllerUsername.text.trim(),
-                                      //       _controllerPassword.text.trim(),
-                                      //       _controllerCompanyCode.text.trim()
-                                      //     );
-                                      //   }
-                                      // }
-                                    },
-                                  ),*/ /*
-                                ),*/
                               ],
                             ),
                           ),

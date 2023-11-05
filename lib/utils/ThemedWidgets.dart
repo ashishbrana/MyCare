@@ -17,6 +17,7 @@ class ThemedTextField extends StatefulWidget {
   bool isAcceptNumbersOnly = false;
   bool isPasswordTextField = false;
   Widget? preFix;
+  Widget? sufFix;
   void Function(String)? onChanged;
   void Function(String)? onFieldSubmitted;
   FocusNode? currentFocusNode;
@@ -46,6 +47,7 @@ class ThemedTextField extends StatefulWidget {
     this.isPasswordTextField = false,
     this.isAcceptNumbersOnly = false,
     this.preFix,
+    this.sufFix,
     this.currentFocusNode,
     this.nextFocusNode,
     this.previousFocusNode,
@@ -128,6 +130,11 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
                 height: 30, width: 30, child: Center(child: widget.preFix))
             : null,
         prefixIconColor: colorGreyDarkText,
+        suffixIcon: widget.sufFix != null
+            ? SizedBox(
+                height: 30, width: 30, child: Center(child: widget.sufFix))
+            : null,
+        suffixIconColor: colorGreyDarkText,
         // suffixIcon: widget.isPasswordTextField
         //     ? InkWell(
         //         onTap: () {
@@ -148,7 +155,6 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
         //         ),
         //       )
         //     : null,
-        suffixIconColor: colorGreyDarkText,
         border: OutlineInputBorder(
           borderSide: BorderSide(
             color: widget.borderColor ?? Colors.transparent,
@@ -308,7 +314,7 @@ class ThemedButton extends StatelessWidget {
     this.onTap,
     required this.title,
     this.isBordered = false,
-    this.backGround = colorOrange,
+    this.backGround = colorGreen,
     this.textColor = colorWhite,
     this.fontSize = 22,
     this.fontWeight = FontWeight.w600,

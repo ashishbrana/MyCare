@@ -28,7 +28,7 @@ List<BoxShadow> boxShadow = [
 
 const double spaceVertical = 15;
 const double spaceHorizontal = 10;
-const double radius = 6;
+const double radius = 8;
 
 BorderRadius boxBorderRadius = BorderRadius.circular(radius);
 double elevation = 2;

@@ -1,9 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:rcare_2/utils/ColorConstants.dart';
+import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
+import '../../utils/ConstantStrings.dart';
 import 'Tabs/ConfirmedTabScreen.dart';
+
+DateTime fromDate = DateTime.now();
+DateTime toDate = DateTime(
+    DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
+DateTime tempFromDate = DateTime.now();
+DateTime tempToDate = DateTime.now();
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,16 +25,279 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int bottomCurrentIndex = 0;
+  final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
+
+  final TextEditingController _controllerFromDate = TextEditingController();
+  final TextEditingController _controllerToDate = TextEditingController();
 
   List<Widget> body = [
+    ConfirmedTabScreen(),
+    ConfirmedTabScreen(),
+    ConfirmedTabScreen(),
+    ConfirmedTabScreen(),
     ConfirmedTabScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context,
-          isComeWithBackButton: false, isBackButtonEnable: false),
+      key: _keyScaffold,
+      appBar: AppBar(
+        title: ThemedTextField(
+          borderColor: colorPrimary,
+          preFix: const FaIcon(
+            FontAwesomeIcons.search,
+            color: Color(0XFFBBBECB),
+          ),
+          hintText: "Search...",
+        ),
+        actions: [
+          SizedBox(
+            height: 50,
+            child: MaterialButton(
+              color: colorGreen,
+              child: ThemedText(
+                text: "Note",
+                fontSize: 16,
+                color: colorWhite,
+              ),
+              onPressed: () {},
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            height: 50,
+            child: MaterialButton(
+              color: colorGreen,
+              child: ThemedText(
+                text: "Search",
+                fontSize: 16,
+                color: colorWhite,
+              ),
+              onPressed: () {},
+            ),
+          ),
+          const SizedBox(width: 10),
+          InkWell(
+            onTap: () {
+              if (_keyScaffold.currentState != null) {
+                _keyScaffold.currentState!.openEndDrawer();
+              }
+            },
+            child: Container(
+              height: 60,
+              width: 30,
+              decoration: const BoxDecoration(
+                color: colorPrimary,
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(30),
+                ),
+              ),
+              child: const Align(
+                alignment: Alignment.centerRight,
+                child: FaIcon(
+                  FontAwesomeIcons.list,
+                  color: colorWhite,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      onEndDrawerChanged: (isOpened) {
+        tempFromDate = fromDate;
+        tempToDate = toDate;
+        _controllerFromDate.text = DateFormat("dd-MM-yyyy").format(fromDate);
+        _controllerToDate.text = DateFormat("dd-MM-yyyy").format(toDate);
+        setState(() {});
+      },
+      endDrawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: 30),
+              Container(
+                decoration: BoxDecoration(
+                  color: colorWhite,
+                  borderRadius: boxBorderRadius,
+                ),
+                padding: const EdgeInsets.all(spaceHorizontal),
+                margin: const EdgeInsets.all(spaceHorizontal),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    ThemedTextField(
+                      controller: _controllerFromDate,
+                      borderColor: colorGreyBorderD3,
+                      preFix: const FaIcon(
+                        FontAwesomeIcons.calendar,
+                        color: colorGreen,
+                        size: 24,
+                      ),
+                      sufFix: InkWell(
+                        onTap: () {
+                          tempFromDate = DateTime(tempFromDate.year,
+                              tempFromDate.month, tempFromDate.day + 15);
+                          tempToDate = DateTime(tempFromDate.year,
+                              tempFromDate.month, tempFromDate.day + 15);
+                          _controllerFromDate.text =
+                              DateFormat("dd-MM-yyyy").format(tempFromDate);
+                          _controllerToDate.text =
+                              DateFormat("dd-MM-yyyy").format(tempToDate);
+                          setState(() {});
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: colorLiteGreen,
+                            borderRadius: boxBorderRadius,
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.plus,
+                            color: colorGreyText,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      isReadOnly: true,
+                      labelText: "From Date",
+                      onTap: () {
+                        showDatePicker(
+                          context: context,
+                          initialDate: tempFromDate,
+                          firstDate: DateTime(tempFromDate.year - 1),
+                          lastDate: DateTime(tempFromDate.year + 1),
+                        ).then((value) {
+                          if (value != null) {
+                            tempFromDate = value;
+                            _controllerFromDate.text =
+                                DateFormat("dd-MM-yyyy").format(tempFromDate);
+                            setState(() {});
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ThemedTextField(
+                      controller: _controllerToDate,
+                      borderColor: colorGreyBorderD3,
+                      preFix: const FaIcon(
+                        FontAwesomeIcons.calendar,
+                        color: colorGreen,
+                        size: 24,
+                      ),
+                      sufFix: InkWell(
+                        onTap: () {
+                          tempFromDate = DateTime(tempFromDate.year,
+                              tempFromDate.month, tempFromDate.day - 15);
+                          tempToDate = DateTime(tempFromDate.year,
+                              tempFromDate.month, tempFromDate.day + 15);
+                          _controllerFromDate.text =
+                              DateFormat("dd-MM-yyyy").format(tempFromDate);
+                          _controllerToDate.text =
+                              DateFormat("dd-MM-yyyy").format(tempToDate);
+                          setState(() {});
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: colorLiteGreen,
+                            borderRadius: boxBorderRadius,
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.plus,
+                            color: colorGreyText,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      isReadOnly: true,
+                      labelText: "To Date",
+                      onTap: () {
+                        showDatePicker(
+                          context: context,
+                          initialDate: tempToDate,
+                          firstDate: DateTime(tempToDate.year + 1),
+                          lastDate: DateTime(tempToDate.year - 1),
+                        ).then((value) {
+                          if (value != null) {
+                            tempToDate = value;
+                            _controllerToDate.text =
+                                DateFormat("dd-MM-yyyy").format(tempToDate);
+                            setState(() {});
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ThemedButton(
+                      title: "Apply",
+                      onTap: () {
+                        fromDate = tempFromDate;
+                        toDate = tempToDate;
+                        setState(() {});
+                        if (_keyScaffold.currentState != null) {
+                          _keyScaffold.currentState!.closeEndDrawer();
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ThemedButton(
+                      title: "Cancel",
+                      onTap: () {
+                        tempFromDate = fromDate;
+                        tempToDate = toDate;
+                        setState(() {});
+                        if (_keyScaffold.currentState != null) {
+                          _keyScaffold.currentState!.closeEndDrawer();
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Material(
+                      borderRadius: boxBorderRadius,
+                      color: colorGreen,
+                      elevation: 3,
+                      child: InkWell(
+                        onTap: () {},
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: boxBorderRadius,
+                            border: Border.all(color: colorGreen, width: 2),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FaIcon(
+                                FontAwesomeIcons.arrowLeft,
+                                color: colorWhite,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Sign Out",
+                                style: TextStyle(
+                                    color: colorWhite,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 22,
+                                    fontFamily: stringFontFamilyGibson),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       bottomNavigationBar: SizedBox(
         height: 70,
         child: Row(
@@ -89,7 +363,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: body[bottomCurrentIndex],
+      body: Column(
+        children: [
+          Expanded(child: body[bottomCurrentIndex]),
+        ],
+      ),
     );
   }
 

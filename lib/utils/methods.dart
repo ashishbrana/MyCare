@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 // import 'package:geolocator/geolocator.dart';
 // import 'package:platform_maps_flutter/platform_maps_flutter.dart';
 import 'dart:ui' as ui;
@@ -44,7 +45,7 @@ showSnackBarWithText(ScaffoldState? scaffoldState, String strText,
   }
 }
 
-Uri getUrl(String apiName, {var params}) {
+Uri getUrl(String apiName, {Map<String, dynamic>? params}) {
   var uri = Uri.https(baseUrl, nestedUrl + apiName, params);
   return uri;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rcare_2/utils/Preferences.dart';
 
 import 'HomeScreen/HomeScreen.dart';
 import 'Login/Login.dart';
@@ -16,10 +17,33 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
 
-    sendToHome();
+    // sendToHome();
+
+    getData();
+  }
+
+  getData() async {
+    if ((await Preferences().getPrefString(Preferences.prefAuthCode)).isNotEmpty) {
+      sendToHome();
+    } else {
+      sendToLogin();
+    }
   }
 
   sendToHome() {
+    Future.delayed(
+      const Duration(seconds: 3),
+      () {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(),
+            ));
+      },
+    );
+  }
+
+  sendToLogin() {
     Future.delayed(
       const Duration(seconds: 3),
       () {
@@ -36,7 +60,9 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(image: DecorationImage(image: AssetImage( "assets/images/login_back.png"))),
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("assets/images/login_back.png"))),
         width: MediaQuery.of(context).size.width,
         child: Container(),
       ),
