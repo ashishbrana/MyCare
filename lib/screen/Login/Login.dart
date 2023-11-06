@@ -154,8 +154,8 @@ class _LoginState extends State<Login> {
                                         ThemedTextField(
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerUsername,
-                                          hintText: "Username*",
-                                          labelText: "Username*",
+                                          hintText: "Username",
+                                          labelText: "Username",
                                           preFix: const FaIcon(
                                               FontAwesomeIcons.solidCircleUser,
                                               color: colorPrimary),
@@ -173,12 +173,13 @@ class _LoginState extends State<Login> {
                                         ThemedTextField(
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerPassword,
+
                                           hintText: "Password",
                                           labelText: "Password",
                                           preFix: const FaIcon(
                                               FontAwesomeIcons.lock,
                                               color: colorPrimary),
-                                          isPasswordTextField: true,
+                                          isPasswordTextField: false,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
@@ -240,17 +241,17 @@ class _LoginState extends State<Login> {
                                         ],
                                       ),
                                       onPressed: () {
-                                        if (_keyFormField.currentContext !=
-                                                null &&
-                                            _keyFormField.currentState!
-                                                .validate()) {
-                                          _loginApiCall(
-                                              _controllerUsername.text.trim(),
-                                              _controllerPassword.text.trim(),
-                                              _controllerCompanyCode.text
-                                                  .trim());
-                                        }
-                                        // sendToHome();
+                                        // if (_keyFormField.currentContext !=
+                                        //         null &&
+                                        //     _keyFormField.currentState!
+                                        //         .validate()) {
+                                        //   _loginApiCall(
+                                        //       _controllerUsername.text.trim(),
+                                        //       _controllerPassword.text.trim(),
+                                        //       _controllerCompanyCode.text
+                                        //           .trim());
+                                        // }
+                                        sendToHome();
                                       },
                                     ),
                                   ),
