@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:rcare_2/screen/HomeScreen/HomeScreen.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
 import 'package:rcare_2/utils/Preferences.dart';
 
@@ -16,6 +15,7 @@ import '../../utils/Constants.dart';
 import '../../utils/Images.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/methods.dart';
+import '../home/HomeScreen.dart';
 import 'model/LoginResponseModel.dart';
 
 class Login extends StatefulWidget {
@@ -175,11 +175,11 @@ class _LoginState extends State<Login> {
                                           controller: _controllerPassword,
 
                                           hintText: "Password",
-                                          labelText: "Password",
+
                                           preFix: const FaIcon(
                                               FontAwesomeIcons.lock,
                                               color: colorPrimary),
-                                          isPasswordTextField: false,
+                                          isPasswordTextField: true,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
