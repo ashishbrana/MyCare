@@ -42,11 +42,12 @@ class _LoginState extends State<Login> {
   final TextEditingController _controllerCompanyCode = TextEditingController();
   final TextEditingController forgotEmailController = TextEditingController();
 
-  _loginApiCall(String username, String password, String comapnyCode) {
+  _loginApiCall(String username, String password, String comapanyCode) {
+    closeKeyboard();
     var params = {
-      'username': "Clark",
-      'password': "Super@123",
-      'companycode': "mycare",
+      'username': username,
+      'password': password,
+      'companycode': comapanyCode,
     };
     isConnected().then((hasInternet) async {
       if (hasInternet) {
@@ -154,8 +155,9 @@ class _LoginState extends State<Login> {
                                         ThemedTextField(
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerUsername,
-                                          hintText: "Username",
+                                          // hintText: "Username",
                                           labelText: "Username",
+                                          labelFontWeight: FontWeight.w500,
                                           preFix: const FaIcon(
                                               FontAwesomeIcons.solidCircleUser,
                                               color: colorPrimary),
@@ -173,9 +175,9 @@ class _LoginState extends State<Login> {
                                         ThemedTextField(
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerPassword,
-
-                                          hintText: "Password",
-
+                                          // hintText: "Password",
+                                          labelText: "Password",
+                                          labelFontWeight: FontWeight.w500,
                                           preFix: const FaIcon(
                                               FontAwesomeIcons.lock,
                                               color: colorPrimary),
@@ -198,12 +200,13 @@ class _LoginState extends State<Login> {
                                         ThemedTextField(
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerCompanyCode,
-                                          hintText: "Company Code",
+                                          // hintText: "Company Code",
                                           labelText: "Company Code",
+                                          labelFontWeight: FontWeight.w500,
                                           preFix: const FaIcon(
                                               FontAwesomeIcons.key,
                                               color: colorPrimary),
-                                          isPasswordTextField: true,
+                                          isPasswordTextField: false,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
@@ -237,21 +240,23 @@ class _LoginState extends State<Login> {
                                           ThemedText(
                                             text: "Log In",
                                             color: colorWhite,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ],
                                       ),
                                       onPressed: () {
-                                        // if (_keyFormField.currentContext !=
-                                        //         null &&
-                                        //     _keyFormField.currentState!
-                                        //         .validate()) {
-                                        //   _loginApiCall(
-                                        //       _controllerUsername.text.trim(),
-                                        //       _controllerPassword.text.trim(),
-                                        //       _controllerCompanyCode.text
-                                        //           .trim());
-                                        // }
-                                        sendToHome();
+                                        if (_keyFormField.currentContext !=
+                                                null &&
+                                            _keyFormField.currentState!
+                                                .validate()) {
+                                          _loginApiCall(
+                                              _controllerUsername.text.trim(),
+                                              _controllerPassword.text.trim(),
+                                              _controllerCompanyCode.text
+                                                  .trim());
+                                        }
+                                        // sendToHome();
                                       },
                                     ),
                                   ),

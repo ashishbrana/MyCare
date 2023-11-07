@@ -1,15 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
+import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 
+import '../../Network/API.dart';
+import '../../Network/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Preferences.dart';
+import '../../utils/methods.dart';
 import 'Tabs/ConfirmedTabScreen.dart';
+import 'models/ConfirmedResponseModel.dart';
 
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime(
@@ -27,22 +34,98 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int bottomCurrentIndex = 0;
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
+  String userName = "";
+  List<TimeShiteResponseModel> dataList = [];
+  List<TimeShiteResponseModel> confirmedDataList = [];
+  List<TimeShiteResponseModel> unConfirmedDataList = [];
 
   final TextEditingController _controllerFromDate = TextEditingController();
   final TextEditingController _controllerToDate = TextEditingController();
 
-  List<Widget> body = [
-    ConfirmedTabScreen(),
-    ConfirmedTabScreen(),
-    ConfirmedTabScreen(),
-    ConfirmedTabScreen(),
-    ConfirmedTabScreen(),
-  ];
+  // late List<Widget> body;
+
+  @override
+  void initState() {
+    // body = [
+    //   ConfirmedTabScreen(dataList: confirmedDataList),
+    //   UnConfirmedTabScreen(dataList: unConfirmedDataList),
+    //   ConfirmedTabScreen(dataList: confirmedDataList),
+    //   ConfirmedTabScreen(dataList: confirmedDataList),
+    //   ConfirmedTabScreen(dataList: confirmedDataList),
+    // ];
+    super.initState();
+
+    getData(
+      fromDate: DateTime.now(),
+      toDate: DateTime(DateTime.now().year, DateTime.now().month + 1),
+    );
+  }
+
+  getData({required DateTime fromDate, required DateTime toDate}) async {
+    userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'accountType':
+          (await Preferences().getPrefInt(Preferences.prefAccountType))
+              .toString(),
+      'userid':
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
+      'todate': DateFormat("yyyy/MM/dd").format(toDate),
+    };
+    print("params : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endTimeSheets, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            print("jResponse $jResponse");
+            dataList = jResponse
+                .map((e) => TimeShiteResponseModel.fromJson(e))
+                .toList();
+            confirmedDataList =
+                dataList.where((element) => element.confirmCW == true).toList();
+            unConfirmedDataList = dataList
+                .where((element) => element.confirmCW == false)
+                .toList();
+
+            setState(() {});
+            print("models.length${dataList.length}");
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print(e);
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
 
   Logout() {
     Future.delayed(
       const Duration(seconds: 3),
-          () {
+      () {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -93,31 +176,29 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(width: 10),
           InkWell(
-            onTap: () {
+            onTap: () async {
               // if (_keyScaffold.currentState != null) {
               //
               // }
+              userName = await Preferences()
+                  .getPrefString(Preferences.prefUserFullName);
               _keyScaffold.currentState!.openEndDrawer();
             },
-
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: 60,
-                width: 30,
-                decoration: const BoxDecoration(
-                  color: colorPrimary,
-                  borderRadius: BorderRadius.horizontal(
-                    left: Radius.circular(30),
-                  ),
+            child: Container(
+              height: 50,
+              width: 30,
+              decoration: const BoxDecoration(
+                color: colorGreen,
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(25),
                 ),
-                child: const Align(
-                  alignment: Alignment.centerRight,
-                  child: FaIcon(
-                    FontAwesomeIcons.list,
-                    color: colorWhite,
-                    size: 20,
-                  ),
+              ),
+              child: const Align(
+                alignment: Alignment.centerRight,
+                child: FaIcon(
+                  FontAwesomeIcons.list,
+                  color: colorWhite,
+                  size: 20,
                 ),
               ),
             ),
@@ -129,6 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
         tempToDate = toDate;
         _controllerFromDate.text = DateFormat("dd-MM-yyyy").format(fromDate);
         _controllerToDate.text = DateFormat("dd-MM-yyyy").format(toDate);
+
         setState(() {});
       },
       endDrawer: SizedBox(
@@ -148,9 +230,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 30),
-                      ThemedText(text:'Kate Clark',color: colorBlack,fontSize: 20,fontWeight: FontWeight.bold,),
+                      ThemedText(
+                        text: 'Kate Clark',
+                        color: colorBlack,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                       const SizedBox(height: 30),
-
                       ThemedTextField(
                         controller: _controllerFromDate,
                         borderColor: colorGreyBorderD3,
@@ -271,6 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 if (_keyScaffold.currentState != null) {
                                   _keyScaffold.currentState!.closeEndDrawer();
                                 }
+                                getData(fromDate: fromDate, toDate: toDate);
                               },
                             ),
                           ),
@@ -404,10 +491,222 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          Expanded(child: body[bottomCurrentIndex]),
+          Expanded(
+            child: _buildList(list: getListAsPerIndex(bottomCurrentIndex)),
+          ),
         ],
       ),
     );
+  }
+
+  _buildList({required List<TimeShiteResponseModel> list}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: spaceHorizontal, vertical: spaceVertical),
+          child: ThemedText(
+            text:
+                "Confirmed : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: colorGreyText,
+          ),
+        ),
+        const Divider(
+          thickness: 1,
+          height: 1,
+          color: colorGreyBorderD3,
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            itemCount: list.length,
+            primary: true,
+            itemBuilder: (context, index) {
+              TimeShiteResponseModel model = list[index];
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
+                color: colorWhite,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 8,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: "${model.resName} ",
+                                        style: const TextStyle(
+                                          color: colorGreyText,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: model.serviceName,
+                                        style: const TextStyle(
+                                          color: colorGreyLiteText,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.person_crop_circle,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 1,
+                            color: colorGreyBorderD3,
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 30,
+                                height: 30,
+                                child: Icon(
+                                  Icons.arrow_downward_rounded,
+                                  color: colorGreen,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              FaIcon(
+                                FontAwesomeIcons.calendarDays,
+                                color: colorGreen,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "Mon, 16-10-2023",
+                                style: TextStyle(
+                                  color: colorGreyText,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Container(
+                                width: 1,
+                                height: 25,
+                                color: colorGreyBorderD3,
+                              ),
+                              const SizedBox(width: 5),
+                              Icon(
+                                CupertinoIcons.time,
+                                color: colorGreen,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "1hrs",
+                                style: TextStyle(
+                                  color: colorGreyText,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Container(
+                                width: 1,
+                                height: 25,
+                                color: colorGreyBorderD3,
+                              ),
+                              const SizedBox(width: 5),
+                              const Expanded(
+                                  child: Icon(
+                                Icons.timelapse_rounded,
+                                color: colorGreen,
+                              )),
+                              const SizedBox(width: 5),
+                              Container(
+                                width: 1,
+                                height: 30,
+                                color: colorGreyBorderD3,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 30,
+                                height: 30,
+                              ),
+                              const SizedBox(width: 5),
+                              Icon(
+                                Icons.timer,
+                                color: colorGreen,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "12:50:00 - 13:50:00",
+                                style: TextStyle(
+                                  color: colorGreyText,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Expanded(
+                      flex: 2,
+                      child: Align(
+                        child: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: colorGreen,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  getListAsPerIndex(int index) {
+    switch (index) {
+      case 0:
+        return dataList.where((element) => (element.completeCW == true)).toList();
+      case 1:
+        return dataList
+            .where((element) => (element.completeCW == false))
+            .toList();
+      case 2:
+        return dataList
+            .where((element) => (element.timesheetStatus == true))
+            .toList();
+      case 3:
+        return confirmedDataList;
+      // case 4 : return confirmedDataList;
+    }
   }
 
   _buildBottomNavBarItem(

@@ -16,21 +16,79 @@ import '../../../utils/methods.dart';
 import '../HomeScreen.dart';
 import '../models/ConfirmedResponseModel.dart';
 
-class ConfirmedTabScreen extends StatelessWidget {
+class UnConfirmedTabScreen extends StatelessWidget {
   List<TimeShiteResponseModel> dataList;
 
-  ConfirmedTabScreen({super.key, required this.dataList});
+  UnConfirmedTabScreen({super.key, required this.dataList});
 
 //   @override
-//   State<ConfirmedTabScreen> createState() => _ConfirmedTabScreenState();
+//   State<UnConfirmedTabScreen> createState() => _UnConfirmedTabScreenState();
 // }
 //
-// class _ConfirmedTabScreenState extends State<ConfirmedTabScreen> {
+// class _UnConfirmedTabScreenState extends State<UnConfirmedTabScreen> {
 //   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   // @override
   // void initState() {
   //   super.initState();
+  //   // getData(
+  //   //   fromDate: DateTime.now(),
+  //   //   toDate: DateTime(DateTime.now().year, DateTime.now().month + 1),
+  //   // );
+  // }
+
+  // getData({required DateTime fromDate, required DateTime toDate}) async {
+  //   Map<String, dynamic> params = {
+  //     'auth_code':
+  //         (await Preferences().getPrefString(Preferences.prefAuthCode)),
+  //     'accountType':
+  //         (await Preferences().getPrefInt(Preferences.prefAccountType))
+  //             .toString(),
+  //     'userid':
+  //         (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+  //     'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
+  //     'todate': DateFormat("yyyy/MM/dd").format(toDate),
+  //   };
+  //   print("params : ${params}");
+  //   isConnected().then((hasInternet) async {
+  //     if (hasInternet) {
+  //       HttpRequestModel request = HttpRequestModel(
+  //           url: getUrl(endTimeSheets, params: params).toString(),
+  //           authMethod: '',
+  //           body: '',
+  //           headerType: '',
+  //           params: '',
+  //           method: 'GET');
+  //       getOverlay(context);
+  //       try {
+  //         String response = await HttpService().init(request, _keyScaffold);
+  //         removeOverlay();
+  //         if (response != null && response != "") {
+  //           print('res ${response}');
+  //
+  //           List jResponse = json.decode(response);
+  //           print("jResponse $jResponse");
+  //           dataList = jResponse
+  //               .map((e) => TimeShiteResponseModel.fromJson(e))
+  //               .toList();
+  //           setState(() {});
+  //           print("models.length${dataList.length}");
+  //         } else {
+  //           showSnackBarWithText(
+  //               _keyScaffold.currentState, stringSomeThingWentWrong);
+  //         }
+  //         removeOverlay();
+  //       } catch (e) {
+  //         print(e);
+  //         removeOverlay();
+  //       } finally {
+  //         removeOverlay();
+  //         setState(() {});
+  //       }
+  //     } else {
+  //       showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+  //     }
+  //   });
   // }
 
   @override

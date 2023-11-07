@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rcare_2/screen/SplashScreen.dart';
+import 'package:rcare_2/utils/ColorConstants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,10 @@ class MyApp extends StatelessWidget {
       title: 'MyCare',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: colorPrimary),
+        datePickerTheme: DatePickerThemeData(
+          headerBackgroundColor: colorLiteGreen,
+        ),
         useMaterial3: true,
         fontFamily: "Roboto",
       ),

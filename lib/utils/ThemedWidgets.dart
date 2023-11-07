@@ -28,10 +28,15 @@ class ThemedTextField extends StatefulWidget {
   TextInputType keyBoardType;
   Color textColor;
   Color hintTextColor;
+  Color labelTextColor;
+  Color suffixIconColor;
+  Color preFixIconColor;
   double fontSized;
   double hintFontSized;
+  double labelFontSized;
   FontWeight fontWeight;
   FontWeight hintFontWeight;
+  FontWeight labelFontWeight;
   TextCapitalization? textCapitalization;
   String? Function(String?)? validator;
 
@@ -47,7 +52,9 @@ class ThemedTextField extends StatefulWidget {
     this.isPasswordTextField = false,
     this.isAcceptNumbersOnly = false,
     this.preFix,
+    this.preFixIconColor = colorPrimary,
     this.sufFix,
+    this.suffixIconColor = colorPrimary,
     this.currentFocusNode,
     this.nextFocusNode,
     this.previousFocusNode,
@@ -60,6 +67,9 @@ class ThemedTextField extends StatefulWidget {
     this.fontSized = 16,
     this.hintFontSized = 16,
     this.fontWeight = FontWeight.normal,
+    this.labelFontSized = 16,
+    this.labelTextColor = colorPrimary,
+    this.labelFontWeight = FontWeight.normal,
     this.hintFontWeight = FontWeight.normal,
     this.validator,
   });
@@ -120,7 +130,14 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
           color: widget.hintTextColor,
           // fontFamily: stringFontFamilyGibson,
         ),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
+        labelStyle: TextStyle(
+          fontWeight: widget.labelFontWeight,
+          fontSize: widget.labelFontSized,
+          color: widget.labelTextColor,
+          // fontFamily: stringFontFamilyGibson,
+        ),
         contentPadding: const EdgeInsets.symmetric(
             horizontal: spaceHorizontal * 1.2, vertical: spaceVertical),
         filled: widget.backgroundColor != null ? true : false,
@@ -129,32 +146,31 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
             ? SizedBox(
                 height: 30, width: 30, child: Center(child: widget.preFix))
             : null,
-        prefixIconColor: colorGreyDarkText,
-        suffixIcon: widget.sufFix != null
-            ? SizedBox(
-                height: 30, width: 30, child: Center(child: widget.sufFix))
-            : null,
-        suffixIconColor: colorGreyDarkText,
-        // suffixIcon: widget.isPasswordTextField
-        //     ? InkWell(
-        //         onTap: () {
-        //           setState(() {
-        //             isShowPassWord = !isShowPassWord;
-        //           });
-        //         },
-        //         child: SizedBox(
-        //           height: 30,
-        //           width: 30,
-        //           child: Center(
-        //             child: Icon(
-        //               isShowPassWord
-        //                   ? CupertinoIcons.eye_solid
-        //                   : CupertinoIcons.eye_slash_fill,
-        //             ),
-        //           ),
-        //         ),
-        //       )
-        //     : null,
+        prefixIconColor: widget.preFixIconColor,
+        suffixIconColor: widget.suffixIconColor,
+        suffixIcon: widget.isPasswordTextField
+            ? InkWell(
+                onTap: () {
+                  setState(() {
+                    isShowPassWord = !isShowPassWord;
+                  });
+                },
+                child: SizedBox(
+                  height: 30,
+                  width: 30,
+                  child: Center(
+                    child: Icon(
+                      isShowPassWord
+                          ? CupertinoIcons.eye_solid
+                          : CupertinoIcons.eye_slash_fill,
+                    ),
+                  ),
+                ),
+              )
+            : widget.sufFix != null
+                ? SizedBox(
+                    height: 30, width: 30, child: Center(child: widget.sufFix))
+                : null,
         border: OutlineInputBorder(
           borderSide: BorderSide(
             color: widget.borderColor ?? Colors.transparent,

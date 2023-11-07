@@ -1,4 +1,4 @@
-class ConfirmedResponseModel {
+class TimeShiteResponseModel {
   int? rosterID;
   int? clientID;
   int? rESID;
@@ -64,7 +64,7 @@ class ConfirmedResponseModel {
   int? tsservicetype;
   int? dsnId;
 
-  ConfirmedResponseModel(
+  TimeShiteResponseModel(
       {this.rosterID,
       this.clientID,
       this.rESID,
@@ -130,7 +130,7 @@ class ConfirmedResponseModel {
       this.tsservicetype,
       this.dsnId});
 
-  ConfirmedResponseModel.fromJson(Map<String, dynamic> json) {
+  TimeShiteResponseModel.fromJson(Map<String, dynamic> json) {
     rosterID = json['RosterID'];
     clientID = json['ClientID'];
     rESID = json['RESID'];
