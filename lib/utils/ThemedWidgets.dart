@@ -88,6 +88,7 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
       readOnly: widget.isReadOnly,
       onTap: widget.onTap,
       focusNode: widget.currentFocusNode,
+
       textCapitalization: widget.textCapitalization ?? TextCapitalization.none,
       inputFormatters: [
         if (widget.isAcceptNumbersOnly)
@@ -97,7 +98,7 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
         fontWeight: widget.fontWeight,
         fontSize: widget.fontSized,
         color: widget.textColor,
-        // fontFamily: stringFontFamilyGibson
+        fontFamily: stringFontFamily
       ),
       validator: widget.validator,
       keyboardType: widget.isAcceptNumbersOnly

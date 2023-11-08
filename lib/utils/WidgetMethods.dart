@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:rcare_2/utils/ThemedWidgets.dart';
 
 import 'ColorConstants.dart';
 import 'Constants.dart';
@@ -72,17 +73,22 @@ Widget buildHorizontalDivider(double height) {
 }
 
 PreferredSizeWidget buildAppBar(BuildContext context,
-    {bool isComeWithBackButton = true, bool isBackButtonEnable = true}) {
+    {required String title,
+    bool isComeWithBackButton = true,
+    bool isBackButtonEnable = true}) {
   return AppBar(
     toolbarHeight: 80,
-    backgroundColor: colorWhite,
-    foregroundColor: colorBlue,
+    backgroundColor: colorGreen,
+    foregroundColor: colorWhite,
     elevation: 0,
     centerTitle: false,
     titleSpacing: isComeWithBackButton ? 0 : null,
     leading: isComeWithBackButton
         ? IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: colorWhite,
+            ),
             onPressed: () {
               if (isBackButtonEnable) {
                 Navigator.pop(context);
@@ -90,7 +96,12 @@ PreferredSizeWidget buildAppBar(BuildContext context,
             },
           )
         : null,
-    title: Text("Master"),
+    title: ThemedText(
+      text: title,
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+      color: colorWhite,
+    ),
     iconTheme: const IconThemeData(
       size: 30,
       color: colorBlue,

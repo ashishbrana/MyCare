@@ -4,7 +4,7 @@
 
     <application
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="rcare_2">
         <activity
             android:name=".MainActivity"

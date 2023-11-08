@@ -39,6 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<TimeShiteResponseModel> dataList = [];
   List<TimeShiteResponseModel> confirmedDataList = [];
   List<TimeShiteResponseModel> unConfirmedDataList = [];
+  List<TimeShiteResponseModel> timeSheetDataList = [];
+  List<TimeShiteResponseModel> avaliableDataList = [];
 
   final TextEditingController _controllerFromDate = TextEditingController();
   final TextEditingController _controllerToDate = TextEditingController();
@@ -98,11 +100,60 @@ class _HomeScreenState extends State<HomeScreen> {
                 .map((e) => TimeShiteResponseModel.fromJson(e))
                 .toList();
             print("models.length : ${dataList.length}");
-            confirmedDataList =
-                dataList.where((element) => element.confirmCW == true).toList();
-            unConfirmedDataList = dataList
-                .where((element) => element.confirmCW == false)
-                .toList();
+            confirmedDataList.clear();
+            unConfirmedDataList.clear();
+            timeSheetDataList.clear();
+            avaliableDataList.clear();
+            int accType =
+                await Preferences().getPrefInt(Preferences.prefAccountType);
+            for (TimeShiteResponseModel model in dataList) {
+              if (accType == 2 ||
+                  accType == 4 ||
+                  accType == 5 ||
+                  accType == 6) {
+                if (model.confirmCW == true &&
+                    model.empID != 0 &&
+                    model.tSConfirm == false) {
+                  // type = "confirmed";
+                  confirmedDataList.add(model);
+                } else if (model.empID != 0 && model.timesheetStatus == true) {
+                  // type = "timesheets";
+                  timeSheetDataList.add(model);
+                }
+                // else if (model.status1 == 5 && model.EmpID != 0) {
+                else if ((model.status1 == 5 || model.confirmCW == false) &&
+                    model.empID != 0) {
+                  // type = "unconfirmed";
+                  unConfirmedDataList.add(model);
+                } else if ((model.status1 == 4 || model.status1 == 0) &&
+                    model.empID == 0) {
+                  // type = "available";
+                  avaliableDataList.add(model);
+                }
+              } else if (accType == 3) {
+                if (model.confirmCW == true &&
+                    model.empID != 0 &&
+                    model.tSConfirm == false) {
+                  // type = "confirmed";
+                  confirmedDataList.add(model);
+                } else if (model.empID != 0 && model.timesheetStatus == true) {
+                  // type = "timesheets";
+                  timeSheetDataList.add(model);
+                } else if (model.status1 == 5 ||
+                    model.status1 == 4 ||
+                    model.status1 == 0) {
+                  // type = "unconfirmed";
+                  unConfirmedDataList.add(model);
+                } else if (model.status1 == 4 && model.empID == 0) {
+                  // type = "available";
+                  avaliableDataList.add(model);
+                }
+              }
+            }
+            // confirmedDataList = dataList.where((element) => element.confirmCW == true).toList();
+            // unConfirmedDataList = dataList
+            //     .where((element) => element.confirmCW == false)
+            //     .toList();
 
             setState(() {});
           } else {
@@ -123,17 +174,16 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Logout() {
-    Future.delayed(
-      const Duration(seconds: 3),
-      () {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Login(),
-            ));
-      },
-    );
+  logout() async {
+    await Preferences().setPrefString(Preferences.prefAuthCode, "");
+    await Preferences().setPrefInt(Preferences.prefAccountType, 0);
+    await Preferences().setPrefInt(Preferences.prefUserID, 0);
+    await Preferences().setPrefString(Preferences.prefUserFullName, "");
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Login(),
+        ));
   }
 
   @override
@@ -141,17 +191,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       key: _keyScaffold,
       appBar: AppBar(
-        title: ThemedTextField(
-          borderColor: colorPrimary,
-          preFix: const FaIcon(
-            FontAwesomeIcons.search,
-            color: Color(0XFFBBBECB),
+        title: SizedBox(
+          height: 40,
+          child: ThemedTextField(
+            borderColor: colorPrimary,
+            preFix: const FaIcon(
+              FontAwesomeIcons.search,
+              color: Color(0XFFBBBECB),
+              size: 20,
+            ),
+            hintText: "Search...",
           ),
-          hintText: "Search...",
         ),
+        titleSpacing: spaceHorizontal / 2,
         actions: [
           SizedBox(
-            height: 50,
+            height: 40,
             child: MaterialButton(
               color: colorGreen,
               child: ThemedText(
@@ -162,9 +217,9 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {},
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: spaceHorizontal / 2),
           SizedBox(
-            height: 50,
+            height: 40,
             child: MaterialButton(
               color: colorGreen,
               child: ThemedText(
@@ -175,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {},
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: spaceHorizontal / 2),
           InkWell(
             onTap: () async {
               userName = await Preferences()
@@ -345,37 +400,44 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       const SizedBox(height: 40),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ThemedButton(
-                              title: "Apply",
-                              onTap: () {
-                                fromDate = tempFromDate;
-                                toDate = tempToDate;
-                                setState(() {});
-                                if (_keyScaffold.currentState != null) {
-                                  _keyScaffold.currentState!.closeEndDrawer();
-                                }
-                                getData(fromDate: fromDate, toDate: toDate);
-                              },
+                      SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ThemedButton(
+                                title: "Apply",
+                                fontSize: 20,
+                                padding: EdgeInsets.zero,
+                                onTap: () {
+                                  fromDate = tempFromDate;
+                                  toDate = tempToDate;
+                                  setState(() {});
+                                  if (_keyScaffold.currentState != null) {
+                                    _keyScaffold.currentState!.closeEndDrawer();
+                                  }
+                                  getData(fromDate: fromDate, toDate: toDate);
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ThemedButton(
-                              title: "Cancel",
-                              onTap: () {
-                                tempFromDate = fromDate;
-                                tempToDate = toDate;
-                                setState(() {});
-                                if (_keyScaffold.currentState != null) {
-                                  _keyScaffold.currentState!.closeEndDrawer();
-                                }
-                              },
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ThemedButton(
+                                title: "Cancel",
+                                fontSize: 20,
+                                padding: EdgeInsets.zero,
+                                onTap: () {
+                                  tempFromDate = fromDate;
+                                  tempToDate = toDate;
+                                  setState(() {});
+                                  if (_keyScaffold.currentState != null) {
+                                    _keyScaffold.currentState!.closeEndDrawer();
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Material(
@@ -384,12 +446,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         elevation: 3,
                         child: InkWell(
                           onTap: () {
-                            Logout();
+                            logout();
                           },
                           child: Container(
+                            height: 50,
                             width: MediaQuery.of(context).size.width,
                             alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: EdgeInsets.zero,
                             decoration: BoxDecoration(
                               color: Colors.transparent,
                               borderRadius: boxBorderRadius,
@@ -408,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextStyle(
                                       color: colorWhite,
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 22,
+                                      fontSize: 20,
                                       fontFamily: stringFontFamilyGibson),
                                 ),
                               ],
@@ -434,6 +497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   icons: const Icon(
                     Icons.check_circle_outline_rounded,
                     color: Colors.white,
+                    size: 30,
                   ),
                   label: "CONFIRMED"),
             ),
@@ -441,19 +505,19 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildBottomNavBarItem(
                   index: 1,
                   icons: Container(
-                    width: 20,
-                    height: 20,
+                    width: 27,
+                    height: 27,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white,
+                        color: colorWhite,
                         width: 2,
                       ),
                     ),
                     child: const Icon(
                       Icons.close_rounded,
-                      color: Colors.white,
-                      size: 16,
+                      color: colorWhite,
+                      size: 20,
                     ),
                   ),
                   label: "unCONFIRMED"),
@@ -463,7 +527,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 index: 2,
                 icons: const Icon(
                   Icons.access_time_rounded,
-                  color: Colors.white,
+                  color: colorWhite,
+                  size: 30,
                 ),
                 label: "timesheet",
               ),
@@ -473,7 +538,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   index: 3,
                   icons: const Icon(
                     Icons.add_circle_outline_rounded,
-                    color: Colors.white,
+                    color: colorWhite,
+                    size: 30,
                   ),
                   label: "available"),
             ),
@@ -482,7 +548,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   index: 4,
                   icons: const Icon(
                     CupertinoIcons.person_alt_circle,
-                    color: Colors.white,
+                    color: colorWhite,
+                    size: 30,
                   ),
                   label: "profile"),
             ),
@@ -492,7 +559,10 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Expanded(
-            child: getListAsPerIndex(bottomCurrentIndex),
+            child: Container(
+              color: colorLiteBlueBackGround,
+              child: getListAsPerIndex(bottomCurrentIndex),
+            ),
           ),
         ],
       ),
@@ -691,27 +761,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  getListAsPerIndex(int index) {
+  Widget getListAsPerIndex(int index) {
     switch (index) {
-      case 0:
-        return _buildList(
-            list: dataList
-                .where((element) => (element.completeCW == true))
-                .toList());
+      // case 0:
+      //   return _buildList(list: confirmedDataList);
       case 1:
-        return _buildList(
-            list: dataList
-                .where((element) => (element.completeCW == false))
-                .toList());
+        return _buildList(list: unConfirmedDataList);
       case 2:
-        return _buildList(list: dataList);
+        return _buildList(list: timeSheetDataList);
       case 3:
-        return _buildList(
-            list: dataList
-                .where((element) => (element.completeCW == true))
-                .toList());
-      // case 4:
-      //   return const ProfileTabScreen();
+        return _buildList(list: avaliableDataList);
+      default:
+        return _buildList(list: confirmedDataList);
     }
   }
 
@@ -732,7 +793,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       },
       child: Container(
-        color: bottomCurrentIndex == index ? Colors.blue.shade600 : Colors.blue,
+        color: bottomCurrentIndex == index ? colorPrimary : colorLiteBlue,
         padding: const EdgeInsets.symmetric(horizontal: 2.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -747,7 +808,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(1),
                     decoration: BoxDecoration(
-                      color: Colors.redAccent,
+                      color: colorWhite,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     constraints: const BoxConstraints(
@@ -757,19 +818,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: const Text(
                       "10",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
+                        color: colorPrimary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 )
               ],
             ),
+            const SizedBox(height: spaceVertical / 2),
             ThemedText(
               text: label.toUpperCase(),
               color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.w300,
+              fontSize: 8,
+              fontWeight: FontWeight.w500,
               maxLine: 1,
             )
           ],

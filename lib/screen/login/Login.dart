@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:rcare_2/screen/login/ForgotPassword.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
 import 'package:rcare_2/utils/Preferences.dart';
 
@@ -276,6 +277,11 @@ class _LoginState extends State<Login> {
                         GestureDetector(
                           onTap: () {
                             // _buildForgotPassWordDialog();
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ForgotPassword(),
+                                ));
                           },
                           child: const Text(
                             'FORGOT YOUR PASSWORD ?',
@@ -304,15 +310,10 @@ class _LoginState extends State<Login> {
   }
 
   sendToHome() {
-    Future.delayed(
-      const Duration(seconds: 3),
-      () {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeScreen(),
-            ));
-      },
-    );
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(),
+        ));
   }
 }
