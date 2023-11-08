@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
+import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
 import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
@@ -96,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             dataList = jResponse
                 .map((e) => TimeShiteResponseModel.fromJson(e))
                 .toList();
+            print("models.length : ${dataList.length}");
             confirmedDataList =
                 dataList.where((element) => element.confirmCW == true).toList();
             unConfirmedDataList = dataList
@@ -103,14 +105,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 .toList();
 
             setState(() {});
-            print("models.length${dataList.length}");
           } else {
             showSnackBarWithText(
                 _keyScaffold.currentState, stringSomeThingWentWrong);
           }
           removeOverlay();
         } catch (e) {
-          print(e);
+          print("ERROR : $e");
           removeOverlay();
         } finally {
           removeOverlay();
@@ -177,12 +178,11 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 10),
           InkWell(
             onTap: () async {
-              // if (_keyScaffold.currentState != null) {
-              //
-              // }
               userName = await Preferences()
                   .getPrefString(Preferences.prefUserFullName);
-              _keyScaffold.currentState!.openEndDrawer();
+              if (_keyScaffold.currentState != null) {
+                _keyScaffold.currentState!.openEndDrawer();
+              }
             },
             child: Container(
               height: 50,
@@ -332,8 +332,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           showDatePicker(
                             context: context,
                             initialDate: tempToDate,
-                            firstDate: DateTime(tempToDate.year + 1),
-                            lastDate: DateTime(tempToDate.year - 1),
+                            firstDate: DateTime(tempToDate.year - 1),
+                            lastDate: DateTime(tempToDate.year + 1),
                           ).then((value) {
                             if (value != null) {
                               tempToDate = value;
@@ -492,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Expanded(
-            child: _buildList(list: getListAsPerIndex(bottomCurrentIndex)),
+            child: getListAsPerIndex(bottomCurrentIndex),
           ),
         ],
       ),
@@ -694,18 +694,24 @@ class _HomeScreenState extends State<HomeScreen> {
   getListAsPerIndex(int index) {
     switch (index) {
       case 0:
-        return dataList.where((element) => (element.completeCW == true)).toList();
+        return _buildList(
+            list: dataList
+                .where((element) => (element.completeCW == true))
+                .toList());
       case 1:
-        return dataList
-            .where((element) => (element.completeCW == false))
-            .toList();
+        return _buildList(
+            list: dataList
+                .where((element) => (element.completeCW == false))
+                .toList());
       case 2:
-        return dataList
-            .where((element) => (element.timesheetStatus == true))
-            .toList();
+        return _buildList(list: dataList);
       case 3:
-        return confirmedDataList;
-      // case 4 : return confirmedDataList;
+        return _buildList(
+            list: dataList
+                .where((element) => (element.completeCW == true))
+                .toList());
+      // case 4:
+      //   return const ProfileTabScreen();
     }
   }
 
@@ -714,7 +720,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return InkWell(
       onTap: () {
         setState(() {
-          bottomCurrentIndex = index;
+          if (index < 4) {
+            bottomCurrentIndex = index;
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileTabScreen(),
+                ));
+          }
         });
       },
       child: Container(

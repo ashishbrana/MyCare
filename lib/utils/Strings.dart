@@ -1,1 +1,1 @@
-const String stringFontFamilyGibson = "Poppins";
+const String stringFontFamily = "Poppins";

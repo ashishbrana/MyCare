@@ -17,7 +17,7 @@ Widget buildHeaderWithBlueBack(BuildContext context, String title) {
         color: colorWhite,
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        fontFamily: stringFontFamilyGibson,
+        fontFamily: stringFontFamily,
       ),
     ),
   );
@@ -36,7 +36,7 @@ Widget buildTabBar(
     labelStyle: const TextStyle(
       fontWeight: FontWeight.w600,
       fontSize: 20,
-      fontFamily: stringFontFamilyGibson,
+      fontFamily: stringFontFamily,
     ),
     unselectedLabelColor: colorBlue,
     labelColor: colorBlue,

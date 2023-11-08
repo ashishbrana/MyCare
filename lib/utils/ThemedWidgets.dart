@@ -265,7 +265,7 @@ class ThemedDropDown extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
                   color: colorGreyDarkText,
-                  fontFamily: stringFontFamilyGibson,
+                  fontFamily: stringFontFamily,
                   overflow: TextOverflow.ellipsis,
                 ),
                 borderRadius: boxBorderRadius,
@@ -279,7 +279,7 @@ class ThemedDropDown extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 16,
-                    fontFamily: stringFontFamilyGibson,
+                    fontFamily: stringFontFamily,
                     color: colorGreyDarkText,
                   ),
                 ),
@@ -293,7 +293,7 @@ class ThemedDropDown extends StatelessWidget {
                             color: colorGreyDarkText,
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
-                            fontFamily: stringFontFamilyGibson,
+                            fontFamily: stringFontFamily,
                           ),
                         ),
                       ),
@@ -363,7 +363,7 @@ class ThemedButton extends StatelessWidget {
                 color: textColor,
                 fontWeight: fontWeight,
                 fontSize: fontSize,
-                fontFamily: stringFontFamilyGibson),
+                fontFamily: stringFontFamily),
           ),
         ),
       ),
@@ -396,7 +396,7 @@ class _ThemedSearchBarState extends State<ThemedSearchBar> {
           color: colorGreyDarkText,
           fontWeight: FontWeight.w400,
           fontSize: 14,
-          fontFamily: stringFontFamilyGibson),
+          fontFamily: stringFontFamily),
       onChanged: (value) {
         if (widget.onChanged != null) {
           widget.onChanged!(value);
@@ -408,7 +408,7 @@ class _ThemedSearchBarState extends State<ThemedSearchBar> {
           color: colorGreyExtraLightBackGround,
           fontWeight: FontWeight.w400,
           fontSize: 14,
-          fontFamily: stringFontFamilyGibson,
+          fontFamily: stringFontFamily,
         ),
         prefixIcon: const Icon(
           Icons.search_rounded,
@@ -470,6 +470,47 @@ class _ThemedSearchBarState extends State<ThemedSearchBar> {
   }
 }
 
+class ThemedRichText extends StatelessWidget {
+  List<InlineSpan> spanList = [];
+
+  ThemedRichText({
+    super.key,
+    required this.spanList,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+          color: colorGreyDarkText,
+          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          fontFamily: stringFontFamily,
+        ),
+        children: spanList,
+      ),
+    );
+  }
+}
+
+getTextSpan({
+  required String text,
+  Color fontColor = colorGreyDarkText,
+  FontWeight fontWeight = FontWeight.w400,
+  double fontSize = 14,
+}) {
+  return TextSpan(
+    text: text,
+    style: TextStyle(
+      color: fontColor,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontFamily: stringFontFamily,
+    ),
+  );
+}
+
 //ignore: must_be_immutable
 class ThemedText extends StatelessWidget {
   final String text;
@@ -505,7 +546,7 @@ class ThemedText extends StatelessWidget {
             color: color,
             fontWeight: fontWeight,
             fontSize: fontSize,
-            fontFamily: stringFontFamilyGibson,
+            fontFamily: stringFontFamily,
             decoration: makeUnderline ? TextDecoration.underline : null,
           ),
     );
