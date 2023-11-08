@@ -166,7 +166,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(ChangePassword, params: params).toString(),
+            url: getUrl(changePass, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',

@@ -29,30 +29,19 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getProfileApiCall();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context, title: "Profile"),
       body: SafeArea(
         child: Column(
           children: [
-            /*Material(
-              elevation: 3,
-              color: colorWhite,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: spaceVertical),
-                    ThemedText(text: "Care Worker Profile Page"),
-                    const SizedBox(height: spaceVertical),
 
-                    const SizedBox(height: spaceVertical),
-                  ],
-                ),
-              ),
-            ),*/
             Expanded(
               child: Container(
                 color: colorLiteBlueBackGround,
@@ -336,14 +325,15 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
 
-  _getProfileApiCall(String userId, String userTye, String password) async {
+  _getProfileApiCall() async {
+    // String acctype=""+ await Preferences().getPrefString(Preferences.prefAccountType);
     var params = {
       'auth_code':
       (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'accountType':
-      (await Preferences().getPrefString(Preferences.prefAccountType)),
+      (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
       'userid':
-      (await Preferences().getPrefString(Preferences.prefUserID)),
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
 
     };
     isConnected().then((hasInternet) async {
