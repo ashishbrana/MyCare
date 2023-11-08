@@ -4,6 +4,8 @@ String nestedUrl = 'MobileAPI/v1.asmx/';
 
 const String endLogin = 'Login';
 const String endTimeSheets = 'timesheets';
-const String ChangePassword = 'ChangeEmployeePassword';
+const String changePass = 'ChangeEmployeePassword';
+
+const String clientProfile = 'ClientProfile';
 
 

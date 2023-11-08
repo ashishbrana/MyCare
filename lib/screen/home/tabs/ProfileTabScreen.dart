@@ -1,9 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/login/ChangePassword.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
+
+import '../../../Network/API.dart';
+import '../../../utils/ConstantStrings.dart';
+import '../../../utils/Preferences.dart';
+import '../../../utils/methods.dart';
 
 class ProfileTabScreen extends StatefulWidget {
   const ProfileTabScreen({super.key});
@@ -13,7 +21,12 @@ class ProfileTabScreen extends StatefulWidget {
 }
 
 class _ProfileTabScreenState extends State<ProfileTabScreen> {
+  final GlobalKey<FormState> _keyFormField = GlobalKey<FormState>();
 
+  ///  * [_keyForgotFormField], key of form of forgot dialog form.
+  final GlobalKey<FormState> _keyForgotFormField = GlobalKey<FormState>();
+
+  final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -320,5 +333,58 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         ),
       ),
     );
+  }
+
+
+  _getProfileApiCall(String userId, String userTye, String password) async {
+    var params = {
+      'auth_code':
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'accountType':
+      (await Preferences().getPrefString(Preferences.prefAccountType)),
+      'userid':
+      (await Preferences().getPrefString(Preferences.prefUserID)),
+
+    };
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(clientProfile, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          if (response != null && response != "") {
+            print('res ${response}');
+
+            final jResponse = json.decode(response);
+            // LoginResponseModel responseModel =
+            // LoginResponseModel.fromJson(jResponse);
+            // print('res ${jResponse['status']}');
+            // if (responseModel.status == 1) {
+            //   print('res success');
+            //
+            // } else {
+            //   showSnackBarWithText(
+            //       _keyScaffold.currentState, jResponse['Message']);
+            // }
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          removeOverlay();
+        } finally {
+          removeOverlay();
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
   }
 }
