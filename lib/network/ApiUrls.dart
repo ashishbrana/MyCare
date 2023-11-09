@@ -6,6 +6,7 @@ const String endLogin = 'Login';
 const String endTimeSheets = 'timesheets';
 const String changePass = 'ChangeEmployeePassword';
 
-const String clientProfile = 'EmployeeProfile';
+const String endEmployeeProfile = 'EmployeeProfile';
+const String endClientProfile = 'ClientProfile';
 
 

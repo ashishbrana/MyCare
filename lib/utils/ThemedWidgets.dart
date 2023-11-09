@@ -39,6 +39,8 @@ class ThemedTextField extends StatefulWidget {
   FontWeight labelFontWeight;
   TextCapitalization? textCapitalization;
   String? Function(String?)? validator;
+  int minLine = 1;
+  int maxLine = 1;
 
   ThemedTextField({
     super.key,
@@ -72,6 +74,8 @@ class ThemedTextField extends StatefulWidget {
     this.labelFontWeight = FontWeight.normal,
     this.hintFontWeight = FontWeight.normal,
     this.validator,
+    this.minLine = 1,
+    this.maxLine = 1,
   });
 
   @override
@@ -88,18 +92,18 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
       readOnly: widget.isReadOnly,
       onTap: widget.onTap,
       focusNode: widget.currentFocusNode,
-
+      minLines: widget.minLine,
+      maxLines: widget.maxLine,
       textCapitalization: widget.textCapitalization ?? TextCapitalization.none,
       inputFormatters: [
         if (widget.isAcceptNumbersOnly)
           FilteringTextInputFormatter.allow(RegExp('[0-9]')),
       ],
       style: TextStyle(
-        fontWeight: widget.fontWeight,
-        fontSize: widget.fontSized,
-        color: widget.textColor,
-        fontFamily: stringFontFamily
-      ),
+          fontWeight: widget.fontWeight,
+          fontSize: widget.fontSized,
+          color: widget.textColor,
+          fontFamily: stringFontFamily),
       validator: widget.validator,
       keyboardType: widget.isAcceptNumbersOnly
           ? TextInputType.number

@@ -361,12 +361,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
       (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
       'userid':
       (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
-
     };
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(clientProfile, params: params).toString(),
+            url: getUrl(endEmployeeProfile, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',

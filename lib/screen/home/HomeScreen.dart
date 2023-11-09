@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
+import 'package:rcare_2/screen/home/ClientDocument.dart';
+import 'package:rcare_2/screen/home/ClientInfo.dart';
 import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
 import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../Network/API.dart';
 import '../../Network/ApiUrls.dart';
@@ -34,6 +37,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int bottomCurrentIndex = 0;
+  int selectedExpandedIndex = -1;
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
   String userName = "";
   List<TimeShiteResponseModel> dataList = [];
@@ -578,7 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
               horizontal: spaceHorizontal, vertical: spaceVertical),
           child: ThemedText(
             text:
-                "Confirmed : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+                "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex == 2 ? "TimeSheet" : bottomCurrentIndex == 3 ? "Available" : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
             fontSize: 18,
             fontWeight: FontWeight.w500,
             color: colorGreyText,
@@ -601,153 +605,342 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
                 color: colorWhite,
-                child: Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      flex: 8,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 8,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "${model.resName} ",
-                                        style: const TextStyle(
-                                          color: colorGreyText,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 18,
-                                        ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "${model.resName} ",
+                                            style: const TextStyle(
+                                              color: colorGreyText,
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: model.serviceName,
+                                            style: const TextStyle(
+                                              color: colorGreyLiteText,
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      TextSpan(
-                                        text: model.serviceName,
-                                        style: const TextStyle(
-                                          color: colorGreyLiteText,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(
+                                      CupertinoIcons.person_crop_circle,
+                                      color: Colors.white,
+                                      size: 26,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              const SizedBox(height: 8),
                               Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.person_crop_circle,
-                                  color: Colors.white,
-                                ),
+                                width: MediaQuery.of(context).size.width,
+                                height: 1,
+                                color: colorGreyBorderD3,
+                              ),
+                              Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        selectedExpandedIndex = index;
+                                      });
+                                    },
+                                    child: SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: Icon(
+                                        Icons.arrow_downward_rounded,
+                                        color: colorGreen,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  FaIcon(
+                                    FontAwesomeIcons.calendarDays,
+                                    color: colorGreen,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    // model.serviceDate!,
+                                    model.serviceDate != null
+                                        ? DateFormat("EEE,dd-MM-yyyy").format(
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                                    int.parse(model.serviceDate!
+                                                        .replaceAll(
+                                                            "/Date(", "")
+                                                        .replaceAll(")/", "")),
+                                                    isUtc: false)
+                                                .add(
+                                              Duration(hours: 5, minutes: 30),
+                                            ),
+                                          )
+                                        : "",
+                                    style: TextStyle(
+                                      color: colorGreyText,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Container(
+                                    width: 1,
+                                    height: 25,
+                                    color: colorGreyBorderD3,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Icon(
+                                    CupertinoIcons.time,
+                                    color: colorGreen,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    "${model.totalHours}hrs",
+                                    style: const TextStyle(
+                                      color: colorGreyText,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Container(
+                                    width: 1,
+                                    height: 25,
+                                    color: colorGreyBorderD3,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  const Expanded(
+                                      child: Icon(
+                                    Icons.timelapse_rounded,
+                                    color: colorGreen,
+                                    size: 26,
+                                  )),
+                                  const SizedBox(width: 5),
+                                  Container(
+                                    width: 1,
+                                    height: 30,
+                                    color: colorGreyBorderD3,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  const Icon(
+                                    Icons.timer,
+                                    color: colorGreen,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    model.shift ?? "",
+                                    // "12:50:00 - 13:50:00",
+                                    style: const TextStyle(
+                                      color: colorGreyText,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: 1,
-                            color: colorGreyBorderD3,
+                        ),
+                        Align(
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: colorGreen,
+                            size: 30,
                           ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 30,
-                                height: 30,
-                                child: Icon(
-                                  Icons.arrow_downward_rounded,
-                                  color: colorGreen,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              FaIcon(
-                                FontAwesomeIcons.calendarDays,
-                                color: colorGreen,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "Mon, 16-10-2023",
-                                style: TextStyle(
-                                  color: colorGreyText,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Container(
-                                width: 1,
-                                height: 25,
-                                color: colorGreyBorderD3,
-                              ),
-                              const SizedBox(width: 5),
-                              Icon(
-                                CupertinoIcons.time,
-                                color: colorGreen,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "1hrs",
-                                style: TextStyle(
-                                  color: colorGreyText,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Container(
-                                width: 1,
-                                height: 25,
-                                color: colorGreyBorderD3,
-                              ),
-                              const SizedBox(width: 5),
-                              const Expanded(
-                                  child: Icon(
-                                Icons.timelapse_rounded,
-                                color: colorGreen,
-                              )),
-                              const SizedBox(width: 5),
-                              Container(
-                                width: 1,
-                                height: 30,
-                                color: colorGreyBorderD3,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 30,
-                                height: 30,
-                              ),
-                              const SizedBox(width: 5),
-                              Icon(
-                                Icons.timer,
-                                color: colorGreen,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "12:50:00 - 13:50:00",
-                                style: TextStyle(
-                                  color: colorGreyText,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                            ],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const Expanded(
-                      flex: 2,
-                      child: Align(
-                        child: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: colorGreen,
+                    ExpandableContainer(
+                      expanded: selectedExpandedIndex == index,
+                      expandedHeight: 225,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ThemedText(
+                                text: model.shiftComments != null &&
+                                        model.shiftComments!.isNotEmpty
+                                    ? model.shiftComments!
+                                    : "No shift comments provided."),
+                            ThemedText(
+                                text: model.comments != null &&
+                                        model.comments!.isNotEmpty
+                                    ? model.comments!
+                                    : "No shift comments provided."),
+                            const SizedBox(height: 7),
+                            InkWell(
+                              onTap: () {
+                                _launchUrl(
+                                    "http://maps.google.com/?q=${model.resAddress}");
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 25,
+                                    height: 25,
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.locationDot,
+                                        color: colorGreen,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: spaceHorizontal),
+                                  Expanded(
+                                    child: ThemedText(
+                                        text: model.resAddress ?? ""),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+                            InkWell(
+                              onTap: () {
+                                _launchUrl("tel:${model.resHomePhone}");
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 25,
+                                    height: 25,
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.phoneVolume,
+                                        color: colorGreen,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: spaceHorizontal),
+                                  Expanded(
+                                    child: ThemedText(
+                                        text: model.resHomePhone ?? ""),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+                            InkWell(
+                              onTap: () {
+                                _launchUrl("tel:${model.resMobilePhone}");
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 25,
+                                    height: 25,
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.mobileAlt,
+                                        color: colorGreen,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: spaceHorizontal),
+                                  Expanded(
+                                    child: ThemedText(
+                                        text: model.resMobilePhone ?? ""),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+                            InkWell(
+                              onTap: () {
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) =>
+                                //         const ClientDocument(),
+                                //   ),
+                                // );
+                                _launchUrl(
+                                    "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 25,
+                                    height: 25,
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.fileLines,
+                                        color: colorGreen,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: spaceHorizontal),
+                                  Expanded(
+                                    child: ThemedText(
+                                        text: "View Client Documents"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+                            InkWell(
+                              onTap: () {
+                                print("model.clientID : ${model.rESID}");
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ClientInfo(
+                                        clientId:
+                                            (model.rESID ?? 0).toString(),
+                                      ),
+                                    ));
+                              },
+                              child: Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 25,
+                                    height: 25,
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.circleInfo,
+                                        color: colorGreen,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: spaceHorizontal),
+                                  Expanded(
+                                    child: ThemedText(text: "View Client Info"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 7),
+                          ],
                         ),
                       ),
                     ),
@@ -759,6 +952,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      if (!await launchUrl(Uri.parse(url))) {
+        print('Could not launch $url');
+      }
+    } catch (e) {
+      print('Could not launch error :  $e');
+    }
   }
 
   Widget getListAsPerIndex(int index) {
@@ -802,29 +1005,36 @@ class _HomeScreenState extends State<HomeScreen> {
               clipBehavior: Clip.none,
               children: [
                 icons,
-                Positioned(
-                  top: -3,
-                  right: -6,
-                  child: Container(
-                    padding: const EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      color: colorWhite,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 12,
-                      minHeight: 12,
-                    ),
-                    child: const Text(
-                      "10",
-                      style: TextStyle(
-                        color: colorPrimary,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
+                if (index < 4)
+                  Positioned(
+                    top: -3,
+                    right: -6,
+                    child: Container(
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(
+                        color: colorWhite,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 12,
+                        minHeight: 12,
+                      ),
+                      child: Text(
+                        index == 1
+                            ? unConfirmedDataList.length.toString()
+                            : index == 2
+                                ? timeSheetDataList.length.toString()
+                                : index == 3
+                                    ? avaliableDataList.length.toString()
+                                    : confirmedDataList.length.toString(),
+                        style: const TextStyle(
+                          color: colorPrimary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                )
+                  )
               ],
             ),
             const SizedBox(height: spaceVertical / 2),
@@ -837,6 +1047,38 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ExpandableContainer extends StatelessWidget {
+  final bool expanded;
+  final double collapsedHeight;
+  final double expandedHeight;
+  final Widget child;
+
+  ExpandableContainer({
+    super.key,
+    required this.child,
+    this.collapsedHeight = 0.0,
+    this.expandedHeight = 300.0,
+    this.expanded = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      width: screenWidth,
+      height: expanded ? expandedHeight : collapsedHeight,
+      child: new Container(
+        child: child,
+        // decoration: new BoxDecoration(
+        //   border: new Border.all(width: 1.0, color: Colors.blue),
+        // ),
       ),
     );
   }
