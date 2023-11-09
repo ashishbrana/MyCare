@@ -79,7 +79,7 @@ class ThemedTextField extends StatefulWidget {
 }
 
 class _ThemedTextFieldState extends State<ThemedTextField> {
-  bool isShowPassWord = false;
+  bool isShowPassWord = true;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
         }
         setState(() {});
       },
-      obscureText: isShowPassWord,
+      obscureText: widget.isPasswordTextField ? isShowPassWord : false,
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: TextStyle(

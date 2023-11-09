@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:rcare_2/network/ApiUrls.dart';
+import 'package:rcare_2/screen/home/models/ProfileModel.dart';
 import 'package:rcare_2/screen/login/ChangePassword.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
@@ -28,6 +29,21 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
+  final TextEditingController _controllerFirstName = TextEditingController();
+  final TextEditingController _controllerLastName = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerAddress = TextEditingController();
+
+  final TextEditingController _controllerSuburb = TextEditingController();
+  final TextEditingController _controllerHomePhone = TextEditingController();
+  final TextEditingController _controllerMobile = TextEditingController();
+  final TextEditingController _controllerWorkPhone = TextEditingController();
+  final TextEditingController _controllerUserName = TextEditingController();
+
+
+
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -37,6 +53,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _keyScaffold,
       appBar: buildAppBar(context, title: "Profile"),
       body: SafeArea(
         child: Column(
@@ -87,6 +104,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 children: [
                                   const SizedBox(height: space),
                                   ThemedRichText(
+
                                     spanList: [
                                       getTextSpan(
                                         text: "First Name",
@@ -105,6 +123,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                     height: textFiledHeight,
                                     child: ThemedTextField(
                                       borderColor: colorGreyBorderD3,
+                                      controller: _controllerFirstName,
                                       backgroundColor: colorWhite,
                                     ),
                                   ),
@@ -128,6 +147,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                     height: 45,
                                     child: ThemedTextField(
                                       borderColor: colorGreyBorderD3,
+                                      controller: _controllerLastName,
                                       backgroundColor: colorWhite,
                                     ),
                                   ),
@@ -148,6 +168,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           height: textFiledHeight,
                           child: ThemedTextField(
                             borderColor: colorGreyBorderD3,
+                            controller: _controllerEmail,
                             backgroundColor: colorWhite,
                           ),
                         ),
@@ -172,6 +193,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           height: textFiledHeight,
                           child: ThemedTextField(
                             borderColor: colorGreyBorderD3,
+                            controller: _controllerAddress,
                             backgroundColor: colorWhite,
                           ),
                         ),
@@ -195,6 +217,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         SizedBox(
                           height: textFiledHeight,
                           child: ThemedTextField(
+                            controller: _controllerSuburb,
                             borderColor: colorGreyBorderD3,
                             backgroundColor: colorWhite,
                           ),
@@ -210,6 +233,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           height: textFiledHeight,
                           child: ThemedTextField(
                             borderColor: colorGreyBorderD3,
+                            controller: _controllerHomePhone,
                             backgroundColor: colorWhite,
                           ),
                         ),
@@ -224,6 +248,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           height: textFiledHeight,
                           child: ThemedTextField(
                             borderColor: colorGreyBorderD3,
+                            controller: _controllerMobile,
                             backgroundColor: colorWhite,
                           ),
                         ),
@@ -237,6 +262,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         SizedBox(
                           height: textFiledHeight,
                           child: ThemedTextField(
+                            controller: _controllerWorkPhone,
                             borderColor: colorGreyBorderD3,
                             backgroundColor: colorWhite,
                           ),
@@ -255,6 +281,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                               Expanded(
                                 flex: 6,
                                 child: ThemedTextField(
+                                  controller: _controllerUserName,
                                   borderColor: colorGreyBorderD3,
                                   backgroundColor: colorWhite,
                                 ),
@@ -349,12 +376,16 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           if (response != null && response != "") {
-            print('res ${response}');
+
 
             final jResponse = json.decode(response);
-            // LoginResponseModel responseModel =
-            // LoginResponseModel.fromJson(jResponse);
-            // print('res ${jResponse['status']}');
+            // ProfileModel responseModel = ProfileModel.fromJson(jResponse);
+            print('Profile ${jResponse}');
+            List<ProfileModel>  dataList = jResponse
+                .map((e) => ProfileModel.fromJson(e))
+                .toList<ProfileModel>();
+
+            print('res $dataList');
             // if (responseModel.status == 1) {
             //   print('res success');
             //
@@ -368,6 +399,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           }
           removeOverlay();
         } catch (e) {
+          print('ERROR ${e}');
           removeOverlay();
         } finally {
           removeOverlay();
