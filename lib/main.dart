@@ -16,8 +16,8 @@ class MyApp extends StatelessWidget {
       title: 'MyCare',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: colorPrimary),
-        datePickerTheme: DatePickerThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: colorLiteGreen),
+        datePickerTheme: const DatePickerThemeData(
           headerBackgroundColor: colorLiteGreen,
         ),
         useMaterial3: true,
