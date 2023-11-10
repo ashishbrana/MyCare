@@ -39,6 +39,7 @@ class ThemedTextField extends StatefulWidget {
   FontWeight labelFontWeight;
   TextCapitalization? textCapitalization;
   String? Function(String?)? validator;
+  EdgeInsetsGeometry? padding;
   int minLine = 1;
   int maxLine = 1;
 
@@ -48,6 +49,7 @@ class ThemedTextField extends StatefulWidget {
     this.labelText,
     this.controller,
     this.onTap,
+    this.padding,
     this.onChanged,
     this.onFieldSubmitted,
     this.isReadOnly = false,
@@ -143,8 +145,9 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
           color: widget.labelTextColor,
           // fontFamily: stringFontFamilyGibson,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: spaceHorizontal * 1.2, vertical: spaceVertical),
+        contentPadding: widget.padding ??
+            const EdgeInsets.symmetric(
+                horizontal: spaceHorizontal * 1.2, vertical: spaceVertical),
         filled: widget.backgroundColor != null ? true : false,
         fillColor: widget.backgroundColor ?? Colors.white,
         prefixIcon: widget.preFix != null

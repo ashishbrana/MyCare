@@ -79,7 +79,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       child: ThemedButton(
                         title: "Cancel",
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         padding: EdgeInsets.zero,
                         onTap: () {
                           Navigator.pop(context);
@@ -91,7 +91,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       child: ThemedButton(
                         title: "Save",
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         padding: EdgeInsets.zero,
                         onTap: () {
                           Navigator.pop(context);

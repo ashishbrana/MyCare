@@ -79,6 +79,8 @@ class _LoginState extends State<Login> {
                   Preferences.prefUserID, responseModel.userid ?? 0);
               Preferences().setPrefString(
                   Preferences.prefUserFullName, responseModel.fullName ?? "");
+              Preferences()
+                  .setPrefString(Preferences.prefComepanyCode, comapanyCode ?? "");
               sendToHome();
             } else {
               showSnackBarWithText(

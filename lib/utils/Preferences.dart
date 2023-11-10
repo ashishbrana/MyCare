@@ -5,6 +5,7 @@ class Preferences {
   static const String prefAccountType = "accountType";
   static const String prefUserID = "userId";
   static const String prefUserFullName = "prefUserFullName";
+  static const String prefComepanyCode = "prefComeCode";
 
   setPrefString(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();

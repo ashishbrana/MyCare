@@ -17,9 +17,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../Network/API.dart';
 import '../../Network/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
+import '../../utils/GlobalMethods.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/methods.dart';
 import 'Tabs/ConfirmedTabScreen.dart';
+import 'TimeSheetDetail.dart';
 import 'models/ConfirmedResponseModel.dart';
 
 DateTime fromDate = DateTime.now();
@@ -760,7 +762,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 5),
                                   Text(
                                     model.shift ?? "",
-                                    // "12:50:00 - 13:50:00",
                                     style: const TextStyle(
                                       color: colorGreyText,
                                       fontSize: 14,
@@ -772,11 +773,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        Align(
-                          child: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: colorGreen,
-                            size: 30,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TimeSheetDetail(model: model),
+                              ),
+                            );
+                          },
+                          child: const Align(
+                            child: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: colorGreen,
+                              size: 30,
+                            ),
                           ),
                         ),
                       ],
@@ -801,7 +813,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 7),
                             InkWell(
                               onTap: () {
-                                _launchUrl(
+                                launchUrlMethod(
                                     "http://maps.google.com/?q=${model.resAddress}");
                               },
                               child: Row(
@@ -827,7 +839,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 7),
                             InkWell(
                               onTap: () {
-                                _launchUrl("tel:${model.resHomePhone}");
+                                launchUrlMethod("tel:${model.resHomePhone}");
                               },
                               child: Row(
                                 children: [
@@ -852,7 +864,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 7),
                             InkWell(
                               onTap: () {
-                                _launchUrl("tel:${model.resMobilePhone}");
+                                launchUrlMethod("tel:${model.resMobilePhone}");
                               },
                               child: Row(
                                 children: [
@@ -877,15 +889,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 7),
                             InkWell(
                               onTap: () {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) =>
-                                //         const ClientDocument(),
-                                //   ),
-                                // );
-                                _launchUrl(
-                                    "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ClientDocument(
+                                      id: (model.clientID ?? 0).toString(),
+                                      resId: (model.rESID ?? 0).toString(),
+                                    ),
+                                  ),
+                                );
+                                // _launchUrl(
+                                //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
                               },
                               child: Row(
                                 children: [
@@ -915,8 +929,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ClientInfo(
-                                        clientId:
-                                            (model.rESID ?? 0).toString(),
+                                        clientId: (model.rESID ?? 0).toString(),
                                       ),
                                     ));
                               },
@@ -952,16 +965,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
-  }
-
-  Future<void> _launchUrl(String url) async {
-    try {
-      if (!await launchUrl(Uri.parse(url))) {
-        print('Could not launch $url');
-      }
-    } catch (e) {
-      print('Could not launch error :  $e');
-    }
   }
 
   Widget getListAsPerIndex(int index) {
