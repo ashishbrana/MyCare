@@ -9,5 +9,6 @@ const String changePass = 'ChangeEmployeePassword';
 const String endEmployeeProfile = 'EmployeeProfile';
 const String endClientProfile = 'ClientProfile';
 const String endGetDocs = 'getdocs';
+const String progressNotesList = 'ProgressNotesList';
 
 

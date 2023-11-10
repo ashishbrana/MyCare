@@ -2,28 +2,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/screen/home/TimeSheetForm.dart';
-import 'package:rcare_2/utils/ColorConstants.dart';
-import 'package:rcare_2/utils/Constants.dart';
-import 'package:rcare_2/utils/ThemedWidgets.dart';
-import 'package:rcare_2/utils/WidgetMethods.dart';
 
+import '../../utils/ColorConstants.dart';
+import '../../utils/Constants.dart';
+import '../../utils/ThemedWidgets.dart';
+import '../../utils/WidgetMethods.dart';
 import 'models/ConfirmedResponseModel.dart';
 
-class TimeSheetDetail extends StatefulWidget {
+class TimeSheetForm extends StatefulWidget {
+
   final TimeShiteResponseModel model;
 
-  const TimeSheetDetail({super.key, required this.model});
+  const TimeSheetForm({super.key, required this.model});
+
+
 
   @override
-  State<TimeSheetDetail> createState() => _TimeSheetDetailState();
+  State<TimeSheetForm> createState() => _TimeSheetFormState();
 }
 
-class _TimeSheetDetailState extends State<TimeSheetDetail> {
+class _TimeSheetFormState extends State<TimeSheetForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, title: "TimeSheet Detail"),
+      // appBar: buildAppBar(context, title: "Time Sheet Detail"),
       body: Container(
         width: MediaQuery.of(context).size.width,
         child: Column(
@@ -61,15 +63,15 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                   // model.serviceDate!,
                   widget.model.serviceDate != null
                       ? DateFormat("EEE,dd-MM-yyyy").format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(widget.model.serviceDate!
-                                      .replaceAll("/Date(", "")
-                                      .replaceAll(")/", "")),
-                                  isUtc: false)
-                              .add(
-                            Duration(hours: 5, minutes: 30),
-                          ),
-                        )
+                    DateTime.fromMillisecondsSinceEpoch(
+                        int.parse(widget.model.serviceDate!
+                            .replaceAll("/Date(", "")
+                            .replaceAll(")/", "")),
+                        isUtc: false)
+                        .add(
+                      Duration(hours: 5, minutes: 30),
+                    ),
+                  )
                       : "",
                   style: const TextStyle(
                     color: colorBlack,
@@ -95,12 +97,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                       fontSize: 12,
                       fontWeight: FontWeight.w500),
                 ),
-              ],
-            ),
-            const SizedBox(height: spaceVertical / 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+                const SizedBox(width: 5),
+                Container(height: 20, width: 1, color: colorDivider),
                 const SizedBox(width: 5),
                 const Icon(
                   CupertinoIcons.time,
@@ -115,11 +113,9 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                       fontSize: 12,
                       fontWeight: FontWeight.w500),
                 ),
-                const SizedBox(width: 5),
-                Container(height: 20, width: 1, color: colorDivider),
-                const SizedBox(width: 5),
               ],
             ),
+
             const SizedBox(height: spaceVertical / 2),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -145,88 +141,9 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               ],
             ),
             const SizedBox(height: spaceVertical / 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 5),
-                const FaIcon(
-                  FontAwesomeIcons.mobileAlt,
-                  color: colorGreen,
-                  size: 14,
-                ),
-                const SizedBox(width: spaceHorizontal),
-                ThemedText(
-                  text: widget.model.resHomePhone ?? "",
-                  color: colorBlack,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-                const SizedBox(width: 5),
-                Container(height: 20, width: 1, color: colorDivider),
-                const SizedBox(width: 5),
-                Container(height: 20, width: 1, color: colorDivider),
-                const SizedBox(width: 5),
-              ],
-            ),
-            const SizedBox(height: spaceVertical / 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 5),
-                const FaIcon(
-                  FontAwesomeIcons.phoneVolume,
-                  color: colorGreen,
-                  size: 14,
-                ),
-                const SizedBox(width: spaceHorizontal),
-                ThemedText(
-                  text: widget.model.resMobilePhone ?? "",
-                  color: colorBlack,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-                const SizedBox(width: 5),
-                Container(height: 20, width: 1, color: colorDivider),
-                const SizedBox(width: 5),
-                Container(height: 20, width: 1, color: colorDivider),
-                const SizedBox(width: 5),
-              ],
-            ),
-            const SizedBox(height: spaceVertical),
-            Container(
-                height: 1,
-                width: MediaQuery.of(context).size.width * .9,
-                color: colorDivider),
-            const SizedBox(height: spaceVertical),
-            SizedBox(
-              height: 50,
-              width: MediaQuery.of(context).size.width * .85,
-              child: ThemedButton(
-                title: "Complete TimeSheet",
-                padding: EdgeInsets.zero,
-                fontSize: 16,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          TimeSheetForm(model: widget.model),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: spaceVertical / 1.5),
-            SizedBox(
-              height: 50,
-              width: MediaQuery.of(context).size.width * .85,
-              child: ThemedButton(
-                title: "Notes",
-                padding: EdgeInsets.zero,
-                fontSize: 16,
-                onTap: () {},
-              ),
-            ),
+
+
+
             const SizedBox(height: spaceVertical / 1.5),
             SizedBox(
               height: 50,

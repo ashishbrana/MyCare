@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
 import 'package:rcare_2/screen/home/ClientInfo.dart';
+import 'package:rcare_2/screen/home/ProgressNotes.dart';
 import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
 import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
@@ -25,8 +26,7 @@ import 'TimeSheetDetail.dart';
 import 'models/ConfirmedResponseModel.dart';
 
 DateTime fromDate = DateTime.now();
-DateTime toDate = DateTime(
-    DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
+DateTime toDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
 
@@ -220,7 +220,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 16,
                 color: colorWhite,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProgressNote(),
+                    ));
+              },
             ),
           ),
           const SizedBox(width: spaceHorizontal / 2),
@@ -229,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: MaterialButton(
               color: colorGreen,
               child: ThemedText(
-                text: "Search",
+                text: "Refresh",
                 fontSize: 16,
                 color: colorWhite,
               ),
