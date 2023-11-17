@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
 import 'package:rcare_2/screen/home/ClientInfo.dart';
-import 'package:rcare_2/screen/home/ProgressNotes.dart';
+import 'package:rcare_2/screen/home/notes/ProgressNotes.dart';
 import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
 import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';

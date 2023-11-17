@@ -34,6 +34,8 @@ const double space = spaceVertical * .6;
 BorderRadius boxBorderRadius = BorderRadius.circular(radius);
 double elevation = 2;
 
+const double dividerWidth = 2;
+
 class Constants {
   static final String imagePath = 'assets/images/';
 }

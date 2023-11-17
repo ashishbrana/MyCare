@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
+import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
-import '../../utils/ColorConstants.dart';
-import '../../utils/ConstantStrings.dart';
-import '../../utils/Constants.dart';
-import '../../utils/Preferences.dart';
-import '../../utils/ThemedWidgets.dart';
-import '../../utils/methods.dart';
-import 'models/ProgressNoteModel.dart';
+import '../../../Network/API.dart';
+import '../../../network/ApiUrls.dart';
+import '../../../utils/ColorConstants.dart';
+import '../../../utils/ConstantStrings.dart';
+import '../../../utils/Constants.dart';
+import '../../../utils/Preferences.dart';
+import '../../../utils/ThemedWidgets.dart';
+import '../../../utils/methods.dart';
+import '../models/ProgressNoteModel.dart';
 
 class ProgressNote extends StatefulWidget {
   const ProgressNote({super.key});
@@ -250,13 +251,13 @@ class _ProgressNoteState extends State<ProgressNote> {
                         ),
                         InkWell(
                           onTap: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) =>
-                            //         TimeSheetDetail(model: model),
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProgressNoteDetails(model: model),
+                              ),
+                            );
                           },
                           child: const Align(
                             child: Icon(

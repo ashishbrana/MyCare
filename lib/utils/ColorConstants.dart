@@ -39,3 +39,8 @@ const Color colorGreyNormalIcons = Color(0xFF969494); //0xFF969494
 const Color colorGreyExtraLightBackGround = Color(0xFFF1F1F1); //0xFFF2F2F2
 const Color colorBlack = Color(0xFF000000);
 const Color colorTransparent = Color(0x00000000);
+
+
+const Color colorFontColor = Color(0xEE1E2853);
+
+
