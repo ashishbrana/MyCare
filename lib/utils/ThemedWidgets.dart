@@ -246,9 +246,9 @@ class ThemedDropDown extends StatelessWidget {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: colorGreyExtraLightBackGround,
-        borderRadius: boxBorderRadius,
-      ),
+          color: colorGreyE8,
+          borderRadius: boxBorderRadius,
+          border: Border.all(color: colorLiteBlue)),
       padding: const EdgeInsets.only(right: spaceHorizontal),
       child: Row(
         children: [
@@ -261,6 +261,7 @@ class ThemedDropDown extends StatelessWidget {
                 child: preFix,
               ),
             ),
+          if (preFix == null) const SizedBox(width: spaceHorizontal),
           Expanded(
             child: InkWell(
               onTap: onTap,
@@ -367,6 +368,7 @@ class ThemedButton extends StatelessWidget {
           ),
           child: Text(
             title,
+            textAlign: TextAlign.center,
             style: TextStyle(
                 color: textColor,
                 fontWeight: fontWeight,

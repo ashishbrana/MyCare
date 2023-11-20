@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:signature/signature.dart';
 
@@ -18,6 +21,9 @@ class ProgressNoteDetails extends StatefulWidget {
 }
 
 class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
+  DateTime serviceTypeDateTime = DateTime.now();
+  String _assesmentScale = "1";
+  File? imageFile;
   final TextEditingController _serviceType = TextEditingController();
   final TextEditingController _subject = TextEditingController();
   final TextEditingController _disscription = TextEditingController();
@@ -32,32 +38,30 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
+    serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
+            int.parse(widget.model.noteDate!
+                .replaceAll("/Date(", "")
+                .replaceAll(")/", "")),
+            isUtc: false)
+        .add(
+      const Duration(hours: 5, minutes: 30),
+    );
     _serviceType.text = DateFormat("dd-MM-yyyy").format(
-          DateTime.fromMillisecondsSinceEpoch(
-                  int.parse(widget.model.noteDate!
-                      .replaceAll("/Date(", "")
-                      .replaceAll(")/", "")),
-                  isUtc: false)
-              .add(
-            Duration(hours: 5, minutes: 30),
-          ),
-        ) ??
-        "";
+      serviceTypeDateTime,
+    );
 
     _subject.text = widget.model.subject ?? "";
 
     _disscription.text = widget.model.description ?? "";
-    _assesment_scale.text = widget.model.assessmentScale ?? "";
+    _assesmentScale = widget.model.assessmentScale ?? "";
     _assesment_comment.text = widget.model.assessmentComment ?? "";
-
-
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: colorLiteBlue,
       appBar: buildAppBar(context, title: "Progress Notes Detail"),
       body: SingleChildScrollView(
         child: Padding(
@@ -90,7 +94,24 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
-                  isReadOnly: false,
+                  isReadOnly: true,
+                  onTap: () {
+                    showDatePicker(
+                            context: context,
+                            initialDate: serviceTypeDateTime,
+                            firstDate: DateTime(serviceTypeDateTime.year - 23),
+                            lastDate: DateTime(serviceTypeDateTime.year + 23))
+                        .then((value) {
+                      if (value != null) {
+                        setState(() {
+                          serviceTypeDateTime = value;
+                          _serviceType.text = DateFormat("dd-MM-yyyy").format(
+                            serviceTypeDateTime,
+                          );
+                        });
+                      }
+                    });
+                  },
                   labelTextColor: colorBlack,
                   controller: _serviceType,
                 ),
@@ -134,15 +155,26 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 color: colorFontColor,
                 fontSize: 18,
               ),
-              SizedBox(
-                height: textFiledHeight,
-                child: ThemedTextField(
-                  padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
-                  borderColor: colorGreyBorderD3,
-                  backgroundColor: colorWhite,
-                  isReadOnly: false,
-                  controller: _assesment_scale,
-                ),
+              ThemedDropDown(
+                defaultValue: _assesmentScale,
+                dataString: const [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "5",
+                  "6",
+                  "7",
+                  "8",
+                  "9",
+                  "10",
+                ],
+                onChanged: (s) {
+                  setState(() {
+                    _assesmentScale = s;
+                  });
+                },
               ),
               const SizedBox(height: 10),
               ThemedText(
@@ -167,8 +199,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               ),
               Container(
                 decoration: BoxDecoration(
-                    border: Border.all(color:colorGreyBorderD3),
-
+                  border: Border.all(color: colorGreyBorderD3),
                 ),
                 child: Signature(
                   backgroundColor: Colors.white,
@@ -176,7 +207,67 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   width: 300,
                   height: 180,
                 ),
-              )
+              ),
+              const SizedBox(height: spaceVertical),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: textFiledHeight,
+                    child: ThemedButton(
+                      padding: EdgeInsets.zero,
+                      title: "Clear",
+                      fontSize: 12,
+                      onTap: () {
+                        _sign.clear();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: spaceVertical),
+              SizedBox(
+                height: textFiledHeight,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ThemedButton(
+                        padding: EdgeInsets.zero,
+                        title: "Capture Image From Camera",
+                        fontSize: 12,
+                        onTap: () async {
+                          final ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(
+                              source: ImageSource.gallery);
+                          if (image != null) {
+                            setState(() {
+                              print(image.path);
+                              imageFile = File(image.path);
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: spaceHorizontal),
+                    SizedBox(
+                      width: 100,
+                      child: ThemedButton(
+                        padding: EdgeInsets.zero,
+                        title: "Refresh",
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: spaceVertical),
+              if (imageFile != null)
+                SizedBox(
+                  height: 200,
+                  width: 300,
+                  child: Image.file(imageFile!),
+                ),
             ],
           ),
         ),

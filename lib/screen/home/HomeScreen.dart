@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
+import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
 import 'package:rcare_2/screen/home/ClientInfo.dart';
 import 'package:rcare_2/screen/home/notes/ProgressNotes.dart';
@@ -26,7 +27,8 @@ import 'TimeSheetDetail.dart';
 import 'models/ConfirmedResponseModel.dart';
 
 DateTime fromDate = DateTime.now();
-DateTime toDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
+DateTime toDate = DateTime(
+    DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
 
@@ -634,7 +636,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             style: const TextStyle(
                                               color: colorGreyText,
                                               fontWeight: FontWeight.w400,
-                                              fontSize: 18,
+                                              fontSize: 14,
                                             ),
                                           ),
                                           TextSpan(
@@ -642,22 +644,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                             style: const TextStyle(
                                               color: colorGreyLiteText,
                                               fontWeight: FontWeight.w400,
-                                              fontSize: 18,
+                                              fontSize: 14,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(5),
+                                  if (model.noteID != 0)
+                                    const FaIcon(
+                                      FontAwesomeIcons.calendarDays,
+                                      size: 16,
                                     ),
-                                    child: const Icon(
-                                      CupertinoIcons.person_crop_circle,
-                                      color: Colors.white,
-                                      size: 26,
+                                  const SizedBox(width: spaceHorizontal / 2),
+                                  InkWell(
+                                    onTap: () {
+                                      print("CareWorkerList ${model.empID} ${model.rosterID}");
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CareWorkerList(
+                                              userId: model.empID ?? 0,
+                                              rosterID: model.rosterID ?? 0),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: const Icon(
+                                        CupertinoIcons.person_crop_circle,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -668,7 +689,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 1,
                                 color: colorGreyBorderD3,
                               ),
+                              const SizedBox(height: 3),
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   InkWell(
                                     onTap: () {
@@ -676,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         selectedExpandedIndex = index;
                                       });
                                     },
-                                    child: SizedBox(
+                                    child: const SizedBox(
                                       width: 30,
                                       height: 30,
                                       child: Icon(
@@ -685,95 +708,157 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
-                                  FaIcon(
-                                    FontAwesomeIcons.calendarDays,
-                                    color: colorGreen,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    // model.serviceDate!,
-                                    model.serviceDate != null
-                                        ? DateFormat("EEE,dd-MM-yyyy").format(
-                                            DateTime.fromMillisecondsSinceEpoch(
-                                                    int.parse(model.serviceDate!
-                                                        .replaceAll(
-                                                            "/Date(", "")
-                                                        .replaceAll(")/", "")),
-                                                    isUtc: false)
-                                                .add(
-                                              Duration(hours: 5, minutes: 30),
+                                  Expanded(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          WidgetSpan(
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const SizedBox(width: 5),
+                                                const FaIcon(
+                                                  FontAwesomeIcons.calendarDays,
+                                                  color: colorGreen,
+                                                  size: 14,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  // model.serviceDate!,
+                                                  model.serviceDate != null
+                                                      ? DateFormat(
+                                                              "EEE,dd-MM-yyyy")
+                                                          .format(
+                                                          DateTime.fromMillisecondsSinceEpoch(
+                                                                  int.parse(model
+                                                                      .serviceDate!
+                                                                      .replaceAll(
+                                                                          "/Date(",
+                                                                          "")
+                                                                      .replaceAll(
+                                                                          ")/",
+                                                                          "")),
+                                                                  isUtc: false)
+                                                              .add(
+                                                            Duration(
+                                                                hours: 5,
+                                                                minutes: 30),
+                                                          ),
+                                                        )
+                                                      : "",
+                                                  style: TextStyle(
+                                                    color: colorGreyText,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Container(
+                                                  width: 1,
+                                                  height: 25,
+                                                  color: colorGreyBorderD3,
+                                                ),
+                                              ],
                                             ),
-                                          )
-                                        : "",
-                                    style: TextStyle(
-                                      color: colorGreyText,
-                                      fontSize: 14,
+                                          ),
+                                          WidgetSpan(
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                /* const SizedBox(
+                                                  width: 30,
+                                                  height: 30,
+                                                ),*/
+                                                const SizedBox(width: 5),
+                                                const Icon(
+                                                  CupertinoIcons.time,
+                                                  color: colorGreen,
+                                                  size: 14,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  "${model.totalHours}hrs",
+                                                  style: const TextStyle(
+                                                    color: colorGreyText,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Container(
+                                                  width: 1,
+                                                  height: 25,
+                                                  color: colorGreyBorderD3,
+                                                ),
+                                                const SizedBox(width: 5),
+                                              ],
+                                            ),
+                                          ),
+                                          WidgetSpan(
+                                            child: Row(
+                                              children: [
+                                                /*   SizedBox(
+                                                width: 30,
+                                                height: 30,
+                                              ),*/
+                                                const SizedBox(width: 5),
+                                                const Icon(
+                                                  Icons.timer,
+                                                  color: colorGreen,
+                                                  size: 14,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  model.shift ?? "",
+                                                  style: const TextStyle(
+                                                    color: colorGreyText,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 5),
-                                  Container(
-                                    width: 1,
-                                    height: 25,
-                                    color: colorGreyBorderD3,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Icon(
-                                    CupertinoIcons.time,
-                                    color: colorGreen,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    "${model.totalHours}hrs",
-                                    style: const TextStyle(
-                                      color: colorGreyText,
-                                      fontSize: 14,
+                                  if (model.noteID != 0)
+                                    const FaIcon(
+                                      FontAwesomeIcons.notesMedical,
+                                      size: 20,
                                     ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Container(
-                                    width: 1,
-                                    height: 25,
-                                    color: colorGreyBorderD3,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  const Expanded(
+                                  if (model.noteID != 0)
+                                    const SizedBox(width: spaceHorizontal / 2),
+                                  if (model.dsnId != 0)
+                                    const FaIcon(
+                                      FontAwesomeIcons.volcano,
+                                      size: 20,
+                                    ),
+                                  if (model.dsnId != 0)
+                                    const SizedBox(width: spaceHorizontal / 2),
+                                  if (bottomCurrentIndex == 2)
+                                    Icon(
+                                      Icons.check_circle_rounded,
+                                      color: model.locationName == "" ||
+                                              model.logOffLocationName == ""
+                                          ? colorRed
+                                          : colorGreen,
+                                      size: 20,
+                                    ),
+                                  if (bottomCurrentIndex == 2)
+                                    const SizedBox(width: spaceHorizontal / 2),
+                                  /*const Expanded(
                                       child: Icon(
                                     Icons.timelapse_rounded,
                                     color: colorGreen,
                                     size: 26,
-                                  )),
-                                  const SizedBox(width: 5),
+                                  )),*/
+                                  // const SizedBox(width: 5),
                                   Container(
                                     width: 1,
                                     height: 30,
                                     color: colorGreyBorderD3,
                                   ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  const Icon(
-                                    Icons.timer,
-                                    color: colorGreen,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    model.shift ?? "",
-                                    style: const TextStyle(
-                                      color: colorGreyText,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
                                 ],
                               ),
                             ],
