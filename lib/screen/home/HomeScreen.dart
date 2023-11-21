@@ -8,6 +8,7 @@ import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
 import 'package:rcare_2/screen/home/ClientInfo.dart';
+import 'package:rcare_2/screen/home/ProgressNoteListByNoteId.dart';
 import 'package:rcare_2/screen/home/notes/ProgressNotes.dart';
 import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
 import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
@@ -31,7 +32,7 @@ DateTime toDate = DateTime(
     DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
-
+final GlobalKey<ScaffoldState> keyScaffold = GlobalKey<ScaffoldState>();
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -42,7 +43,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int bottomCurrentIndex = 0;
   int selectedExpandedIndex = -1;
-  final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
+
+  final GlobalKey<NavigatorState> _keyNavigator = GlobalKey<NavigatorState>();
   String userName = "";
   List<TimeShiteResponseModel> dataList = [];
   List<TimeShiteResponseModel> confirmedDataList = [];
@@ -53,17 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controllerFromDate = TextEditingController();
   final TextEditingController _controllerToDate = TextEditingController();
 
-  // late List<Widget> body;
-
   @override
   void initState() {
-    // body = [
-    //   ConfirmedTabScreen(dataList: confirmedDataList),
-    //   UnConfirmedTabScreen(dataList: unConfirmedDataList),
-    //   ConfirmedTabScreen(dataList: confirmedDataList),
-    //   ConfirmedTabScreen(dataList: confirmedDataList),
-    //   ConfirmedTabScreen(dataList: confirmedDataList),
-    // ];
     super.initState();
 
     getData(
@@ -77,9 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
+      'accountType': (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
       'userid':
           (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
@@ -97,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
             method: 'GET');
         getOverlay(context);
         try {
-          String response = await HttpService().init(request, _keyScaffold);
+          String response = await HttpService().init(request, keyScaffold);
           removeOverlay();
           if (response != null && response != "") {
             // print('res ${response}');
@@ -166,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {});
           } else {
             showSnackBarWithText(
-                _keyScaffold.currentState, stringSomeThingWentWrong);
+                keyScaffold.currentState, stringSomeThingWentWrong);
           }
           removeOverlay();
         } catch (e) {
@@ -177,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {});
         }
       } else {
-        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
       }
     });
   }
@@ -196,389 +187,406 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _keyScaffold,
-      appBar: AppBar(
-        title: SizedBox(
-          height: 40,
-          child: ThemedTextField(
-            borderColor: colorPrimary,
-            preFix: const FaIcon(
-              FontAwesomeIcons.search,
-              color: Color(0XFFBBBECB),
-              size: 20,
-            ),
-            hintText: "Search...",
-          ),
-        ),
-        titleSpacing: spaceHorizontal / 2,
-        actions: [
-          SizedBox(
-            height: 40,
-            child: MaterialButton(
-              color: colorGreen,
-              child: ThemedText(
-                text: "Note",
-                fontSize: 16,
-                color: colorWhite,
-              ),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProgressNote(),
-                    ));
-              },
-            ),
-          ),
-          const SizedBox(width: spaceHorizontal / 2),
-          SizedBox(
-            height: 40,
-            child: MaterialButton(
-              color: colorGreen,
-              child: ThemedText(
-                text: "Refresh",
-                fontSize: 16,
-                color: colorWhite,
-              ),
-              onPressed: () {},
-            ),
-          ),
-          const SizedBox(width: spaceHorizontal / 2),
-          InkWell(
-            onTap: () async {
-              userName = await Preferences()
-                  .getPrefString(Preferences.prefUserFullName);
-              if (_keyScaffold.currentState != null) {
-                _keyScaffold.currentState!.openEndDrawer();
-              }
-            },
-            child: Container(
-              height: 50,
-              width: 30,
-              decoration: const BoxDecoration(
-                color: colorGreen,
-                borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(25),
-                ),
-              ),
-              child: const Align(
-                alignment: Alignment.centerRight,
-                child: FaIcon(
-                  FontAwesomeIcons.list,
-                  color: colorWhite,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      onEndDrawerChanged: (isOpened) {
-        tempFromDate = fromDate;
-        tempToDate = toDate;
-        _controllerFromDate.text = DateFormat("dd-MM-yyyy").format(fromDate);
-        _controllerToDate.text = DateFormat("dd-MM-yyyy").format(toDate);
-
-        setState(() {});
+    return WillPopScope(
+      onWillPop: () {
+        if (_keyNavigator.currentState != null &&
+            _keyNavigator.currentState!.canPop()) {
+          _keyNavigator.currentState!.pop();
+          return Future(() => false);
+        }
+        return Future(() => true);
       },
-      endDrawer: SizedBox(
-        width: double.infinity,
-        child: Drawer(
-          child: SafeArea(
-            child: Column(
-              children: [
-                SizedBox(height: 30),
-                Container(
-                  decoration: BoxDecoration(
-                    color: colorWhite,
-                    borderRadius: boxBorderRadius,
-                  ),
-                  padding: const EdgeInsets.all(spaceHorizontal),
-                  margin: const EdgeInsets.all(spaceHorizontal),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 30),
-                      ThemedText(
-                        text: 'Kate Clark',
-                        color: colorBlack,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      const SizedBox(height: 30),
-                      ThemedTextField(
-                        controller: _controllerFromDate,
-                        borderColor: colorGreyBorderD3,
-                        preFix: const FaIcon(
-                          FontAwesomeIcons.calendar,
-                          color: colorGreen,
-                          size: 26,
-                        ),
-                        sufFix: InkWell(
-                          onTap: () {
-                            tempFromDate = DateTime(tempFromDate.year,
-                                tempFromDate.month, tempFromDate.day + 15);
-                            tempToDate = DateTime(tempFromDate.year,
-                                tempFromDate.month, tempFromDate.day + 15);
-                            _controllerFromDate.text =
-                                DateFormat("dd-MM-yyyy").format(tempFromDate);
-                            _controllerToDate.text =
-                                DateFormat("dd-MM-yyyy").format(tempToDate);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: colorLiteGreen,
-                              borderRadius: boxBorderRadius,
-                            ),
-                            child: const FaIcon(
-                              FontAwesomeIcons.plus,
-                              color: colorGreyText,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        isReadOnly: true,
-                        labelText: "From Date",
-                        hintFontWeight: FontWeight.bold,
-                        fontWeight: FontWeight.bold,
-                        onTap: () {
-                          showDatePicker(
-                            context: context,
-                            initialDate: tempFromDate,
-                            firstDate: DateTime(tempFromDate.year - 1),
-                            lastDate: DateTime(tempFromDate.year + 1),
-                          ).then((value) {
-                            if (value != null) {
-                              tempFromDate = value;
-                              _controllerFromDate.text =
-                                  DateFormat("dd-MM-yyyy").format(tempFromDate);
-                              setState(() {});
-                            }
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      ThemedTextField(
-                        controller: _controllerToDate,
-                        borderColor: colorGreyBorderD3,
-                        preFix: const FaIcon(
-                          FontAwesomeIcons.calendar,
-                          color: colorGreen,
-                          size: 24,
-                        ),
-                        sufFix: InkWell(
-                          onTap: () {
-                            tempFromDate = DateTime(tempFromDate.year,
-                                tempFromDate.month, tempFromDate.day - 15);
-                            tempToDate = DateTime(tempFromDate.year,
-                                tempFromDate.month, tempFromDate.day + 15);
-                            _controllerFromDate.text =
-                                DateFormat("dd-MM-yyyy").format(tempFromDate);
-                            _controllerToDate.text =
-                                DateFormat("dd-MM-yyyy").format(tempToDate);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: colorLiteGreen,
-                              borderRadius: boxBorderRadius,
-                            ),
-                            child: const FaIcon(
-                              FontAwesomeIcons.minus,
-                              color: colorGreyText,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        isReadOnly: true,
-                        labelText: "To Date",
-                        hintFontWeight: FontWeight.bold,
-                        fontWeight: FontWeight.bold,
-                        onTap: () {
-                          showDatePicker(
-                            context: context,
-                            initialDate: tempToDate,
-                            firstDate: DateTime(tempToDate.year - 1),
-                            lastDate: DateTime(tempToDate.year + 1),
-                          ).then((value) {
-                            if (value != null) {
-                              tempToDate = value;
-                              _controllerToDate.text =
-                                  DateFormat("dd-MM-yyyy").format(tempToDate);
-                              setState(() {});
-                            }
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 40),
-                      SizedBox(
-                        height: 50,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ThemedButton(
-                                title: "Apply",
-                                fontSize: 20,
-                                padding: EdgeInsets.zero,
-                                onTap: () {
-                                  fromDate = tempFromDate;
-                                  toDate = tempToDate;
-                                  setState(() {});
-                                  if (_keyScaffold.currentState != null) {
-                                    _keyScaffold.currentState!.closeEndDrawer();
-                                  }
-                                  getData(fromDate: fromDate, toDate: toDate);
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ThemedButton(
-                                title: "Cancel",
-                                fontSize: 20,
-                                padding: EdgeInsets.zero,
-                                onTap: () {
-                                  tempFromDate = fromDate;
-                                  tempToDate = toDate;
-                                  setState(() {});
-                                  if (_keyScaffold.currentState != null) {
-                                    _keyScaffold.currentState!.closeEndDrawer();
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Material(
-                        borderRadius: boxBorderRadius,
-                        color: colorGreen,
-                        elevation: 3,
-                        child: InkWell(
-                          onTap: () {
-                            logout();
-                          },
-                          child: Container(
-                            height: 50,
-                            width: MediaQuery.of(context).size.width,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.zero,
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: boxBorderRadius,
-                              border: Border.all(color: colorGreen, width: 2),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FaIcon(
-                                  FontAwesomeIcons.arrowLeft,
-                                  color: colorWhite,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Sign Out",
-                                  style: TextStyle(
-                                      color: colorWhite,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 20,
-                                      fontFamily: stringFontFamilyGibson),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+      child: Scaffold(
+        key: keyScaffold,
+        appBar: AppBar(
+          title: SizedBox(
+            height: 40,
+            child: ThemedTextField(
+              borderColor: colorPrimary,
+              preFix: const FaIcon(
+                FontAwesomeIcons.search,
+                color: Color(0XFFBBBECB),
+                size: 20,
+              ),
+              hintText: "Search...",
             ),
           ),
-        ),
-      ),
-      bottomNavigationBar: SizedBox(
-        height: 70,
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildBottomNavBarItem(
-                  index: 0,
-                  icons: const Icon(
-                    Icons.check_circle_outline_rounded,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                  label: "CONFIRMED"),
-            ),
-            Expanded(
-              child: _buildBottomNavBarItem(
-                  index: 1,
-                  icons: Container(
-                    width: 27,
-                    height: 27,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: colorWhite,
-                        width: 2,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.close_rounded,
-                      color: colorWhite,
-                      size: 20,
-                    ),
-                  ),
-                  label: "unCONFIRMED"),
-            ),
-            Expanded(
-              child: _buildBottomNavBarItem(
-                index: 2,
-                icons: const Icon(
-                  Icons.access_time_rounded,
+          titleSpacing: spaceHorizontal / 2,
+          actions: [
+            SizedBox(
+              height: 40,
+              child: MaterialButton(
+                color: colorGreen,
+                child: ThemedText(
+                  text: "Note",
+                  fontSize: 16,
                   color: colorWhite,
-                  size: 30,
                 ),
-                label: "timesheet",
+                onPressed: () {
+                  setState(() {
+                    bottomCurrentIndex = 5;
+                  });
+
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => ProgressNote(),
+                  //     ));
+                },
               ),
             ),
-            Expanded(
-              child: _buildBottomNavBarItem(
-                  index: 3,
-                  icons: const Icon(
-                    Icons.add_circle_outline_rounded,
-                    color: colorWhite,
-                    size: 30,
-                  ),
-                  label: "available"),
+            const SizedBox(width: spaceHorizontal / 2),
+            SizedBox(
+              height: 40,
+              child: MaterialButton(
+                color: colorGreen,
+                child: ThemedText(
+                  text: "Refresh",
+                  fontSize: 16,
+                  color: colorWhite,
+                ),
+                onPressed: () {},
+              ),
             ),
-            Expanded(
-              child: _buildBottomNavBarItem(
-                  index: 4,
-                  icons: const Icon(
-                    CupertinoIcons.person_alt_circle,
-                    color: colorWhite,
-                    size: 30,
+            const SizedBox(width: spaceHorizontal / 2),
+            InkWell(
+              onTap: () async {
+                userName = await Preferences()
+                    .getPrefString(Preferences.prefUserFullName);
+                if (keyScaffold.currentState != null) {
+                  keyScaffold.currentState!.openEndDrawer();
+                }
+              },
+              child: Container(
+                height: 50,
+                width: 30,
+                decoration: const BoxDecoration(
+                  color: colorGreen,
+                  borderRadius: BorderRadius.horizontal(
+                    left: Radius.circular(25),
                   ),
-                  label: "profile"),
+                ),
+                child: const Align(
+                  alignment: Alignment.centerRight,
+                  child: FaIcon(
+                    FontAwesomeIcons.list,
+                    color: colorWhite,
+                    size: 20,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              color: colorLiteBlueBackGround,
-              child: getListAsPerIndex(bottomCurrentIndex),
+        onEndDrawerChanged: (isOpened) {
+          tempFromDate = fromDate;
+          tempToDate = toDate;
+          _controllerFromDate.text = DateFormat("dd-MM-yyyy").format(fromDate);
+          _controllerToDate.text = DateFormat("dd-MM-yyyy").format(toDate);
+
+          setState(() {});
+        },
+        endDrawer: SizedBox(
+          width: double.infinity,
+          child: Drawer(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  SizedBox(height: 30),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorWhite,
+                      borderRadius: boxBorderRadius,
+                    ),
+                    padding: const EdgeInsets.all(spaceHorizontal),
+                    margin: const EdgeInsets.all(spaceHorizontal),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 30),
+                        ThemedText(
+                          text: 'Kate Clark',
+                          color: colorBlack,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 30),
+                        ThemedTextField(
+                          controller: _controllerFromDate,
+                          borderColor: colorGreyBorderD3,
+                          preFix: const FaIcon(
+                            FontAwesomeIcons.calendar,
+                            color: colorGreen,
+                            size: 26,
+                          ),
+                          sufFix: InkWell(
+                            onTap: () {
+                              tempFromDate = DateTime(tempFromDate.year,
+                                  tempFromDate.month, tempFromDate.day + 15);
+                              tempToDate = DateTime(tempFromDate.year,
+                                  tempFromDate.month, tempFromDate.day + 15);
+                              _controllerFromDate.text =
+                                  DateFormat("dd-MM-yyyy").format(tempFromDate);
+                              _controllerToDate.text =
+                                  DateFormat("dd-MM-yyyy").format(tempToDate);
+                              setState(() {});
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: colorLiteGreen,
+                                borderRadius: boxBorderRadius,
+                              ),
+                              child: const FaIcon(
+                                FontAwesomeIcons.plus,
+                                color: colorGreyText,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          isReadOnly: true,
+                          labelText: "From Date",
+                          hintFontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.bold,
+                          onTap: () {
+                            showDatePicker(
+                              context: context,
+                              initialDate: tempFromDate,
+                              firstDate: DateTime(tempFromDate.year - 1),
+                              lastDate: DateTime(tempFromDate.year + 1),
+                            ).then((value) {
+                              if (value != null) {
+                                tempFromDate = value;
+                                _controllerFromDate.text =
+                                    DateFormat("dd-MM-yyyy")
+                                        .format(tempFromDate);
+                                setState(() {});
+                              }
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        ThemedTextField(
+                          controller: _controllerToDate,
+                          borderColor: colorGreyBorderD3,
+                          preFix: const FaIcon(
+                            FontAwesomeIcons.calendar,
+                            color: colorGreen,
+                            size: 24,
+                          ),
+                          sufFix: InkWell(
+                            onTap: () {
+                              tempFromDate = DateTime(tempFromDate.year,
+                                  tempFromDate.month, tempFromDate.day - 15);
+                              tempToDate = DateTime(tempFromDate.year,
+                                  tempFromDate.month, tempFromDate.day + 15);
+                              _controllerFromDate.text =
+                                  DateFormat("dd-MM-yyyy").format(tempFromDate);
+                              _controllerToDate.text =
+                                  DateFormat("dd-MM-yyyy").format(tempToDate);
+                              setState(() {});
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: colorLiteGreen,
+                                borderRadius: boxBorderRadius,
+                              ),
+                              child: const FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: colorGreyText,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          isReadOnly: true,
+                          labelText: "To Date",
+                          hintFontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.bold,
+                          onTap: () {
+                            showDatePicker(
+                              context: context,
+                              initialDate: tempToDate,
+                              firstDate: DateTime(tempToDate.year - 1),
+                              lastDate: DateTime(tempToDate.year + 1),
+                            ).then((value) {
+                              if (value != null) {
+                                tempToDate = value;
+                                _controllerToDate.text =
+                                    DateFormat("dd-MM-yyyy").format(tempToDate);
+                                setState(() {});
+                              }
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 40),
+                        SizedBox(
+                          height: 50,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ThemedButton(
+                                  title: "Apply",
+                                  fontSize: 20,
+                                  padding: EdgeInsets.zero,
+                                  onTap: () {
+                                    fromDate = tempFromDate;
+                                    toDate = tempToDate;
+                                    setState(() {});
+                                    if (keyScaffold.currentState != null) {
+                                      keyScaffold.currentState!
+                                          .closeEndDrawer();
+                                    }
+                                    getData(fromDate: fromDate, toDate: toDate);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ThemedButton(
+                                  title: "Cancel",
+                                  fontSize: 20,
+                                  padding: EdgeInsets.zero,
+                                  onTap: () {
+                                    tempFromDate = fromDate;
+                                    tempToDate = toDate;
+                                    setState(() {});
+                                    if (keyScaffold.currentState != null) {
+                                      keyScaffold.currentState!
+                                          .closeEndDrawer();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Material(
+                          borderRadius: boxBorderRadius,
+                          color: colorGreen,
+                          elevation: 3,
+                          child: InkWell(
+                            onTap: () {
+                              logout();
+                            },
+                            child: Container(
+                              height: 50,
+                              width: MediaQuery.of(context).size.width,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.zero,
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: boxBorderRadius,
+                                border: Border.all(color: colorGreen, width: 2),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FaIcon(
+                                    FontAwesomeIcons.arrowLeft,
+                                    color: colorWhite,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Sign Out",
+                                    style: TextStyle(
+                                        color: colorWhite,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
+                                        fontFamily: stringFontFamilyGibson),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
+        bottomNavigationBar: SizedBox(
+          height: 70,
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildBottomNavBarItem(
+                    index: 0,
+                    icons: const Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    label: "CONFIRMED"),
+              ),
+              Expanded(
+                child: _buildBottomNavBarItem(
+                    index: 1,
+                    icons: Container(
+                      width: 27,
+                      height: 27,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colorWhite,
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: colorWhite,
+                        size: 20,
+                      ),
+                    ),
+                    label: "unCONFIRMED"),
+              ),
+              Expanded(
+                child: _buildBottomNavBarItem(
+                  index: 2,
+                  icons: const Icon(
+                    Icons.access_time_rounded,
+                    color: colorWhite,
+                    size: 30,
+                  ),
+                  label: "timesheet",
+                ),
+              ),
+              Expanded(
+                child: _buildBottomNavBarItem(
+                    index: 3,
+                    icons: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: colorWhite,
+                      size: 30,
+                    ),
+                    label: "available"),
+              ),
+              Expanded(
+                child: _buildBottomNavBarItem(
+                    index: 4,
+                    icons: const Icon(
+                      CupertinoIcons.person_alt_circle,
+                      color: colorWhite,
+                      size: 30,
+                    ),
+                    label: "profile"),
+              ),
+            ],
+          ),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Container(
+                color: colorLiteBlueBackGround,
+                child: getViewAsPerIndex(bottomCurrentIndex),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -605,460 +613,513 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         Expanded(
-          child: ListView.builder(
-            itemCount: list.length,
-            primary: true,
-            itemBuilder: (context, index) {
-              TimeShiteResponseModel model = list[index];
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
-                color: colorWhite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 8,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
+          child: Navigator(
+            key: _keyNavigator,
+            pages: [
+              MaterialPage(
+                child: ListView.builder(
+                  itemCount: list.length,
+                  primary: true,
+                  itemBuilder: (context, index) {
+                    TimeShiteResponseModel model = list[index];
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      margin:
+                          const EdgeInsets.only(top: 8, right: 15, left: 15),
+                      color: colorWhite,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "${model.resName} ",
-                                            style: const TextStyle(
-                                              color: colorGreyText,
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: model.serviceName,
-                                            style: const TextStyle(
-                                              color: colorGreyLiteText,
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  if (model.noteID != 0)
-                                    const FaIcon(
-                                      FontAwesomeIcons.calendarDays,
-                                      size: 16,
-                                    ),
-                                  const SizedBox(width: spaceHorizontal / 2),
-                                  InkWell(
-                                    onTap: () {
-                                      print("CareWorkerList ${model.empID} ${model.rosterID}");
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => CareWorkerList(
-                                              userId: model.empID ?? 0,
-                                              rosterID: model.rosterID ?? 0),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: const Icon(
-                                        CupertinoIcons.person_crop_circle,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: MediaQuery.of(context).size.width,
-                                height: 1,
-                                color: colorGreyBorderD3,
-                              ),
-                              const SizedBox(height: 3),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedExpandedIndex = index;
-                                      });
-                                    },
-                                    child: const SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Icon(
-                                        Icons.arrow_downward_rounded,
-                                        color: colorGreen,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          WidgetSpan(
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
+                              Expanded(
+                                flex: 8,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: RichText(
+                                            text: TextSpan(
                                               children: [
-                                                const SizedBox(width: 5),
-                                                const FaIcon(
-                                                  FontAwesomeIcons.calendarDays,
-                                                  color: colorGreen,
-                                                  size: 14,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  // model.serviceDate!,
-                                                  model.serviceDate != null
-                                                      ? DateFormat(
-                                                              "EEE,dd-MM-yyyy")
-                                                          .format(
-                                                          DateTime.fromMillisecondsSinceEpoch(
-                                                                  int.parse(model
-                                                                      .serviceDate!
-                                                                      .replaceAll(
-                                                                          "/Date(",
-                                                                          "")
-                                                                      .replaceAll(
-                                                                          ")/",
-                                                                          "")),
-                                                                  isUtc: false)
-                                                              .add(
-                                                            Duration(
-                                                                hours: 5,
-                                                                minutes: 30),
-                                                          ),
-                                                        )
-                                                      : "",
-                                                  style: TextStyle(
+                                                TextSpan(
+                                                  text: "${model.resName} ",
+                                                  style: const TextStyle(
                                                     color: colorGreyText,
+                                                    fontWeight: FontWeight.w400,
                                                     fontSize: 14,
                                                   ),
                                                 ),
-                                                const SizedBox(width: 5),
-                                                Container(
-                                                  width: 1,
-                                                  height: 25,
-                                                  color: colorGreyBorderD3,
+                                                TextSpan(
+                                                  text: model.serviceName,
+                                                  style: const TextStyle(
+                                                    color: colorGreyLiteText,
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          WidgetSpan(
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
+                                        ),
+                                        if (model.noteID != 0)
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ProgressNoteListByNoteId(
+                                                          userId:
+                                                              model.empID ?? 0,
+                                                          noteID: model.noteID ?? 0,
+                                                          rosterID: model.rosterID ?? 0,
+                                                      ),
+                                                ),
+                                              );
+                                            },
+                                            child: const FaIcon(
+                                              FontAwesomeIcons.calendarDays,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        const SizedBox(
+                                            width: spaceHorizontal / 2),
+                                        InkWell(
+                                          onTap: () {
+                                            print(
+                                                "CareWorkerList ${model.empID} ${model.rosterID}");
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CareWorkerList(
+                                                        userId:
+                                                            model.empID ?? 0,
+                                                        rosterID:
+                                                            model.rosterID ??
+                                                                0),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: const Icon(
+                                              CupertinoIcons.person_crop_circle,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      height: 1,
+                                      color: colorGreyBorderD3,
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              if (selectedExpandedIndex !=
+                                                  index) {
+                                                selectedExpandedIndex = index;
+                                              } else {
+                                                selectedExpandedIndex = -1;
+                                              }
+                                            });
+                                          },
+                                          child: const SizedBox(
+                                            width: 30,
+                                            height: 30,
+                                            child: Icon(
+                                              Icons.arrow_downward_rounded,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: RichText(
+                                            text: TextSpan(
                                               children: [
-                                                /* const SizedBox(
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const SizedBox(width: 5),
+                                                      const FaIcon(
+                                                        FontAwesomeIcons
+                                                            .calendarDays,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        // model.serviceDate!,
+                                                        model.serviceDate !=
+                                                                null
+                                                            ? DateFormat(
+                                                                    "EEE,dd-MM-yyyy")
+                                                                .format(
+                                                                DateTime.fromMillisecondsSinceEpoch(
+                                                                        int.parse(model
+                                                                            .serviceDate!
+                                                                            .replaceAll("/Date(",
+                                                                                "")
+                                                                            .replaceAll(")/",
+                                                                                "")),
+                                                                        isUtc:
+                                                                            false)
+                                                                    .add(
+                                                                  Duration(
+                                                                      hours: 5,
+                                                                      minutes:
+                                                                          30),
+                                                                ),
+                                                              )
+                                                            : "",
+                                                        style: TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 25,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      /* const SizedBox(
+                                                    width: 30,
+                                                    height: 30,
+                                                  ),*/
+                                                      const SizedBox(width: 5),
+                                                      const Icon(
+                                                        CupertinoIcons.time,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        "${model.totalHours}hrs",
+                                                        style: const TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 25,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    children: [
+                                                      /*   SizedBox(
                                                   width: 30,
                                                   height: 30,
                                                 ),*/
-                                                const SizedBox(width: 5),
-                                                const Icon(
-                                                  CupertinoIcons.time,
-                                                  color: colorGreen,
-                                                  size: 14,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  "${model.totalHours}hrs",
-                                                  style: const TextStyle(
-                                                    color: colorGreyText,
-                                                    fontSize: 14,
+                                                      const SizedBox(width: 5),
+                                                      const Icon(
+                                                        Icons.timer,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        model.shift ?? "",
+                                                        style: const TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
                                                   ),
                                                 ),
-                                                const SizedBox(width: 5),
-                                                Container(
-                                                  width: 1,
-                                                  height: 25,
-                                                  color: colorGreyBorderD3,
-                                                ),
-                                                const SizedBox(width: 5),
                                               ],
                                             ),
                                           ),
-                                          WidgetSpan(
-                                            child: Row(
-                                              children: [
-                                                /*   SizedBox(
-                                                width: 30,
-                                                height: 30,
-                                              ),*/
-                                                const SizedBox(width: 5),
-                                                const Icon(
-                                                  Icons.timer,
-                                                  color: colorGreen,
-                                                  size: 14,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  model.shift ?? "",
-                                                  style: const TextStyle(
-                                                    color: colorGreyText,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 5),
-                                              ],
-                                            ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        if (model.noteID != 0)
+                                          const FaIcon(
+                                            FontAwesomeIcons.notesMedical,
+                                            size: 20,
                                           ),
-                                        ],
-                                      ),
+                                        if (model.noteID != 0)
+                                          const SizedBox(
+                                              width: spaceHorizontal / 2),
+                                        if (model.dsnId != 0)
+                                          const FaIcon(
+                                            FontAwesomeIcons.volcano,
+                                            size: 20,
+                                          ),
+                                        if (model.dsnId != 0)
+                                          const SizedBox(
+                                              width: spaceHorizontal / 2),
+                                        if (bottomCurrentIndex == 2)
+                                          Icon(
+                                            Icons.check_circle_rounded,
+                                            color: model.locationName == "" ||
+                                                    model.logOffLocationName ==
+                                                        ""
+                                                ? colorRed
+                                                : colorGreen,
+                                            size: 20,
+                                          ),
+                                        if (bottomCurrentIndex == 2)
+                                          const SizedBox(
+                                              width: spaceHorizontal / 2),
+                                        /*const Expanded(
+                                        child: Icon(
+                                      Icons.timelapse_rounded,
+                                      color: colorGreen,
+                                      size: 26,
+                                    )),*/
+                                        // const SizedBox(width: 5),
+                                        Container(
+                                          width: 1,
+                                          height: 30,
+                                          color: colorGreyBorderD3,
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  if (model.noteID != 0)
-                                    const FaIcon(
-                                      FontAwesomeIcons.notesMedical,
-                                      size: 20,
+                                  ],
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          TimeSheetDetail(model: model),
                                     ),
-                                  if (model.noteID != 0)
-                                    const SizedBox(width: spaceHorizontal / 2),
-                                  if (model.dsnId != 0)
-                                    const FaIcon(
-                                      FontAwesomeIcons.volcano,
-                                      size: 20,
-                                    ),
-                                  if (model.dsnId != 0)
-                                    const SizedBox(width: spaceHorizontal / 2),
-                                  if (bottomCurrentIndex == 2)
-                                    Icon(
-                                      Icons.check_circle_rounded,
-                                      color: model.locationName == "" ||
-                                              model.logOffLocationName == ""
-                                          ? colorRed
-                                          : colorGreen,
-                                      size: 20,
-                                    ),
-                                  if (bottomCurrentIndex == 2)
-                                    const SizedBox(width: spaceHorizontal / 2),
-                                  /*const Expanded(
-                                      child: Icon(
-                                    Icons.timelapse_rounded,
+                                  );
+                                },
+                                child: const Align(
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_rounded,
                                     color: colorGreen,
-                                    size: 26,
-                                  )),*/
-                                  // const SizedBox(width: 5),
-                                  Container(
-                                    width: 1,
-                                    height: 30,
-                                    color: colorGreyBorderD3,
+                                    size: 30,
                                   ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    TimeSheetDetail(model: model),
+                          ExpandableContainer(
+                            expanded: selectedExpandedIndex == index,
+                            expandedHeight: 225,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ThemedText(
+                                      text: model.shiftComments != null &&
+                                              model.shiftComments!.isNotEmpty
+                                          ? model.shiftComments!
+                                          : "No shift comments provided."),
+                                  ThemedText(
+                                      text: model.comments != null &&
+                                              model.comments!.isNotEmpty
+                                          ? model.comments!
+                                          : "No shift comments provided."),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      launchUrlMethod(
+                                          "http://maps.google.com/?q=${model.resAddress}");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.locationDot,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: model.resAddress ?? ""),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      launchUrlMethod(
+                                          "tel:${model.resHomePhone}");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.phoneVolume,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: model.resHomePhone ?? ""),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      launchUrlMethod(
+                                          "tel:${model.resMobilePhone}");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.mobileAlt,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: model.resMobilePhone ?? ""),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ClientDocument(
+                                            id: (model.clientID ?? 0)
+                                                .toString(),
+                                            resId:
+                                                (model.rESID ?? 0).toString(),
+                                          ),
+                                        ),
+                                      );
+                                      // _launchUrl(
+                                      //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.fileLines,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: "View Client Documents"),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      print("model.clientID : ${model.rESID}");
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ClientInfo(
+                                              clientId:
+                                                  (model.rESID ?? 0).toString(),
+                                            ),
+                                          ));
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.circleInfo,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: "View Client Info"),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                ],
                               ),
-                            );
-                          },
-                          child: const Align(
-                            child: Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              color: colorGreen,
-                              size: 30,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    ExpandableContainer(
-                      expanded: selectedExpandedIndex == index,
-                      expandedHeight: 225,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ThemedText(
-                                text: model.shiftComments != null &&
-                                        model.shiftComments!.isNotEmpty
-                                    ? model.shiftComments!
-                                    : "No shift comments provided."),
-                            ThemedText(
-                                text: model.comments != null &&
-                                        model.comments!.isNotEmpty
-                                    ? model.comments!
-                                    : "No shift comments provided."),
-                            const SizedBox(height: 7),
-                            InkWell(
-                              onTap: () {
-                                launchUrlMethod(
-                                    "http://maps.google.com/?q=${model.resAddress}");
-                              },
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 25,
-                                    height: 25,
-                                    child: Center(
-                                      child: FaIcon(
-                                        FontAwesomeIcons.locationDot,
-                                        color: colorGreen,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: spaceHorizontal),
-                                  Expanded(
-                                    child: ThemedText(
-                                        text: model.resAddress ?? ""),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 7),
-                            InkWell(
-                              onTap: () {
-                                launchUrlMethod("tel:${model.resHomePhone}");
-                              },
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 25,
-                                    height: 25,
-                                    child: Center(
-                                      child: FaIcon(
-                                        FontAwesomeIcons.phoneVolume,
-                                        color: colorGreen,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: spaceHorizontal),
-                                  Expanded(
-                                    child: ThemedText(
-                                        text: model.resHomePhone ?? ""),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 7),
-                            InkWell(
-                              onTap: () {
-                                launchUrlMethod("tel:${model.resMobilePhone}");
-                              },
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 25,
-                                    height: 25,
-                                    child: Center(
-                                      child: FaIcon(
-                                        FontAwesomeIcons.mobileAlt,
-                                        color: colorGreen,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: spaceHorizontal),
-                                  Expanded(
-                                    child: ThemedText(
-                                        text: model.resMobilePhone ?? ""),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 7),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ClientDocument(
-                                      id: (model.clientID ?? 0).toString(),
-                                      resId: (model.rESID ?? 0).toString(),
-                                    ),
-                                  ),
-                                );
-                                // _launchUrl(
-                                //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
-                              },
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 25,
-                                    height: 25,
-                                    child: Center(
-                                      child: FaIcon(
-                                        FontAwesomeIcons.fileLines,
-                                        color: colorGreen,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: spaceHorizontal),
-                                  Expanded(
-                                    child: ThemedText(
-                                        text: "View Client Documents"),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 7),
-                            InkWell(
-                              onTap: () {
-                                print("model.clientID : ${model.rESID}");
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ClientInfo(
-                                        clientId: (model.rESID ?? 0).toString(),
-                                      ),
-                                    ));
-                              },
-                              child: Row(
-                                children: [
-                                  const SizedBox(
-                                    width: 25,
-                                    height: 25,
-                                    child: Center(
-                                      child: FaIcon(
-                                        FontAwesomeIcons.circleInfo,
-                                        color: colorGreen,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: spaceHorizontal),
-                                  Expanded(
-                                    child: ThemedText(text: "View Client Info"),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 7),
-                          ],
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget getListAsPerIndex(int index) {
+  Widget getViewAsPerIndex(int index) {
     switch (index) {
       // case 0:
       //   return _buildList(list: confirmedDataList);
@@ -1068,6 +1129,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return _buildList(list: timeSheetDataList);
       case 3:
         return _buildList(list: avaliableDataList);
+      case 5:
+        return const ProgressNote();
       default:
         return _buildList(list: confirmedDataList);
     }

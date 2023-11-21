@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:rcare_2/Network/ApiUrls.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
 import '../../../Network/API.dart';
-import '../../../network/ApiUrls.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/Constants.dart';
@@ -104,16 +104,15 @@ class _ProgressNoteState extends State<ProgressNote> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
-      appBar: buildAppBar(context, title: 'Progress Notes'),
+      // appBar: buildAppBar(context, title: 'Progress Notes'),
       body: Column(
         children: [
-
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: spaceHorizontal, vertical: spaceVertical),
             child: ThemedText(
               text:
-              "ProgressNotes : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+                  "ProgressNotes : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: colorGreyText,
@@ -124,7 +123,6 @@ class _ProgressNoteState extends State<ProgressNote> {
             height: 1,
             color: colorGreyBorderD3,
           ),
-
           Expanded(
             child: Container(
               color: colorLiteBlueBackGround,
@@ -251,11 +249,15 @@ class _ProgressNoteState extends State<ProgressNote> {
                         ),
                         InkWell(
                           onTap: () {
-                            Navigator.push(
-                              context,
+
+                            Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    ProgressNoteDetails(model: model),
+                                builder: (context) => ProgressNoteDetails(
+                                  userId: model.serviceScheduleEmpID ?? 0,
+                                  noteId: model.noteID ?? 0,
+                                  serviceName: model.serviceName ?? "",
+                                  // model: model,
+                                ),
                               ),
                             );
                           },
@@ -295,7 +297,12 @@ class _ProgressNoteState extends State<ProgressNote> {
                                       const SizedBox(width: spaceHorizontal),
                                       Expanded(
                                         child: ThemedText(
-                                            text:  "Time " + (model.timeFrom ?? "") +" - "+ (model.timeTo ?? ""),fontSize: 12,),
+                                          text: "Time " +
+                                              (model.timeFrom ?? "") +
+                                              " - " +
+                                              (model.timeTo ?? ""),
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -316,7 +323,11 @@ class _ProgressNoteState extends State<ProgressNote> {
                                       const SizedBox(width: spaceHorizontal),
                                       Expanded(
                                         child: ThemedText(
-                                            text:  "Total Hours " + (model.totalHours ?? "")+"hrs" ,fontSize: 12,),
+                                          text: "Total Hours " +
+                                              (model.totalHours ?? "") +
+                                              "hrs",
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -339,7 +350,10 @@ class _ProgressNoteState extends State<ProgressNote> {
                                 const SizedBox(width: spaceHorizontal),
                                 Expanded(
                                   child: ThemedText(
-                                      text:  "Created By " + (model.createdByName ?? ""),fontSize: 12,),
+                                    text: "Created By " +
+                                        (model.createdByName ?? ""),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),

@@ -6,7 +6,7 @@ class CareWorkerModel {
   String? serviceType;
   String? timeFrom;
   String? timeTo;
-  int? totalhours;
+  dynamic? totalhours;
   String? clientName;
   int? servicescheduleCLientID;
   int? serviceScheduleID;

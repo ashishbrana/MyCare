@@ -1,36 +1,41 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/screen/home/HomeScreen.dart';
-import 'package:rcare_2/utils/WidgetMethods.dart';
+import 'package:rcare_2/network/ApiUrls.dart';
 
 import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/methods.dart';
-import 'models/CareWorkerModel.dart';
+import 'HomeScreen.dart';
 
-class CareWorkerList extends StatefulWidget {
+import 'models/ProgressNoteModel.dart';
+import 'notes/NotesDetails.dart';
+
+class ProgressNoteListByNoteId extends StatefulWidget {
   final int userId;
+  final int noteID;
   final int rosterID;
 
-  const CareWorkerList(
-      {super.key, required this.userId, required this.rosterID});
+  const ProgressNoteListByNoteId(
+      {super.key,
+      required this.userId,
+      required this.noteID,
+      required this.rosterID});
 
   @override
-  State<CareWorkerList> createState() => _CareWorkerListState();
+  State<ProgressNoteListByNoteId> createState() =>
+      _ProgressNoteListByNoteIdState();
 }
 
-class _CareWorkerListState extends State<CareWorkerList> {
+class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
-  List<CareWorkerModel> dataList = [];
+  List<ProgressNoteModel> dataList = [];
 
   int selectedExpandedIndex = -1;
 
@@ -46,14 +51,21 @@ class _CareWorkerListState extends State<CareWorkerList> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'accountType':
+          (await Preferences().getPrefInt(Preferences.prefAccountType))
+              .toString(),
+      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
+      'todate': DateFormat("yyyy/MM/dd").format(toDate),
       'userid': widget.userId.toString(),
+      'NoteID': widget.noteID.toString(),
       'RosterID': widget.rosterID.toString(),
+      'isCareworkerSpecific': "0",
     };
     print("params : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(endCareWorkersList, params: params).toString(),
+            url: getUrl(endProgressNotesList, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',
@@ -69,7 +81,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
             List jResponse = json.decode(response);
             print("jResponse $jResponse");
             dataList =
-                jResponse.map((e) => CareWorkerModel.fromJson(e)).toList();
+                jResponse.map((e) => ProgressNoteModel.fromJson(e)).toList();
             print("models.length : ${dataList.length}");
 
             setState(() {});
@@ -103,7 +115,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
               itemCount: dataList.length,
               primary: true,
               itemBuilder: (context, index) {
-                CareWorkerModel model = dataList[index];
+                ProgressNoteModel model = dataList[index];
                 return Container(
                   margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
                   decoration: BoxDecoration(
@@ -112,6 +124,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -121,7 +134,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                         width: MediaQuery.of(context).size.width,
                         padding: const EdgeInsets.all(3),
                         child: ThemedText(
-                          text: "CareWorkers",
+                          text: "Progress Note",
                           color: colorWhite,
                           fontSize: 12,
                           textAlign: TextAlign.center,
@@ -139,55 +152,29 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                   flex: 8,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text:
-                                                        "${model.careWorkerName} ",
-                                                    style: const TextStyle(
-                                                      color: colorGreyText,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                  TextSpan(
-                                                    text: model.serviceType,
-                                                    style: const TextStyle(
-                                                      color: colorGreyLiteText,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          if (model.noteID != 0)
-                                            const FaIcon(
-                                              FontAwesomeIcons.calendarDays,
-                                              size: 16,
-                                            ),
-                                          /*const SizedBox(width: spaceHorizontal / 2),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius: BorderRadius.circular(5),
-                                            ),
-                                            child: const Icon(
-                                              CupertinoIcons.person_crop_circle,
-                                              color: Colors.white,
-                                              size: 16,
-                                            ),
-                                          ),*/
-                                        ],
+                                      ThemedText(
+                                        text: "${model.serviceName} ",
+                                        color: colorBlack,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
                                       ),
+                                      ThemedRichText(spanList: [
+                                        getTextSpan(
+                                          text: "Note Writer: ",
+                                          fontColor: colorGreyLiteText,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14,
+                                        ),
+                                        getTextSpan(
+                                          text: model.createdByName ?? "",
+                                          fontColor: colorGreyLiteText,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 14,
+                                        ),
+                                      ]),
                                       const SizedBox(height: 8),
                                       Container(
                                         width:
@@ -245,13 +232,12 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                             width: 5),
                                                         Text(
                                                           // model.serviceDate!,
-                                                          model.serviceDate !=
-                                                                  null
+                                                          model.noteDate != null
                                                               ? DateFormat(
                                                                       "EEE,dd-MM-yyyy")
                                                                   .format(
                                                                   DateTime.fromMillisecondsSinceEpoch(
-                                                                          int.parse(model.serviceDate!.replaceAll("/Date(", "").replaceAll(
+                                                                          int.parse(model.noteDate!.replaceAll("/Date(", "").replaceAll(
                                                                               ")/",
                                                                               "")),
                                                                           isUtc:
@@ -268,7 +254,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                           style: TextStyle(
                                                             color:
                                                                 colorGreyText,
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                           ),
                                                         ),
                                                         const SizedBox(
@@ -290,26 +276,25 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        /* const SizedBox(
+                                                        /*const SizedBox(
                                                           width: 30,
                                                           height: 30,
-                                                        ),*/
+                                                        ),
                                                         const SizedBox(
                                                             width: 5),
                                                         const Icon(
                                                           CupertinoIcons.time,
                                                           color: colorGreen,
                                                           size: 14,
-                                                        ),
+                                                        ),*/
                                                         const SizedBox(
                                                             width: 5),
-                                                        Text(
-                                                          "${model.totalhours}hrs",
-                                                          style:
-                                                              const TextStyle(
+                                                        const Text(
+                                                          "Progress Note",
+                                                          style: TextStyle(
                                                             color:
                                                                 colorGreyText,
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                           ),
                                                         ),
                                                         const SizedBox(
@@ -319,41 +304,6 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                           height: 25,
                                                           color:
                                                               colorGreyBorderD3,
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  WidgetSpan(
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        /* const SizedBox(
-                                                          width: 30,
-                                                          height: 30,
-                                                        ),*/
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        const Icon(
-                                                          Icons.timer,
-                                                          color: colorGreen,
-                                                          size: 14,
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Text(
-                                                          "${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
-                                                          style:
-                                                              const TextStyle(
-                                                            color:
-                                                                colorGreyText,
-                                                            fontSize: 14,
-                                                          ),
                                                         ),
                                                         const SizedBox(
                                                             width: 5),
@@ -375,29 +325,149 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                     ],
                                   ),
                                 ),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(keyScaffold.currentContext ?? context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProgressNoteDetails(
+                                                // model: model,
+                                                userId: model
+                                                        .serviceScheduleEmpID ??
+                                                    0,
+                                                noteId: model.noteID ?? 0,
+                                                serviceName:
+                                                    model.serviceName ?? ""),
+                                      ),
+                                    );
+                                  },
+                                  child: const Align(
+                                    child: Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: colorGreen,
+                                      size: 30,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             ExpandableContainer(
                               expanded: selectedExpandedIndex == index,
-                              expandedHeight: 30,
+                              expandedHeight: 90,
                               child: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 5),
-                                    ThemedRichText(
-                                      spanList: [
-                                        getTextSpan(
-                                          text: "Client : ",
-                                          fontColor: colorBlack,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                    Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 30,
+                                          height: 30,
                                         ),
-                                        getTextSpan(
-                                          text: model.clientName ?? "",
-                                          fontColor: colorBlack,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                        Expanded(
+                                          child: RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      const SizedBox(width: 5),
+                                                      const Icon(
+                                                        Icons.timer,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        "${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
+                                                        style: const TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 25,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      const SizedBox(width: 5),
+                                                      const Icon(
+                                                        Icons.timer,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        "Total Hours: ${model.totalHours ?? ""}hrs",
+                                                        style: const TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 25,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      const SizedBox(width: 5),
+                                                      const Icon(
+                                                        Icons.timer,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        "Created By: ${model.createdByName ?? ""}",
+                                                        style: const TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 25,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
