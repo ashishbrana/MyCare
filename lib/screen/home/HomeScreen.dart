@@ -9,6 +9,7 @@ import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
 import 'package:rcare_2/screen/home/ClientInfo.dart';
 import 'package:rcare_2/screen/home/ProgressNoteListByNoteId.dart';
+import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/screen/home/notes/ProgressNotes.dart';
 import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
 import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
@@ -33,6 +34,7 @@ DateTime toDate = DateTime(
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
 final GlobalKey<ScaffoldState> keyScaffold = GlobalKey<ScaffoldState>();
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -70,7 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'accountType': (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
+      'accountType':
+          (await Preferences().getPrefInt(Preferences.prefAccountType))
+              .toString(),
       'userid':
           (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
@@ -672,17 +676,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       ProgressNoteListByNoteId(
-                                                          userId:
-                                                              model.empID ?? 0,
-                                                          noteID: model.noteID ?? 0,
-                                                          rosterID: model.rosterID ?? 0,
-                                                      ),
+                                                    userId: model.empID ?? 0,
+                                                    noteID: model.noteID ?? 0,
+                                                    rosterID:
+                                                        model.rosterID ?? 0,
+                                                  ),
                                                 ),
                                               );
                                             },
                                             child: const FaIcon(
                                               FontAwesomeIcons.calendarDays,
-                                              size: 16,
+                                              size: 22,
                                             ),
                                           ),
                                         const SizedBox(
@@ -713,7 +717,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: const Icon(
                                               CupertinoIcons.person_crop_circle,
                                               color: Colors.white,
-                                              size: 16,
+                                              size: 22
                                             ),
                                           ),
                                         ),
@@ -871,9 +875,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         const SizedBox(width: 5),
                                         if (model.noteID != 0)
-                                          const FaIcon(
-                                            FontAwesomeIcons.notesMedical,
-                                            size: 20,
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                keyScaffold.currentContext!,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ProgressNoteDetails(
+                                                    userId: model.empID ?? 0,
+                                                    noteId: model.noteID ?? 0,
+                                                    serviceName: model.serviceName ?? "",
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: const FaIcon(
+                                              FontAwesomeIcons.notesMedical,
+                                              size: 22,
+                                            ),
                                           ),
                                         if (model.noteID != 0)
                                           const SizedBox(
@@ -881,7 +900,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         if (model.dsnId != 0)
                                           const FaIcon(
                                             FontAwesomeIcons.volcano,
-                                            size: 20,
+                                            size: 22,
                                           ),
                                         if (model.dsnId != 0)
                                           const SizedBox(
@@ -894,7 +913,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         ""
                                                 ? colorRed
                                                 : colorGreen,
-                                            size: 20,
+                                            size: 22,
                                           ),
                                         if (bottomCurrentIndex == 2)
                                           const SizedBox(
@@ -919,7 +938,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               InkWell(
                                 onTap: () {
                                   Navigator.push(
-                                    context,
+                                    keyScaffold.currentContext!,
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           TimeSheetDetail(model: model),
@@ -1141,6 +1160,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return InkWell(
       onTap: () {
         setState(() {
+          if (_keyNavigator.currentState != null) {
+            while (_keyNavigator.currentState!.canPop()) {
+              _keyNavigator.currentState!.pop();
+            }
+          }
           if (index < 4) {
             bottomCurrentIndex = index;
           } else {
