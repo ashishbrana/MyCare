@@ -108,6 +108,21 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
       backgroundColor: colorLiteBlueBackGround,
       body: Column(
         children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
+            decoration: BoxDecoration(
+              color: colorGreen,
+              borderRadius: boxBorderRadius,
+            ),
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.all(3),
+            child: ThemedText(
+              text: "Progress Note",
+              color: colorWhite,
+              fontSize: 12,
+              textAlign: TextAlign.center,
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: dataList.length,
@@ -124,20 +139,7 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorGreen,
-                          borderRadius: boxBorderRadius,
-                        ),
-                        width: MediaQuery.of(context).size.width,
-                        padding: const EdgeInsets.all(3),
-                        child: ThemedText(
-                          text: "Progress Note",
-                          color: colorWhite,
-                          fontSize: 12,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),

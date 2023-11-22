@@ -98,9 +98,26 @@ class _CareWorkerListState extends State<CareWorkerList> {
       backgroundColor: colorLiteBlueBackGround,
       body: Column(
         children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
+
+            decoration: BoxDecoration(
+              color: colorGreen,
+              borderRadius: boxBorderRadius,
+            ),
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.all(3),
+            child: ThemedText(
+              text: "CareWorkers",
+              color: colorWhite,
+              fontSize: 12,
+              textAlign: TextAlign.center,
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: dataList.length,
+
               primary: true,
               itemBuilder: (context, index) {
                 CareWorkerModel model = dataList[index];
@@ -113,20 +130,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorGreen,
-                          borderRadius: boxBorderRadius,
-                        ),
-                        width: MediaQuery.of(context).size.width,
-                        padding: const EdgeInsets.all(3),
-                        child: ThemedText(
-                          text: "CareWorkers",
-                          color: colorWhite,
-                          fontSize: 12,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
