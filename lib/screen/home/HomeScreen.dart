@@ -8,6 +8,7 @@ import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
 import 'package:rcare_2/screen/home/ClientInfo.dart';
+import 'package:rcare_2/screen/home/DNSList.dart';
 import 'package:rcare_2/screen/home/ProgressNoteListByNoteId.dart';
 import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/screen/home/notes/ProgressNotes.dart';
@@ -715,10 +716,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   BorderRadius.circular(5),
                                             ),
                                             child: const Icon(
-                                              CupertinoIcons.person_crop_circle,
-                                              color: Colors.white,
-                                              size: 22
-                                            ),
+                                                CupertinoIcons
+                                                    .person_crop_circle,
+                                                color: Colors.white,
+                                                size: 22),
                                           ),
                                         ),
                                       ],
@@ -884,7 +885,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ProgressNoteDetails(
                                                     userId: model.empID ?? 0,
                                                     noteId: model.noteID ?? 0,
-                                                    serviceName: model.serviceName ?? "",
+                                                    serviceName:
+                                                        model.serviceName ?? "",
                                                   ),
                                                 ),
                                               );
@@ -898,9 +900,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                           const SizedBox(
                                               width: spaceHorizontal / 2),
                                         if (model.dsnId != 0)
-                                          const FaIcon(
-                                            FontAwesomeIcons.volcano,
-                                            size: 22,
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DNSList(
+                                                          userId:
+                                                              model.empID ?? 0,
+                                                          rosterID:
+                                                              model.rosterID ??
+                                                                  0),
+                                                ),
+                                              );
+                                            },
+                                            child: const FaIcon(
+                                              FontAwesomeIcons.volcano,
+                                              size: 22,
+                                            ),
                                           ),
                                         if (model.dsnId != 0)
                                           const SizedBox(

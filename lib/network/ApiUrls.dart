@@ -11,6 +11,7 @@ const String endClientProfile = 'ClientProfile';
 const String endGetDocs = 'getdocs';
 const String progressNotesList = 'ProgressNotesList';
 const String endCareWorkersList = 'CareWorkersList';
+const String endDNSList = 'DSNList';
 const String endNoteDetailsByID = 'NoteDetailsByID';
 const String endProgressNotesList = 'ProgressNotesList';
 

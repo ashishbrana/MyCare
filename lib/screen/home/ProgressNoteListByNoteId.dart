@@ -51,15 +51,13 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
+      'accountType': (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
       'userid': widget.userId.toString(),
       'NoteID': widget.noteID.toString(),
       'RosterID': widget.rosterID.toString(),
-      'isCareworkerSpecific': "0",
+      'isCareworkerSpecific': "1",
     };
     print("params : $params");
     isConnected().then((hasInternet) async {
