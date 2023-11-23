@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/home/models/ProfileModel.dart';
 import 'package:rcare_2/screen/login/ChangePassword.dart';
@@ -41,6 +43,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   final TextEditingController _controllerUserName = TextEditingController();
 
   ProfileModel? _profileModel;
+
+  Uint8List? profileImage;
 
   @override
   void initState() {
@@ -95,7 +99,13 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               _controllerAddress.text = _profileModel!.address ?? "";
               _controllerMobile.text = _profileModel!.mobileNo ?? "";
               _controllerUserName.text = _profileModel!.userName ?? "";
-
+              try {
+                profileImage = Base64Decoder().convert(
+                    (_profileModel!.empProfilePic ?? "")
+                        .replaceAll("data:image/png;base64,", ""));
+              } catch (e) {
+                log("IMAGECONVERTERROR : $e");
+              }
             } else {
               showSnackBarWithText(
                   _keyScaffold.currentState, "Data Not Available!");
@@ -157,14 +167,18 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                       children: [
                                         AspectRatio(
                                           aspectRatio: 1 / 1,
-                                          child: Image.network(
-                                            "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?w=900&t=st=1699430153~exp=1699430753~hmac=a141c1497a8aa23749636014e4fea408c3db11ac12fef8513708e0995fa26bcc",
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                  color: colorGrey33);
-                                            },
-                                          ),
+                                          child: profileImage != null
+                                              ? Image.memory(
+                                                  profileImage!,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                        color: colorGrey33);
+                                                  },
+                                                )
+                                              : const Center(
+                                                  child: Icon(Icons.person),
+                                                ),
                                         ),
                                         ThemedText(
                                           text: "Upload",
@@ -442,7 +456,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 fontWeight: FontWeight.w500,
                                 padding: EdgeInsets.zero,
                                 onTap: () {
-                                  Navigator.pop(context);
+                                  _saveProfileApiCall();
                                 },
                               ),
                             ),
@@ -459,5 +473,68 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         ),
       ),
     );
+  }
+
+  _saveProfileApiCall() {
+    if (_profileModel != null) {
+      Map<String, dynamic> params = <String, dynamic>{
+        'employeeID': (_profileModel!.employeeID ?? 0).toString(),
+        'title': " ",
+        'FirstName': _controllerFirstName.text,
+        'LastName': _controllerLastName.text,
+        'UnitNo': _profileModel!.unitNo ?? "",
+        'Address': _controllerAddress.text,
+        'City': _profileModel!.city,
+        'State': _profileModel!.state,
+        'PostalCode': _profileModel!.postalCode,
+        'HomePhone': _controllerHomePhone.text,
+        'WorkPhone': _controllerWorkPhone.text,
+        'MobileNo': _controllerMobile.text,
+        'email': _controllerEmail.text,
+        "Languages": _profileModel!.languages,
+        "EmrgcyContactName": _profileModel!.emrgcyContactName,
+        "EmrgcyContactPhone": _profileModel!.emrgcyContactPhone,
+        "PrivateEmail": _profileModel!.privateEmail != null && _profileModel!.contractorName!.isNotEmpty ?_profileModel!.privateEmail : "null" ,
+        "ContractorName": _profileModel!.contractorName != null && _profileModel!.contractorName!.isNotEmpty ? _profileModel!.contractorName :"null",
+      };
+
+      print(params);
+      log("URL ${getUrl(endSaveEmployeeProfile, params: params)}");
+      isConnected().then((hasInternet) async {
+        if (hasInternet) {
+          var response;
+          HttpRequestModel request = HttpRequestModel(
+              url: getUrl(endSaveEmployeeProfile, params: params).toString(),
+              //endSaveEmployeeProfile,
+              authMethod: '',
+              body: '',
+              headerType: '',
+              params: "",//params.toString(),
+              method: 'GET');
+
+          try {
+            getOverlay(context);
+            response = await HttpService().init(request, _keyScaffold);
+            print("response $response");
+            if (response != null && response != "") {
+              var jResponse = json.decode(response.toString());
+            } else {
+              showSnackBarWithText(
+                  _keyScaffold.currentState, stringSomeThingWentWrong);
+            }
+            removeOverlay();
+          } catch (e) {
+            log("SignUp$e");
+            removeOverlay();
+            throw e;
+          } finally {
+            removeOverlay();
+          }
+        } else {
+          showSnackBarWithText(
+              _keyScaffold.currentState, stringErrorNoInterNet);
+        }
+      });
+    }
   }
 }

@@ -1,19 +1,30 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/TimeSheetForm.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
+import '../../Network/API.dart';
+import '../../network/ApiUrls.dart';
+import '../../utils/ConstantStrings.dart';
+import '../../utils/Preferences.dart';
+import '../../utils/methods.dart';
 import 'models/ConfirmedResponseModel.dart';
+import 'notes/NotesDetails.dart';
 
 class TimeSheetDetail extends StatefulWidget {
   final TimeShiteResponseModel model;
+  final int indexSelectedFrom;
 
-  const TimeSheetDetail({super.key, required this.model});
+  const TimeSheetDetail(
+      {super.key, required this.model, required this.indexSelectedFrom});
 
   @override
   State<TimeSheetDetail> createState() => _TimeSheetDetailState();
@@ -202,17 +213,36 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               height: 50,
               width: MediaQuery.of(context).size.width * .85,
               child: ThemedButton(
-                title: "Complete TimeSheet",
+                title: widget.indexSelectedFrom == 0
+                    ? "Complete TimeSheet"
+                    : widget.indexSelectedFrom == 3
+                        ? "PickUp"
+                        : "Confirm",
                 padding: EdgeInsets.zero,
                 fontSize: 16,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          TimeSheetForm(model: widget.model),
-                    ),
-                  );
+                  if (widget.indexSelectedFrom == 0) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            TimeSheetForm(model: widget.model),
+                      ),
+                    );
+                  } else {
+                    showConfirmationDialog(
+                      onYesTap: () {
+                        if (widget.indexSelectedFrom == 1) {
+                          confirmApiCall();
+                        } else if (widget.indexSelectedFrom == 3) {
+                          pickUpApiCall();
+                        }
+                      },
+                      onNoTap: () {
+                        Navigator.pop(context);
+                      },
+                    );
+                  }
                 },
               ),
             ),
@@ -224,7 +254,19 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                 title: "Notes",
                 padding: EdgeInsets.zero,
                 fontSize: 16,
-                onTap: () {},
+                onTap: () {
+                  if (keyScaffold.currentContext != null) {
+                    Navigator.push(
+                        keyScaffold.currentContext!,
+                        MaterialPageRoute(
+                          builder: (context) => ProgressNoteDetails(
+                            userId: widget.model.empID ?? 0,
+                            noteId: widget.model.noteID ?? 0,
+                            serviceName: widget.model.serviceName ?? "",
+                          ),
+                        ));
+                  }
+                },
               ),
             ),
             const SizedBox(height: spaceVertical / 1.5),
@@ -244,5 +286,155 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
         ),
       ),
     );
+  }
+
+  showConfirmationDialog(
+      {required void Function() onYesTap, required void Function() onNoTap}) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: boxBorderRadius,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: spaceVertical),
+            ThemedText(text: "Are you sure ?"),
+            const SizedBox(height: spaceVertical),
+            SizedBox(
+              height: 30,
+              child: Row(
+                children: [
+                  const SizedBox(width: spaceHorizontal * 2),
+                  Expanded(
+                    child: ThemedButton(
+                      title: "Yes",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      padding: EdgeInsets.zero,
+                      onTap: onYesTap,
+                    ),
+                  ),
+                  const SizedBox(width: spaceHorizontal),
+                  Expanded(
+                    child: ThemedButton(
+                      title: "No",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      padding: EdgeInsets.zero,
+                      onTap: onNoTap,
+                    ),
+                  ),
+                  const SizedBox(width: spaceHorizontal * 2),
+                ],
+              ),
+            ),
+            const SizedBox(height: spaceVertical),
+          ],
+        ),
+      ),
+    );
+  }
+
+  confirmApiCall() async {
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid': (widget.model.empID ?? 0).toString(),
+      'rosterid': (widget.model.rosterID ?? 0).toString(),
+      'ssEmployeeID': (widget.model.servicescheduleemployeeID ?? 0).toString(),
+    };
+    print("params : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endConfirmShift, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            print(response);
+            var jsonResponse = json.decode(response);
+            if (jsonResponse["status"] == 1) {
+              Navigator.pop(context);
+              Navigator.pop(context, true);
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
+  pickUpApiCall() async {
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid': (widget.model.empID ?? 0).toString(),
+      'rosterid': (widget.model.rosterID ?? 0).toString(),
+      'totalhours': (widget.model.totalHours ?? 0).toString(),
+      'serviceDate': DateFormat("yyyy/MM/dd").format(
+          DateTime.fromMillisecondsSinceEpoch(
+                  int.parse(widget.model.serviceDate!
+                      .replaceAll("/Date(", "")
+                      .replaceAll(")/", "")),
+                  isUtc: false)
+              .add(
+        const Duration(hours: 5, minutes: 30),
+      ))
+    };
+    print("params : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endPickupShift, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            print(response);
+            Navigator.pop(context);
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
   }
 }

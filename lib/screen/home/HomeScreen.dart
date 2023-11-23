@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
@@ -20,7 +21,6 @@ import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Network/API.dart';
-import '../../Network/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/GlobalMethods.dart';
 import '../../utils/Preferences.dart';
@@ -62,13 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    getData(
-      fromDate: DateTime.now(),
-      toDate: DateTime(DateTime.now().year, DateTime.now().month + 1),
-    );
+    getData();
+    getAvailableShiftsData();
   }
 
-  getData({required DateTime fromDate, required DateTime toDate}) async {
+  getData() async {
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
@@ -107,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
             confirmedDataList.clear();
             unConfirmedDataList.clear();
             timeSheetDataList.clear();
-            avaliableDataList.clear();
+            // avaliableDataList.clear();
             int accType =
                 await Preferences().getPrefInt(Preferences.prefAccountType);
             for (TimeShiteResponseModel model in dataList) {
@@ -132,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 } else if ((model.status1 == 4 || model.status1 == 0) &&
                     model.empID == 0) {
                   // type = "available";
-                  avaliableDataList.add(model);
+                  // avaliableDataList.add(model);
                 }
               } else if (accType == 3) {
                 if (model.confirmCW == true &&
@@ -150,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   unConfirmedDataList.add(model);
                 } else if (model.status1 == 4 && model.empID == 0) {
                   // type = "available";
-                  avaliableDataList.add(model);
+                  // avaliableDataList.add(model);
                 }
               }
             }
@@ -159,6 +157,62 @@ class _HomeScreenState extends State<HomeScreen> {
             //     .where((element) => element.confirmCW == false)
             //     .toList();
 
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
+  getAvailableShiftsData() async {
+    userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      /*   'accountType':
+          (await Preferences().getPrefInt(Preferences.prefAccountType))
+              .toString(),*/
+      'userid':
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
+      'todate': DateFormat("yyyy/MM/dd").format(toDate),
+    };
+    print("params : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endAvailableShifts, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            print("jResponse $endAvailableShifts $jResponse");
+            avaliableDataList.clear();
+            avaliableDataList = jResponse
+                .map((e) => TimeShiteResponseModel.fromJson(e))
+                .toList();
+            print("models.length : ${avaliableDataList.length}");
             setState(() {});
           } else {
             showSnackBarWithText(
@@ -441,7 +495,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       keyScaffold.currentState!
                                           .closeEndDrawer();
                                     }
-                                    getData(fromDate: fromDate, toDate: toDate);
+                                    getData();
+                                    getAvailableShiftsData();
                                   },
                                 ),
                               ),
@@ -789,7 +844,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         isUtc:
                                                                             false)
                                                                     .add(
-                                                                  Duration(
+                                                                  const Duration(
                                                                       hours: 5,
                                                                       minutes:
                                                                           30),
@@ -899,7 +954,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         if (model.noteID != 0)
                                           const SizedBox(
                                               width: spaceHorizontal / 2),
-                                        if (model.dsnId != 0)
+                                        /*  if (model.dsnId != 0)
                                           InkWell(
                                             onTap: () {
                                               Navigator.push(
@@ -922,7 +977,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         if (model.dsnId != 0)
                                           const SizedBox(
-                                              width: spaceHorizontal / 2),
+                                              width: spaceHorizontal / 2),*/
                                         if (bottomCurrentIndex == 2)
                                           Icon(
                                             Icons.check_circle_rounded,
@@ -958,10 +1013,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Navigator.push(
                                     keyScaffold.currentContext!,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          TimeSheetDetail(model: model),
+                                      builder: (context) => TimeSheetDetail(
+                                        model: model,
+                                        indexSelectedFrom: bottomCurrentIndex,
+                                      ),
                                     ),
-                                  );
+                                  ).then((value) {
+                                    if (value != null && value) {
+                                      getData();
+                                      getAvailableShiftsData();
+                                    }
+                                  });
                                 },
                                 child: const Align(
                                   child: Icon(
