@@ -8,6 +8,7 @@ import '../../Network/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
+import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
@@ -33,6 +34,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   final TextEditingController _controllerNewPassword = TextEditingController();
   final TextEditingController _controllerConfirmPassword =
       TextEditingController();
+  final TextEditingController _controllerCompanyCode = TextEditingController();
+  final TextEditingController _controllerUserEmail = TextEditingController();
+
+  String selectedAccountType = "--Select--";
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +69,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
+                  controller: _controllerCompanyCode,
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   hintText: "Company Code*",
@@ -87,11 +93,22 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               const SizedBox(height: spaceBetween),
               SizedBox(
                 height: textFiledHeight,
-                child: ThemedTextField(
+                child: ThemedDropDown(
+                  defaultValue: selectedAccountType,
+                  dataString: const ["--Select--", "Employee", "Client"],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedAccountType = value;
+                      });
+                    }
+                  },
+                ) /*ThemedTextField(
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   hintText: "User Type*",
-                ),
+                )*/
+                ,
               ),
               const SizedBox(height: space),
               ThemedRichText(
@@ -112,6 +129,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
+                  controller: _controllerUserEmail,
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   hintText: "User Email*",
@@ -141,8 +159,28 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         padding: EdgeInsets.zero,
-                        onTap: () {
-                          Navigator.pop(context);
+                        onTap: () async {
+                          // Navigator.pop(context);
+                          if (selectedAccountType == "--Select--") {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "Please select user type first!");
+                          } else if (_controllerCompanyCode.text
+                              .trim()
+                              .isEmpty) {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "Please enter Company Code!");
+                          } else if (_controllerUserEmail.text.trim().isEmpty) {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "Please enter email!");
+                          }
+                          /*else if (_controllerNewPassword.text != _controllerConfirmPassword.text) {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "New Password and confirm password has to be same!");
+                          } */
+                          else {
+                            /*_forgotApiCall(selectedAccountType,
+                                _controllerNewPassword.text.trim());*/
+                          }
                         },
                       ),
                     ),
@@ -157,9 +195,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
   }
 
-  _forgotApiCall(String userId, String userTye, String password) {
+  _forgotApiCall(String userTye, String password) async {
     var params = {
-      'UserID': userId,
+      'UserID':
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'UserType': userTye,
       'NewPassword': password,
     };

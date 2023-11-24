@@ -246,7 +246,7 @@ class ThemedDropDown extends StatelessWidget {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-          color: colorGreyE8,
+          color: colorGreyExtraLightBackGround,
           borderRadius: boxBorderRadius,
           border: Border.all(color: colorLiteBlue)),
       padding: const EdgeInsets.only(right: spaceHorizontal),

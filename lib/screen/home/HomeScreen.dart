@@ -747,36 +747,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         const SizedBox(
                                             width: spaceHorizontal / 2),
-                                        InkWell(
-                                          onTap: () {
-                                            print(
-                                                "CareWorkerList ${model.empID} ${model.rosterID}");
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CareWorkerList(
-                                                        userId:
-                                                            model.empID ?? 0,
-                                                        rosterID:
-                                                            model.rosterID ??
-                                                                0),
+                                        if (bottomCurrentIndex != 3)
+                                          InkWell(
+                                            onTap: () {
+                                              print(
+                                                  "CareWorkerList ${model.empID} ${model.rosterID}");
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CareWorkerList(
+                                                          userId:
+                                                              model.empID ?? 0,
+                                                          rosterID:
+                                                              model.rosterID ??
+                                                                  0),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
                                               ),
-                                            );
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
+                                              child: const Icon(
+                                                  CupertinoIcons
+                                                      .person_crop_circle,
+                                                  color: Colors.white,
+                                                  size: 22),
                                             ),
-                                            child: const Icon(
-                                                CupertinoIcons
-                                                    .person_crop_circle,
-                                                color: Colors.white,
-                                                size: 22),
                                           ),
-                                        ),
                                       ],
                                     ),
                                     const SizedBox(height: 8),

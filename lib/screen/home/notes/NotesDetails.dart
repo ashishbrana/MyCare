@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:rcare_2/screen/home/notes/ClientSignatureModel.dart';
 import 'package:signature/signature.dart';
 
 import '../../../Network/API.dart';
@@ -46,13 +49,15 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   final TextEditingController _assesment_scale = TextEditingController();
   final TextEditingController _assesment_comment = TextEditingController();
 
-  final SignatureController _sign = SignatureController(
+  final SignatureController _controllerSignature = SignatureController(
     penStrokeWidth: 5,
     penColor: Colors.black,
     exportBackgroundColor: Colors.grey,
   );
 
   ProgressNoteListByNoteIdModel? model;
+  ClientSignatureModel? signatureModel;
+  Uint8List? signatureImage;
 
   @override
   void initState() {
@@ -108,6 +113,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 .map((e) => ProgressNoteListByNoteIdModel.fromJson(e))
                 .toList()[0];
             if (model != null) {
+              if (model!.clientsignature != null) {
+                getClientSignatureData(model!.clientsignature!);
+              }
               serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
                       int.parse(model!.noteDate!
                           .replaceAll("/Date(", "")
@@ -126,6 +134,64 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               _assesmentScale = (model!.asessmentScale ?? 0).toString();
               _assesment_comment.text = model!.asessmentComment ?? "";
               // print("models.length : ${dataList.length}");
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
+  getClientSignatureData(String imageName) async {
+    // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid': widget.userId.toString(),
+      'clientSignature': imageName,
+    };
+    print("params : $params");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endGetClientSignature, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            print("jResponse $jResponse");
+            signatureModel = jResponse
+                .map((e) => ClientSignatureModel.fromJson(e))
+                .toList()[0];
+            if (signatureModel != null) {
+              try {
+                signatureImage = const Base64Decoder().convert(
+                    (signatureModel!.clientsignature ?? "")
+                        .replaceAll("data:image/png;base64,", ""));
+              } catch (e) {
+                log("IMAGECONVERTERROR : $e");
+              }
             }
             setState(() {});
           } else {
@@ -302,12 +368,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       decoration: BoxDecoration(
                         border: Border.all(color: colorGreyBorderD3),
                       ),
-                      child: Signature(
-                        backgroundColor: Colors.white,
-                        controller: _sign,
-                        width: 300,
-                        height: 180,
-                      ),
+                      child: signatureImage != null
+                          ? Image.memory(signatureImage!)
+                          : Signature(
+                              backgroundColor: Colors.white,
+                              controller: _controllerSignature,
+                              width: 300,
+                              height: 180,
+                            ),
                     ),
                     const SizedBox(height: spaceVertical),
                     Row(
@@ -321,7 +389,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                             title: "Clear",
                             fontSize: 12,
                             onTap: () {
-                              _sign.clear();
+                              _controllerSignature.clear();
                             },
                           ),
                         ),

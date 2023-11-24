@@ -247,29 +247,31 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               ),
             ),
             const SizedBox(height: spaceVertical / 1.5),
-            SizedBox(
-              height: 50,
-              width: MediaQuery.of(context).size.width * .85,
-              child: ThemedButton(
-                title: "Notes",
-                padding: EdgeInsets.zero,
-                fontSize: 16,
-                onTap: () {
-                  if (keyScaffold.currentContext != null) {
-                    Navigator.push(
-                        keyScaffold.currentContext!,
-                        MaterialPageRoute(
-                          builder: (context) => ProgressNoteDetails(
-                            userId: widget.model.empID ?? 0,
-                            noteId: widget.model.noteID ?? 0,
-                            serviceName: widget.model.serviceName ?? "",
-                          ),
-                        ));
-                  }
-                },
+            if (widget.indexSelectedFrom != 3)
+              SizedBox(
+                height: 50,
+                width: MediaQuery.of(context).size.width * .85,
+                child: ThemedButton(
+                  title: "Notes",
+                  padding: EdgeInsets.zero,
+                  fontSize: 16,
+                  onTap: () {
+                    if (keyScaffold.currentContext != null) {
+                      Navigator.push(
+                          keyScaffold.currentContext!,
+                          MaterialPageRoute(
+                            builder: (context) => ProgressNoteDetails(
+                              userId: widget.model.empID ?? 0,
+                              noteId: widget.model.noteID ?? 0,
+                              serviceName: widget.model.serviceName ?? "",
+                            ),
+                          ));
+                    }
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: spaceVertical / 1.5),
+            if (widget.indexSelectedFrom != 3)
+              const SizedBox(height: spaceVertical / 1.5),
             SizedBox(
               height: 50,
               width: MediaQuery.of(context).size.width * .85,
@@ -392,7 +394,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
       'userid': (widget.model.empID ?? 0).toString(),
       'rosterid': (widget.model.rosterID ?? 0).toString(),
       'totalhours': (widget.model.totalHours ?? 0).toString(),
-      'serviceDate': DateFormat("yyyy/MM/dd").format(
+      'serviceDate': DateFormat("EEE MMM dd yyyy ").format(
           DateTime.fromMillisecondsSinceEpoch(
                   int.parse(widget.model.serviceDate!
                       .replaceAll("/Date(", "")
@@ -418,7 +420,13 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
           removeOverlay();
           if (response != null && response != "") {
             print(response);
-            Navigator.pop(context);
+
+            var jsonResponse = json.decode(response);
+            if (jsonResponse["status"] == 1) {
+              showSnackBarWithText(keyScaffold.currentState, "Success");
+              Navigator.pop(context);
+              Navigator.pop(context, true);
+            }
             setState(() {});
           } else {
             showSnackBarWithText(

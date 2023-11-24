@@ -17,6 +17,7 @@ const String progressNotesList = 'ProgressNotesList';
 const String endCareWorkersList = 'CareWorkersList';
 const String endDNSList = 'DSNList';
 const String endNoteDetailsByID = 'NoteDetailsByID';
+const String endGetClientSignature = 'getClientSignatureBase64';
 const String endProgressNotesList = 'ProgressNotesList';
 
 

@@ -479,10 +479,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     if (_profileModel != null) {
       Map<String, dynamic> params = <String, dynamic>{
         'employeeID': (_profileModel!.employeeID ?? 0).toString(),
-        'title': " ",
+        'title': "null",
         'FirstName': _controllerFirstName.text,
         'LastName': _controllerLastName.text,
-        'UnitNo': _profileModel!.unitNo ?? "",
+        'UnitNo': _profileModel!.unitNo ?? "null",
         'Address': _controllerAddress.text,
         'City': _profileModel!.city,
         'State': _profileModel!.state,
