@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 // import 'package:geolocator/geolocator.dart';
 // import 'package:platform_maps_flutter/platform_maps_flutter.dart';
@@ -42,6 +43,29 @@ showSnackBarWithText(ScaffoldState? scaffoldState, String strText,
   );
   if (scaffoldState != null && scaffoldState.context != null) {
     ScaffoldMessenger.of(scaffoldState.context).showSnackBar(snackBar);
+  }
+}
+
+DateTime getDateTime(String date) {
+  try {
+    return (DateFormat("yyyy-MM-dd HH:mm:ss")
+            .parse(date.replaceAll("/", ""), true))
+        .toLocal();
+  } catch (e) {
+    print(e);
+    return DateTime.now();
+  }
+}
+
+DateTime? getDateTimeFromEpochTime(String date) {
+  try {
+    return DateTime.fromMillisecondsSinceEpoch(
+            int.parse(date.replaceAll("/Date(", "").replaceAll(")/", "")),
+            isUtc: true)
+        .toLocal();
+  } catch (e) {
+    print(e);
+    return null;
   }
 }
 

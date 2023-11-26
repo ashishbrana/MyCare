@@ -68,26 +68,20 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                   size: 14,
                 ),
                 const SizedBox(width: spaceHorizontal),
-                Text(
-                  // model.serviceDate!,
-                  widget.model.serviceDate != null
-                      ? DateFormat("EEE,dd-MM-yyyy").format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(widget.model.serviceDate!
-                                      .replaceAll("/Date(", "")
-                                      .replaceAll(")/", "")),
-                                  isUtc: false)
-                              .add(
-                            Duration(hours: 5, minutes: 30),
-                          ),
-                        )
-                      : "",
-                  style: const TextStyle(
-                    color: colorBlack,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                if (getDateTimeFromEpochTime(widget.model.serviceDate!) != null)
+                  Text(
+                    // model.serviceDate!,
+                    widget.model.serviceDate != null
+                        ? DateFormat("EEE,dd-MM-yyyy").format(
+                            getDateTimeFromEpochTime(
+                                widget.model.serviceDate!)!)
+                        : "",
+                    style: const TextStyle(
+                      color: colorBlack,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
                 const SizedBox(width: 5),
                 Container(height: 20, width: 1, color: colorDivider),
                 const SizedBox(width: 5),
@@ -214,7 +208,14 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               width: MediaQuery.of(context).size.width * .85,
               child: ThemedButton(
                 title: widget.indexSelectedFrom == 0
-                    ? "Complete TimeSheet"
+                    ? getDateTimeFromEpochTime(
+                                    widget.model.serviceDate ?? "") !=
+                                null &&
+                            getDateTimeFromEpochTime(
+                                    widget.model.serviceDate ?? "")!
+                                .isAfter(DateTime.now())
+                        ? "Time Sheet can not be completed for Future Dates"
+                        : "Complete TimeSheet"
                     : widget.indexSelectedFrom == 3
                         ? "PickUp"
                         : "Confirm",
@@ -222,13 +223,20 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                 fontSize: 16,
                 onTap: () {
                   if (widget.indexSelectedFrom == 0) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            TimeSheetForm(model: widget.model),
-                      ),
-                    );
+                    if (getDateTimeFromEpochTime(
+                                widget.model.serviceDate ?? "") !=
+                            null &&
+                        getDateTimeFromEpochTime(
+                                widget.model.serviceDate ?? "")!
+                            .isBefore(DateTime.now())) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TimeSheetForm(model: widget.model),
+                        ),
+                      );
+                    }
                   } else {
                     showConfirmationDialog(
                       onYesTap: () {
@@ -247,31 +255,43 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               ),
             ),
             const SizedBox(height: spaceVertical / 1.5),
-            if (widget.indexSelectedFrom != 3)
-              SizedBox(
-                height: 50,
-                width: MediaQuery.of(context).size.width * .85,
-                child: ThemedButton(
-                  title: "Notes",
-                  padding: EdgeInsets.zero,
-                  fontSize: 16,
-                  onTap: () {
-                    if (keyScaffold.currentContext != null) {
-                      Navigator.push(
-                          keyScaffold.currentContext!,
-                          MaterialPageRoute(
-                            builder: (context) => ProgressNoteDetails(
-                              userId: widget.model.empID ?? 0,
-                              noteId: widget.model.noteID ?? 0,
-                              serviceName: widget.model.serviceName ?? "",
-                            ),
-                          ));
-                    }
-                  },
+            if (widget.indexSelectedFrom == 0 &&
+                getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
+                    null &&
+                getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
+                    .isBefore(DateTime.now()))
+              if (widget.indexSelectedFrom != 3 &&
+                  widget.indexSelectedFrom != 1)
+                SizedBox(
+                  height: 50,
+                  width: MediaQuery.of(context).size.width * .85,
+                  child: ThemedButton(
+                    title: "Notes",
+                    padding: EdgeInsets.zero,
+                    fontSize: 16,
+                    onTap: () {
+                      if (keyScaffold.currentContext != null) {
+                        Navigator.push(
+                            keyScaffold.currentContext!,
+                            MaterialPageRoute(
+                              builder: (context) => ProgressNoteDetails(
+                                userId: widget.model.empID ?? 0,
+                                noteId: widget.model.noteID ?? 0,
+                                serviceName: widget.model.serviceName ?? "",
+                              ),
+                            ));
+                      }
+                    },
+                  ),
                 ),
-              ),
-            if (widget.indexSelectedFrom != 3)
-              const SizedBox(height: spaceVertical / 1.5),
+            if (widget.indexSelectedFrom == 0 &&
+                getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
+                    null &&
+                getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
+                    .isBefore(DateTime.now()))
+              if (widget.indexSelectedFrom != 3 &&
+                  widget.indexSelectedFrom != 1)
+                const SizedBox(height: spaceVertical / 1.5),
             SizedBox(
               height: 50,
               width: MediaQuery.of(context).size.width * .85,

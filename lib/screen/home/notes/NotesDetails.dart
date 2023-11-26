@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/notes/ClientSignatureModel.dart';
@@ -46,7 +47,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   final TextEditingController _serviceType = TextEditingController();
   final TextEditingController _subject = TextEditingController();
   final TextEditingController _disscription = TextEditingController();
-  final TextEditingController _assesment_scale = TextEditingController();
+
+  // final TextEditingController _assesment_scale = TextEditingController();
   final TextEditingController _assesment_comment = TextEditingController();
 
   final SignatureController _controllerSignature = SignatureController(
@@ -58,6 +60,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   ProgressNoteListByNoteIdModel? model;
   ClientSignatureModel? signatureModel;
   Uint8List? signatureImage;
+  Uint8List? noteDocImage;
+  int? clientRating;
 
   @override
   void initState() {
@@ -116,6 +120,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               if (model!.clientsignature != null) {
                 getClientSignatureData(model!.clientsignature!);
               }
+              if (model!.noteID != 0) {
+                getNoteDocs(getDateTime(model!.noteDate ?? ""),
+                    model!.clientsignature ?? "", model!.noteID ?? 0);
+              }
               serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
                       int.parse(model!.noteDate!
                           .replaceAll("/Date(", "")
@@ -133,6 +141,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               _disscription.text = model!.description ?? "";
               _assesmentScale = (model!.asessmentScale ?? 0).toString();
               _assesment_comment.text = model!.asessmentComment ?? "";
+              clientRating = int.parse(model!.clientRating ?? "3");
               // print("models.length : ${dataList.length}");
             }
             setState(() {});
@@ -187,6 +196,62 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             if (signatureModel != null) {
               try {
                 signatureImage = const Base64Decoder().convert(
+                    (signatureModel!.clientsignature ?? "")
+                        .replaceAll("data:image/png;base64,", ""));
+              } catch (e) {
+                log("IMAGECONVERTERROR : $e");
+              }
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
+  getNoteDocs(DateTime noteDate, String clientName, int noteid) async {
+    Map<String, dynamic> params = {
+      'NoteDate': DateFormat("dd/MM/yy").format(noteDate),
+      'clientName': clientName,
+      'noteid': noteid.toString(),
+    };
+    print("params : $params");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endGetNoteDocs, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            print("jResponse $jResponse");
+            signatureModel = jResponse
+                .map((e) => ClientSignatureModel.fromJson(e))
+                .toList()[0];
+            if (signatureModel != null) {
+              try {
+                noteDocImage = const Base64Decoder().convert(
                     (signatureModel!.clientsignature ?? "")
                         .replaceAll("data:image/png;base64,", ""));
               } catch (e) {
@@ -379,21 +444,111 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     ),
                     const SizedBox(height: spaceVertical),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        SizedBox(
-                          width: 100,
-                          height: textFiledHeight,
-                          child: ThemedButton(
-                            padding: EdgeInsets.zero,
-                            title: "Clear",
-                            fontSize: 12,
-                            onTap: () {
-                              _controllerSignature.clear();
-                            },
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              clientRating = 1;
+                            });
+                          },
+                          child: const FaIcon(
+                            FontAwesomeIcons.solidFaceSmile,
+                            color: Colors.amber,
+                            size: 48,
                           ),
                         ),
+                        Radio<int>(
+                            value: 1,
+                            groupValue: clientRating,
+                            activeColor: colorGreen,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  clientRating = value;
+                                });
+                              }
+                            }),
+                        const SizedBox(width: spaceHorizontal),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              clientRating = 2;
+                            });
+                          },
+                          child: const FaIcon(
+                            FontAwesomeIcons.solidFaceMeh,
+                            color: Colors.amber,
+                            size: 48,
+                          ),
+                        ),
+                        Radio<int>(
+                            value: 2,
+                            groupValue: clientRating,
+                            activeColor: colorGreen,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  clientRating = value;
+                                });
+                              }
+                            }),
+                        const SizedBox(width: spaceHorizontal),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              clientRating = 3;
+                            });
+                          },
+                          child: const FaIcon(
+                            FontAwesomeIcons.solidFaceFrown,
+                            color: Colors.amber,
+                            size: 48,
+                          ),
+                        ),
+                        Radio<int>(
+                            value: 3,
+                            groupValue: clientRating,
+                            activeColor: colorGreen,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  clientRating = value;
+                                });
+                              }
+                            }),
                       ],
+                    ),
+                    const SizedBox(height: spaceVertical),
+                    SizedBox(
+                      height: textFiledHeight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: ThemedButton(
+                              padding: EdgeInsets.zero,
+                              title: "Save",
+                              fontSize: 12,
+                              onTap: () async {
+                                saveNoteApiCall();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: spaceHorizontal),
+                          SizedBox(
+                            width: 100,
+                            height: textFiledHeight,
+                            child: ThemedButton(
+                              padding: EdgeInsets.zero,
+                              title: "Clear",
+                              fontSize: 12,
+                              onTap: () {
+                                _controllerSignature.clear();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: spaceVertical),
                     SizedBox(
@@ -431,6 +586,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
                     ),
                     const SizedBox(height: spaceVertical),
+                    if (noteDocImage != null)
+                      SizedBox(
+                        height: 200,
+                        width: 300,
+                        child: Image.memory(noteDocImage!),
+                      ),
                     if (imageFile != null)
                       SizedBox(
                         height: 200,
@@ -443,5 +604,67 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             )
           : buildNoDataAvailable("Data Not Available!"),
     );
+  }
+
+  saveNoteApiCall() async {
+    if (model != null) {
+      Map<String, dynamic> params = <String, dynamic>{
+        'NoteID': widget.noteId.toString(),
+        "NoteDate": DateFormat("yyyy/MM/dd").format(serviceTypeDateTime),
+        "AssessmentScale": "'${_assesmentScale.toString()}'",
+        "AssessmentComment": _assesment_comment.text.isEmpty ? "null" : _assesment_comment.text,
+        "Description": _disscription.text.isNotEmpty ? _disscription.text : "null",
+        "Subject": _subject.text,
+        "img": noteDocImage != null ? base64.encode(noteDocImage!) : "null",
+        "userID": widget.userId.toString(),
+        "clientID": model!.clientID != null ? model!.clientID!.toString() : "0",
+        "ServiceScheduleClientID": model!.serviceScheduleClientID != null ? model!.serviceScheduleClientID!.toString() : "0",
+        "bit64Signature": (await _controllerSignature.toPngBytes()) != null
+            ? base64.encode((await _controllerSignature.toPngBytes())!)
+            : signatureImage,
+        "ClientRating": clientRating.toString(),
+        "ssClientIds": model!.serviceScheduleClientID != null ? model!.serviceScheduleClientID!.toString() : "0",
+        "GroupNote": "null",
+        "ssEmployeeID":"0",
+      };
+
+      print(params);
+      isConnected().then((hasInternet) async {
+        if (hasInternet) {
+          var response;
+          HttpRequestModel request = HttpRequestModel(
+              url: getUrl(endSaveNoteDetails, params: params).toString(),
+              //endSaveEmployeeProfile,
+              authMethod: '',
+              body: '',
+              headerType: '',
+              params: "",
+              //params.toString(),
+              method: 'GET');
+
+          try {
+            getOverlay(context);
+            response = await HttpService().init(request, _keyScaffold);
+            print("response $response");
+            if (response != null && response != "") {
+              var jResponse = json.decode(response.toString());
+            } else {
+              showSnackBarWithText(
+                  _keyScaffold.currentState, stringSomeThingWentWrong);
+            }
+            removeOverlay();
+          } catch (e) {
+            log("SignUp$e");
+            removeOverlay();
+            throw e;
+          } finally {
+            removeOverlay();
+          }
+        } else {
+          showSnackBarWithText(
+              _keyScaffold.currentState, stringErrorNoInterNet);
+        }
+      });
+    }
   }
 }

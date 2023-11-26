@@ -1,12 +1,20 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
+import '../../Network/API.dart';
+import '../../network/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
+import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
+import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
+import '../../utils/methods.dart';
 import 'models/ConfirmedResponseModel.dart';
 
 class TimeSheetForm extends StatefulWidget {
@@ -19,6 +27,8 @@ class TimeSheetForm extends StatefulWidget {
 }
 
 class _TimeSheetFormState extends State<TimeSheetForm> {
+  final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
+
   String fromHourService = "00";
   String fromMinuteService = "00";
   String toHourService = "00";
@@ -146,6 +156,52 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     super.initState();
 
     _controllerServiceType.text = widget.model.serviceName ?? "";
+    if (widget.model.timeFrom != null &&
+        widget.model.timeFrom!.split(":").isNotEmpty) {
+      fromHourService = widget.model.timeFrom!.split(":")[0];
+      if (widget.model.timeFrom!.split(":").length > 1) {
+        fromMinuteService = widget.model.timeFrom!.split(":")[1];
+      }
+    }
+    if (widget.model.timeUntil != null &&
+        widget.model.timeUntil!.split(":").isNotEmpty) {
+      toHourService = widget.model.timeUntil!.split(":")[0];
+      if (widget.model.timeUntil!.split(":").length > 1) {
+        toMinuteService = widget.model.timeUntil!.split(":")[1];
+      }
+    }
+    isIncludeLaunchBrake = widget.model.lunchBreakSetting ?? false;
+    if (widget.model.lunchBreak != null &&
+        widget.model.lunchBreak!.split(":").isNotEmpty) {
+      hourLaunch = widget.model.lunchBreak!.split(":")[0];
+      if (widget.model.lunchBreak!.split(":").length > 1) {
+        minuteLaunch = widget.model.lunchBreak!.split(":")[1];
+      }
+    }
+    if (widget.model.lunchBreakFrom != null &&
+        widget.model.lunchBreakFrom!.split(":").isNotEmpty) {
+      fromHourLaunch = widget.model.lunchBreakFrom!.split(":")[0];
+      if (widget.model.lunchBreakFrom!.split(":").length > 1) {
+        fromMinuteLaunch = widget.model.lunchBreakFrom!.split(":")[1];
+      }
+    }
+    if (widget.model.lunchBreakTo != null &&
+        widget.model.lunchBreakTo!.split(":").isNotEmpty) {
+      toHourLaunch = widget.model.lunchBreakTo!.split(":")[0];
+      if (widget.model.lunchBreakTo!.split(":").length > 1) {
+        toMinuteLaunch = widget.model.lunchBreakTo!.split(":")[1];
+      }
+    }
+    _controllerHours.text = widget.model.tSHours.toString();
+    _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
+    _controllerTravelTime.text = widget.model.tSTravelTime.toString();
+    _controllerTravelDistance.text = widget.model.tSTravelDistance.toString();
+    _controllerTravelDistanceMax.text =
+        widget.model.maxTravelDistance.toString();
+    _controllerClientTravelDistance.text =
+        widget.model.clienttraveldistance.toString();
+    isRiskAlert = false;
+    _controllerTimeSheetComments.text = widget.model.comments ?? "";
   }
 
   @override
@@ -867,7 +923,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                             children: [
                               ThemedRichText(spanList: [
                                 getTextSpan(
-                                  text: "Travel Time",
+                                  text: "Max Travel Dist.",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   fontColor: colorBlack,
@@ -902,7 +958,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                             children: [
                               ThemedRichText(spanList: [
                                 getTextSpan(
-                                  text: "Travel Dist (km)",
+                                  text: "Client Travel Dist.",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   fontColor: colorBlack,
@@ -1015,6 +1071,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                           fontColor: colorRed,
                         ),
                     ]),
+                    const SizedBox(height: spaceBetween),
                     ThemedTextField(
                       padding: const EdgeInsets.symmetric(
                           horizontal: spaceHorizontal),
@@ -1024,6 +1081,19 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       minLine: 5,
                       controller: _controllerTimeSheetComments,
                     ),
+                    const SizedBox(height: spaceBetween),
+                    const SizedBox(height: spaceBetween),
+                    SizedBox(
+                      height: 50,
+                      child: ThemedButton(
+                        title: "Save",
+                        padding: EdgeInsets.zero,
+                        onTap: () {
+                          saveTimeSheet();
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: spaceBetween),
                   ],
                 ),
               ),
@@ -1066,5 +1136,80 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
     print("Launch : $hourLaunch:$minuteLaunch");
+  }
+
+  saveTimeSheet() async {
+    if (widget.model != null) {
+      Map<String, dynamic> params = <String, dynamic>{
+        'auth_code':
+            (await Preferences().getPrefString(Preferences.prefAuthCode)),
+        'timesheetID':
+            (await Preferences().getPrefString(Preferences.prefAuthCode)),
+        'RosterID':
+            (await Preferences().getPrefString(Preferences.prefAuthCode)),
+        'TSFrom': "$fromHourService:$fromMinuteService",
+        'TSUntil': "$toHourService:$toMinuteService",
+        'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
+        'TSLunchBreak': isIncludeLaunchBrake ? "$hourLaunch:$minuteLaunch" : "",
+        'TSLBFrom':
+            isIncludeLaunchBrake ? "$fromHourLaunch:$fromMinuteLaunch" : "",
+        'TSLBTo': isIncludeLaunchBrake ? "$toHourLaunch:$toMinuteLaunch" : "",
+        'TSHours': _controllerHours.text,
+        'TSTravelDistance': _controllerTravelDistance.text,
+        'TSComments': _controllerTimeSheetComments.text,
+        'TSConfirm': widget.model.tSConfirm,
+        'TSHoursDiff': _controllerHoursDifference.text,
+        //---change
+        'TSTravelDistanceDiff': "$fromHourService:$fromMinuteService",
+        //---change
+        'TSTravelTime': _controllerTravelTime.text,
+        'tsHoursDifference': "$fromHourService:$fromMinuteService",
+        //--change
+        'empID': widget.model.empID,
+        'RosterDate': "null",
+        'RiskAlert': isRiskAlert.toString(),
+        'clientID': widget.model.clientID,
+        'TSClientTravelDistance': _controllerClientTravelDistance.text,
+        'ssEmployeeID': widget.model.servicescheduleemployeeID,
+        'servicetypeid': widget.model.tsservicetype,
+        'fundingSourceName': widget.model.fundingsourcename,
+      };
+
+      print(params);
+      isConnected().then((hasInternet) async {
+        if (hasInternet) {
+          var response;
+          HttpRequestModel request = HttpRequestModel(
+              url: getUrl(endSaveTimesheet, params: params).toString(),
+              authMethod: '',
+              body: '',
+              headerType: '',
+              params: "",
+              method: 'GET');
+
+          try {
+            getOverlay(context);
+            response = await HttpService().init(request, _keyScaffold);
+            print("response $response");
+            if (response != null && response != "") {
+              var jResponse = json.decode(response.toString());
+            } else {
+              showSnackBarWithText(
+                  _keyScaffold.currentState, stringSomeThingWentWrong);
+            }
+            removeOverlay();
+          } catch (e) {
+            log("SignUp$e");
+            removeOverlay();
+            throw e;
+          } finally {
+            removeOverlay();
+          }
+        } else {
+          showSnackBarWithText(
+              _keyScaffold.currentState, stringErrorNoInterNet);
+        }
+      });
+    }
   }
 }

@@ -69,8 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   getData() async {
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
-      'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'accountType':
           (await Preferences().getPrefInt(Preferences.prefAccountType))
               .toString(),
@@ -828,35 +827,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         size: 14,
                                                       ),
                                                       const SizedBox(width: 5),
-                                                      Text(
-                                                        // model.serviceDate!,
-                                                        model.serviceDate !=
-                                                                null
-                                                            ? DateFormat(
-                                                                    "EEE,dd-MM-yyyy")
-                                                                .format(
-                                                                DateTime.fromMillisecondsSinceEpoch(
-                                                                        int.parse(model
-                                                                            .serviceDate!
-                                                                            .replaceAll("/Date(",
-                                                                                "")
-                                                                            .replaceAll(")/",
-                                                                                "")),
-                                                                        isUtc:
-                                                                            false)
-                                                                    .add(
-                                                                  const Duration(
-                                                                      hours: 5,
-                                                                      minutes:
-                                                                          30),
-                                                                ),
-                                                              )
-                                                            : "",
-                                                        style: TextStyle(
-                                                          color: colorGreyText,
-                                                          fontSize: 14,
+                                                      if (getDateTimeFromEpochTime(
+                                                              model
+                                                                  .serviceDate!) !=
+                                                          null)
+                                                        Text(
+                                                          // model.serviceDate!,
+                                                          model.serviceDate !=
+                                                                  null
+                                                              ? DateFormat(
+                                                                      "EEE,dd-MM-yyyy")
+                                                                  .format(getDateTimeFromEpochTime(
+                                                                      model
+                                                                          .serviceDate!)!)
+                                                              : "",
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                colorGreyText,
+                                                            fontSize: 14,
+                                                          ),
                                                         ),
-                                                      ),
                                                       const SizedBox(width: 5),
                                                       Container(
                                                         width: 1,
