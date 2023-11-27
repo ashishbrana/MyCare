@@ -927,8 +927,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 5),
-                                        if ((bottomCurrentIndex != 0 ||
-                                                bottomCurrentIndex != 2) &&
+                                        if ((bottomCurrentIndex == 0 ||
+                                                bottomCurrentIndex == 2) &&
                                             serviceDate != null &&
                                             serviceDate.day ==
                                                 DateTime.now().day &&
@@ -938,91 +938,89 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 DateTime.now().year)
                                           InkWell(
                                             onTap:
-                                            model.locationName != null &&
+                                                model.locationName != null &&
                                                         model.locationName!
                                                             .isNotEmpty
                                                     ? null
                                                     : () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) => Dialog(
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          boxBorderRadius),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal:
-                                                            spaceHorizontal,
-                                                        vertical:
-                                                            spaceVertical),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        ThemedText(
-                                                            text:
-                                                                "Are You Sure You Want To Logon The Shift ?"),
-                                                        const SizedBox(
-                                                            height:
-                                                                spaceVertical),
-                                                        Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child:
-                                                                  ThemedButton(
-                                                                onTap: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                                title: "Cancel",
-                                                                fontSize: 18,
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .zero,
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) =>
+                                                              Dialog(
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    boxBorderRadius),
+                                                            child: Padding(
+                                                              padding: const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      spaceHorizontal,
+                                                                  vertical:
+                                                                      spaceVertical),
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  ThemedText(
+                                                                      text:
+                                                                          "Are You Sure You Want To Logon The Shift ?"),
+                                                                  const SizedBox(
+                                                                      height:
+                                                                          spaceVertical),
+                                                                  Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child:
+                                                                            ThemedButton(
+                                                                          onTap:
+                                                                              () {
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          title:
+                                                                              "Cancel",
+                                                                          fontSize:
+                                                                              18,
+                                                                          padding:
+                                                                              EdgeInsets.zero,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            spaceHorizontal /
+                                                                                2,
+                                                                      ),
+                                                                      Expanded(
+                                                                        child:
+                                                                            ThemedButton(
+                                                                          onTap:
+                                                                              () async {
+                                                                            Navigator.pop(context);
+                                                                            String?
+                                                                                address =
+                                                                                await getAddress();
+                                                                            if (address !=
+                                                                                null) {
+                                                                              print("ADDRESS : $address");
+                                                                              saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
+                                                                            }
+                                                                          },
+                                                                          title:
+                                                                              "Ok",
+                                                                          fontSize:
+                                                                              18,
+                                                                          padding:
+                                                                              EdgeInsets.zero,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )
+                                                                ],
                                                               ),
                                                             ),
-                                                            const SizedBox(
-                                                              width:
-                                                                  spaceHorizontal /
-                                                                      2,
-                                                            ),
-                                                            Expanded(
-                                                              child:
-                                                                  ThemedButton(
-                                                                onTap:
-                                                                    () async {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                  String?
-                                                                      address =
-                                                                      await getAddress();
-                                                                  if (address !=
-                                                                      null) {
-                                                                    print(
-                                                                        "ADDRESS : $address");
-                                                                    saveLocationTime(
-                                                                        address,
-                                                                        (model.servicescheduleemployeeID ??
-                                                                                0)
-                                                                            .toString());
-                                                                  }
-                                                                },
-                                                                title: "Ok",
-                                                                fontSize: 18,
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .zero,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
+                                                          ),
+                                                        );
+                                                      },
                                             child: FaIcon(
                                               Icons.history,
                                               color:
@@ -1034,8 +1032,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               size: 22,
                                             ),
                                           ),
-                                        if ((bottomCurrentIndex != 0 ||
-                                                bottomCurrentIndex != 2) &&
+                                        if ((bottomCurrentIndex == 0 ||
+                                                bottomCurrentIndex == 2) &&
                                             serviceDate != null &&
                                             serviceDate.day ==
                                                 DateTime.now().day &&
