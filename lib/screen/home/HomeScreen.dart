@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
@@ -69,7 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
   getData() async {
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
-      'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'accountType':
           (await Preferences().getPrefInt(Preferences.prefAccountType))
               .toString(),
@@ -681,6 +684,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   primary: true,
                   itemBuilder: (context, index) {
                     TimeShiteResponseModel model = list[index];
+                    DateTime? serviceDate =
+                        getDateTimeFromEpochTime(model.serviceDate!);
                     return Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
@@ -922,6 +927,122 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 5),
+                                        if ((bottomCurrentIndex != 0 ||
+                                                bottomCurrentIndex != 2) &&
+                                            serviceDate != null &&
+                                            serviceDate.day ==
+                                                DateTime.now().day &&
+                                            serviceDate.month ==
+                                                DateTime.now().month &&
+                                            serviceDate.year ==
+                                                DateTime.now().year)
+                                          InkWell(
+                                            onTap:
+                                                model.locationName != null &&
+                                                        model.locationName!
+                                                            .isNotEmpty
+                                                    ? null
+                                                    : () {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) =>
+                                                              Dialog(
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    boxBorderRadius),
+                                                            child: Padding(
+                                                              padding: const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      spaceHorizontal,
+                                                                  vertical:
+                                                                      spaceVertical),
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  ThemedText(
+                                                                      text:
+                                                                          "Are You Sure You Want To Logon The Shift ?"),
+                                                                  const SizedBox(
+                                                                      height:
+                                                                          spaceVertical),
+                                                                  Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child:
+                                                                            ThemedButton(
+                                                                          onTap:
+                                                                              () {
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          title:
+                                                                              "Cancel",
+                                                                          fontSize:
+                                                                              18,
+                                                                          padding:
+                                                                              EdgeInsets.zero,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            spaceHorizontal /
+                                                                                2,
+                                                                      ),
+                                                                      Expanded(
+                                                                        child:
+                                                                            ThemedButton(
+                                                                          onTap:
+                                                                              () async {
+                                                                            Navigator.pop(context);
+                                                                            String?
+                                                                                address =
+                                                                                await getAddress();
+                                                                            if (address !=
+                                                                                null) {
+                                                                              print("ADDRESS : $address");
+                                                                              saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
+                                                                            }
+                                                                          },
+                                                                          title:
+                                                                              "Ok",
+                                                                          fontSize:
+                                                                              18,
+                                                                          padding:
+                                                                              EdgeInsets.zero,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                            child: FaIcon(
+                                              Icons.history,
+                                              color:
+                                                  model.locationName != null &&
+                                                          model.locationName!
+                                                              .isNotEmpty
+                                                      ? colorGreen
+                                                      : colorRed,
+                                              size: 22,
+                                            ),
+                                          ),
+                                        if ((bottomCurrentIndex != 0 ||
+                                                bottomCurrentIndex != 2) &&
+                                            serviceDate != null &&
+                                            serviceDate.day ==
+                                                DateTime.now().day &&
+                                            serviceDate.month ==
+                                                DateTime.now().month &&
+                                            serviceDate.year ==
+                                                DateTime.now().year)
+                                          const SizedBox(
+                                              width: spaceHorizontal / 2),
                                         if (model.noteID != 0)
                                           InkWell(
                                             onTap: () {
@@ -946,19 +1067,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                         if (model.noteID != 0)
                                           const SizedBox(
                                               width: spaceHorizontal / 2),
-                                        /*  if (model.dsnId != 0)
+                                        if (model.dsnId != 0)
                                           InkWell(
                                             onTap: () {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DNSList(
-                                                          userId:
-                                                              model.empID ?? 0,
-                                                          rosterID:
-                                                              model.rosterID ??
-                                                                  0),
+                                                  builder: (context) => DNSList(
+                                                      userId: model.empID ?? 0,
+                                                      rosterID:
+                                                          model.rosterID ?? 0),
                                                 ),
                                               );
                                             },
@@ -969,7 +1087,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         if (model.dsnId != 0)
                                           const SizedBox(
-                                              width: spaceHorizontal / 2),*/
+                                              width: spaceHorizontal / 2),
                                         if (bottomCurrentIndex == 2)
                                           Icon(
                                             Icons.check_circle_rounded,
@@ -1208,6 +1326,105 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  Future<String?> getAddress() async {
+    try {
+      getOverlay(context);
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // Test if location services are enabled.
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        showSnackBarWithText(
+            keyScaffold.currentState, "Please Enable the Location!");
+        return Future.error('Location services are disabled.');
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          showSnackBarWithText(
+              keyScaffold.currentState, "We need Location Permission!");
+          return Future.error('Location permissions are denied');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        showSnackBarWithText(
+            keyScaffold.currentState, "We need Location Permission!");
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+      List<Placemark> addressList =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      return addressList[0].toString();
+    } catch (e) {
+      showSnackBarWithText(keyScaffold.currentState, stringSomeThingWentWrong);
+      print(e);
+    } finally {
+      removeOverlay();
+      setState(() {});
+    }
+    return null;
+  }
+
+  saveLocationTime(String address, String sSEID) async {
+    userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid':
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      'servicescheduleemployeeID': sSEID,
+      'Location': address,
+      'SaveTimesheet': "false",
+    };
+    print("params : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endSaveLocationTime, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            if (json.decode(response)["status"] == 1) {
+              showSnackBarWithText(keyScaffold.currentState, "Success",
+                  color: colorGreen);
+              getData();
+              getAvailableShiftsData();
+              Navigator.pop(context);
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
   }
 
   Widget getViewAsPerIndex(int index) {

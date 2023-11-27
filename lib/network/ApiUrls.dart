@@ -8,6 +8,7 @@ const String endSaveTimesheet = 'savetimesheet';
 const String endPickupShift = 'pickupshift';
 const String endConfirmShift = 'confirmshift';
 const String endAvailableShifts = 'availableshifts';
+const String endSaveLocationTime = 'SaveLocationTime';
 const String changePass = 'ChangeEmployeePassword';
 
 const String endEmployeeProfile = 'EmployeeProfile';
