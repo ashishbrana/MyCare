@@ -561,15 +561,74 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               title: "Capture Image From Camera",
                               fontSize: 12,
                               onTap: () async {
-                                final ImagePicker picker = ImagePicker();
-                                final XFile? image = await picker.pickImage(
-                                    source: ImageSource.gallery);
-                                if (image != null) {
-                                  setState(() {
-                                    print(image.path);
-                                    imageFile = File(image.path);
-                                  });
-                                }
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => Container(
+                                    /*insetPadding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: boxBorderRadius,
+                                    ),*/
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ListTile(
+                                          title: ThemedText(
+                                            text: 'Camera',
+                                          ),
+                                          leading: const Icon(
+                                            Icons.camera_alt_rounded,
+                                            color: colorGreen,
+                                          ),
+                                          onTap: () async {
+                                            Navigator.pop(context);
+                                            final ImagePicker picker =
+                                                ImagePicker();
+                                            final XFile? image =
+                                                await picker.pickImage(
+                                              source: ImageSource.camera,
+                                              imageQuality: 50,
+                                            );
+                                            if (image != null) {
+                                              setState(() {
+                                                print(image.path);
+                                                imageFile = File(image.path);
+                                              });
+                                            }
+                                          },
+                                        ),
+                                        const Divider(
+                                          color: colorDivider,
+                                          height: 1,
+                                        ),
+                                        ListTile(
+                                          title: ThemedText(
+                                            text: 'Gallery',
+                                          ),
+                                          leading: const Icon(
+                                            Icons.photo_rounded,
+                                            color: colorGreen,
+                                          ),
+                                          onTap: () async {
+                                            Navigator.pop(context);
+                                            final ImagePicker picker =
+                                                ImagePicker();
+                                            final XFile? image =
+                                                await picker.pickImage(
+                                              source: ImageSource.gallery,
+                                              imageQuality: 50,
+                                            );
+                                            if (image != null) {
+                                              setState(() {
+                                                print(image.path);
+                                                imageFile = File(image.path);
+                                              });
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                           ),
@@ -612,20 +671,26 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         'NoteID': widget.noteId.toString(),
         "NoteDate": DateFormat("yyyy/MM/dd").format(serviceTypeDateTime),
         "AssessmentScale": "'${_assesmentScale.toString()}'",
-        "AssessmentComment": _assesment_comment.text.isEmpty ? "null" : _assesment_comment.text,
-        "Description": _disscription.text.isNotEmpty ? _disscription.text : "null",
+        "AssessmentComment":
+            _assesment_comment.text.isEmpty ? "null" : _assesment_comment.text,
+        "Description":
+            _disscription.text.isNotEmpty ? _disscription.text : "null",
         "Subject": _subject.text,
         "img": noteDocImage != null ? base64.encode(noteDocImage!) : "null",
         "userID": widget.userId.toString(),
         "clientID": model!.clientID != null ? model!.clientID!.toString() : "0",
-        "ServiceScheduleClientID": model!.serviceScheduleClientID != null ? model!.serviceScheduleClientID!.toString() : "0",
+        "ServiceScheduleClientID": model!.serviceScheduleClientID != null
+            ? model!.serviceScheduleClientID!.toString()
+            : "0",
         "bit64Signature": (await _controllerSignature.toPngBytes()) != null
             ? base64.encode((await _controllerSignature.toPngBytes())!)
             : signatureImage,
         "ClientRating": clientRating.toString(),
-        "ssClientIds": model!.serviceScheduleClientID != null ? model!.serviceScheduleClientID!.toString() : "0",
+        "ssClientIds": model!.serviceScheduleClientID != null
+            ? model!.serviceScheduleClientID!.toString()
+            : "0",
         "GroupNote": "null",
-        "ssEmployeeID":"0",
+        "ssEmployeeID": "0",
       };
 
       print(params);

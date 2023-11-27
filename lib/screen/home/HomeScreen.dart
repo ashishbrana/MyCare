@@ -938,89 +938,91 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 DateTime.now().year)
                                           InkWell(
                                             onTap:
-                                                model.locationName != null &&
+                                            model.locationName != null &&
                                                         model.locationName!
                                                             .isNotEmpty
                                                     ? null
                                                     : () {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (context) =>
-                                                              Dialog(
-                                                            shape: RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    boxBorderRadius),
-                                                            child: Padding(
-                                                              padding: const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      spaceHorizontal,
-                                                                  vertical:
-                                                                      spaceVertical),
-                                                              child: Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  ThemedText(
-                                                                      text:
-                                                                          "Are You Sure You Want To Logon The Shift ?"),
-                                                                  const SizedBox(
-                                                                      height:
-                                                                          spaceVertical),
-                                                                  Row(
-                                                                    children: [
-                                                                      Expanded(
-                                                                        child:
-                                                                            ThemedButton(
-                                                                          onTap:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                          title:
-                                                                              "Cancel",
-                                                                          fontSize:
-                                                                              18,
-                                                                          padding:
-                                                                              EdgeInsets.zero,
-                                                                        ),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width:
-                                                                            spaceHorizontal /
-                                                                                2,
-                                                                      ),
-                                                                      Expanded(
-                                                                        child:
-                                                                            ThemedButton(
-                                                                          onTap:
-                                                                              () async {
-                                                                            Navigator.pop(context);
-                                                                            String?
-                                                                                address =
-                                                                                await getAddress();
-                                                                            if (address !=
-                                                                                null) {
-                                                                              print("ADDRESS : $address");
-                                                                              saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
-                                                                            }
-                                                                          },
-                                                                          title:
-                                                                              "Ok",
-                                                                          fontSize:
-                                                                              18,
-                                                                          padding:
-                                                                              EdgeInsets.zero,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  )
-                                                                ],
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) => Dialog(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          boxBorderRadius),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal:
+                                                            spaceHorizontal,
+                                                        vertical:
+                                                            spaceVertical),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        ThemedText(
+                                                            text:
+                                                                "Are You Sure You Want To Logon The Shift ?"),
+                                                        const SizedBox(
+                                                            height:
+                                                                spaceVertical),
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child:
+                                                                  ThemedButton(
+                                                                onTap: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                title: "Cancel",
+                                                                fontSize: 18,
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .zero,
                                                               ),
                                                             ),
-                                                          ),
-                                                        );
-                                                      },
+                                                            const SizedBox(
+                                                              width:
+                                                                  spaceHorizontal /
+                                                                      2,
+                                                            ),
+                                                            Expanded(
+                                                              child:
+                                                                  ThemedButton(
+                                                                onTap:
+                                                                    () async {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  String?
+                                                                      address =
+                                                                      await getAddress();
+                                                                  if (address !=
+                                                                      null) {
+                                                                    print(
+                                                                        "ADDRESS : $address");
+                                                                    saveLocationTime(
+                                                                        address,
+                                                                        (model.servicescheduleemployeeID ??
+                                                                                0)
+                                                                            .toString());
+                                                                  }
+                                                                },
+                                                                title: "Ok",
+                                                                fontSize: 18,
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .zero,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                             child: FaIcon(
                                               Icons.history,
                                               color:
@@ -1362,15 +1364,15 @@ class _HomeScreenState extends State<HomeScreen> {
       Position position = await Geolocator.getCurrentPosition();
       List<Placemark> addressList =
           await placemarkFromCoordinates(position.latitude, position.longitude);
-      return addressList[0].toString();
+      return addressList[0].toString().replaceAll("\n", "");
     } catch (e) {
       showSnackBarWithText(keyScaffold.currentState, stringSomeThingWentWrong);
       print(e);
     } finally {
       removeOverlay();
-      setState(() {});
+      // setState(() {});
     }
-    return null;
+    // return null;
   }
 
   saveLocationTime(String address, String sSEID) async {
@@ -1406,7 +1408,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: colorGreen);
               getData();
               getAvailableShiftsData();
-              Navigator.pop(context);
+              // Navigator.pop(context);
             }
             setState(() {});
           } else {
