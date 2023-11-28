@@ -278,6 +278,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                                 userId: widget.model.empID ?? 0,
                                 noteId: widget.model.noteID ?? 0,
                                 serviceName: widget.model.serviceName ?? "",
+                                clientName:
+                                "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                               ),
                             ));
                       }

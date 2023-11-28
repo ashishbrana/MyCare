@@ -1055,6 +1055,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     noteId: model.noteID ?? 0,
                                                     serviceName:
                                                         model.serviceName ?? "",
+                                                    clientName:
+                                                        "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
                                                   ),
                                                 ),
                                               );

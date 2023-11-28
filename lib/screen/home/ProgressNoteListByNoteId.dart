@@ -51,7 +51,9 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'accountType': (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
+      'accountType':
+          (await Preferences().getPrefInt(Preferences.prefAccountType))
+              .toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
       'userid': widget.userId.toString(),
@@ -139,7 +141,6 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
@@ -327,17 +328,19 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    Navigator.of(keyScaffold.currentContext ?? context).push(
+                                    Navigator.of(keyScaffold.currentContext ??
+                                            context)
+                                        .push(
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             ProgressNoteDetails(
-                                                // model: model,
-                                                userId: model
-                                                        .serviceScheduleEmpID ??
-                                                    0,
-                                                noteId: model.noteID ?? 0,
-                                                serviceName:
-                                                    model.serviceName ?? ""),
+                                          // model: model,
+                                          userId:
+                                              model.serviceScheduleEmpID ?? 0,
+                                          noteId: model.noteID ?? 0,
+                                          serviceName: model.serviceName ?? "",
+                                          clientName: model.clientName,
+                                        ),
                                       ),
                                     );
                                   },

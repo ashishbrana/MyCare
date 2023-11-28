@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/screen/home/notes/ClientSignatureModel.dart';
+import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
 import 'package:signature/signature.dart';
 
 import '../../../Network/API.dart';
@@ -21,18 +21,22 @@ import '../../../utils/WidgetMethods.dart';
 import '../../../utils/methods.dart';
 import '../models/ProgressNoteListByNoteIdModel.dart';
 import '../models/ProgressNoteModel.dart';
+import 'model/NoteDocModel.dart';
 
 class ProgressNoteDetails extends StatefulWidget {
   // final ProgressNoteModel model;
   final int userId;
   final int noteId;
+  String? clientName;
   final String serviceName;
 
-  const ProgressNoteDetails(
-      {super.key,
-      /* required this.model,*/ required this.userId,
-      required this.noteId,
-      required this.serviceName});
+  ProgressNoteDetails({
+    super.key,
+    /* required this.model,*/ required this.userId,
+    required this.noteId,
+    this.clientName,
+    required this.serviceName,
+  });
 
   @override
   State<ProgressNoteDetails> createState() => _ProgressNoteDetailsState();
@@ -59,6 +63,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   ProgressNoteListByNoteIdModel? model;
   ClientSignatureModel? signatureModel;
+  NoteDocModel? noteDocModel;
   Uint8List? signatureImage;
   Uint8List? noteDocImage;
   int? clientRating;
@@ -121,8 +126,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 getClientSignatureData(model!.clientsignature!);
               }
               if (model!.noteID != 0) {
-                getNoteDocs(getDateTime(model!.noteDate ?? ""),
-                    model!.clientsignature ?? "", model!.noteID ?? 0);
+                getNoteDocs(getDateTime(model!.noteDate ?? ""), widget.clientName ?? " ", model!.noteID ?? 0);
               }
               serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
                       int.parse(model!.noteDate!
@@ -203,10 +207,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               }
             }
             setState(() {});
-          } else {
+          }
+          /*else {
             showSnackBarWithText(
                 _keyScaffold.currentState, stringSomeThingWentWrong);
-          }
+          }*/
           removeOverlay();
         } catch (e) {
           print("ERROR : $e");
@@ -246,23 +251,83 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
             List jResponse = json.decode(response);
             print("jResponse $jResponse");
+            noteDocModel =
+                jResponse.map((e) => NoteDocModel.fromJson(e)).toList()[0];
+            if (noteDocModel != null) {
+              try {
+                getNoteImage64(
+                    noteDocModel!.name ?? "", noteDocModel!.path ?? "");
+              } catch (e) {
+                log("IMAGECONVERTERROR : $e");
+              }
+            }
+            setState(() {});
+          }
+          /*else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }*/
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
+  getNoteImage64(String imageName, String imagePath) async {
+    Map<String, dynamic> params = {
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid': widget.userId.toString(),
+      'imageName': imageName, //"957-Bump96-161023-1.jpg",
+      'imagePath': imagePath.isEmpty ? "96/notespic/" : imagePath,
+    };
+    print("params : $params");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endGetImageBase64, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            print("jResponse $jResponse");
             signatureModel = jResponse
                 .map((e) => ClientSignatureModel.fromJson(e))
                 .toList()[0];
-            if (signatureModel != null) {
+            if (signatureModel != null &&
+                signatureModel!.noteImagebase64 != null &&
+                signatureModel!.noteImagebase64 != "null") {
               try {
                 noteDocImage = const Base64Decoder().convert(
-                    (signatureModel!.clientsignature ?? "")
+                    (signatureModel!.noteImagebase64 ?? "")
                         .replaceAll("data:image/png;base64,", ""));
               } catch (e) {
                 log("IMAGECONVERTERROR : $e");
               }
             }
             setState(() {});
-          } else {
+          }
+          /*else {
             showSnackBarWithText(
                 _keyScaffold.currentState, stringSomeThingWentWrong);
-          }
+          }*/
           removeOverlay();
         } catch (e) {
           print("ERROR : $e");

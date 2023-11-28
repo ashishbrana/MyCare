@@ -249,14 +249,13 @@ class _ProgressNoteState extends State<ProgressNote> {
                         ),
                         InkWell(
                           onTap: () {
-
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ProgressNoteDetails(
                                   userId: model.serviceScheduleEmpID ?? 0,
                                   noteId: model.noteID ?? 0,
                                   serviceName: model.serviceName ?? "",
-                                  // model: model,
+                                  clientName: model.clientName,
                                 ),
                               ),
                             );
