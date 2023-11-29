@@ -42,7 +42,6 @@ class HttpService {
       headers = {'Content-type': 'application/json'};
     } else {
       String token = await Preferences().getPrefString("Tocken");
-
       headers = {
         'Content-type': 'application/json',
         'Authorization': "bearer $token"
@@ -97,7 +96,7 @@ class HttpService {
           http.Response response =
               await doPost(url, httpRequestModel.params!, headers);
 
-          log("API_RESPONSE ${httpRequestModel.url} : ${response.body.toString()}");
+          log("API_RESPONSE ${httpRequestModel.url}  $headers: ${response.body.toString()}");
           return handleResponse(response, keyScaffold, callback);
         }
 

@@ -806,13 +806,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   saveNoteDoc() async {
     if (model != null && imageFile != null) {
-      print("base64 : ${base64.encode(await imageFile!.readAsBytes())}");
+      // print("base64 : ${base64.encode(await imageFile!.readAsBytes())}");
       Map<String, dynamic> params = <String, dynamic>{
-        'noteID': widget.noteId.toString(),
-        "NoteDate": DateFormat("dd/MM/yy").format(serviceTypeDateTime),
-        "clientName": "${widget.clientName}",
+        'noteID': "957",//widget.noteId.toString(),
+        "NoteDate": "16/10/23",//DateFormat("dd/MM/yy").format(serviceTypeDateTime),
+        "clientName": "Bump, Donald - 00096",//"${widget.clientName}",
         "noteimageurl": imageFile != null
-            ? base64.encode(await imageFile!.readAsBytes())
+            ? "data:image/png;base64,${base64.encode(await imageFile!.readAsBytes())}"
             : "null",
       };
 
