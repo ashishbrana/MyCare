@@ -1053,6 +1053,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ProgressNoteDetails(
                                                     userId: model.empID ?? 0,
                                                     noteId: model.noteID ?? 0,
+                                                    clientId: model.clientID ?? 0,
                                                     serviceName:
                                                         model.serviceName ?? "",
                                                     clientName:

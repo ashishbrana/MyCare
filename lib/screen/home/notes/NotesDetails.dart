@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
 import 'package:signature/signature.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 import '../../../Network/API.dart';
 import '../../../network/ApiUrls.dart';
@@ -26,6 +28,7 @@ import 'model/NoteDocModel.dart';
 class ProgressNoteDetails extends StatefulWidget {
   // final ProgressNoteModel model;
   final int userId;
+  final int clientId;
   final int noteId;
   String? clientName;
   final String serviceName;
@@ -34,6 +37,7 @@ class ProgressNoteDetails extends StatefulWidget {
     super.key,
     /* required this.model,*/ required this.userId,
     required this.noteId,
+    required this.clientId,
     this.clientName,
     required this.serviceName,
   });
@@ -62,7 +66,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   ProgressNoteListByNoteIdModel? model;
   ClientSignatureModel? signatureModel;
-  NoteDocModel? noteDocModel;
+  List<NoteDocModel>? noteDocList;
   Uint8List? signatureImage;
   Uint8List? noteDocImage;
   File? imageFile;
@@ -126,14 +130,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 getClientSignatureData(model!.clientsignature!);
               }
               if (model!.noteID != 0) {
-                getNoteDocs(getDateTime(model!.noteDate ?? ""),
+                getNoteDocs(getDateTimeFromEpochTime(model!.noteDate ?? "")!,
                     widget.clientName ?? " ", model!.noteID ?? 0);
               }
               serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
                       int.parse(model!.noteDate!
                           .replaceAll("/Date(", "")
                           .replaceAll(")/", "")),
-                      isUtc: false)
+                      isUtc: true)
                   .add(
                 const Duration(hours: 5, minutes: 30),
               );
@@ -233,11 +237,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       'clientName': clientName,
       'noteid': noteid.toString(),
     };
-    print("params : $params");
+    print("paramsendGetNoteDocs : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(endGetNoteDocs, params: params).toString(),
+            url:
+                "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat("dd/MM/yy").format(noteDate)}&clientName=$clientName&noteid=${noteid.toString()}",
+            //getUrl(endGetNoteDocs, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',
@@ -251,17 +257,18 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-            print("jResponse $jResponse");
-            noteDocModel =
-                jResponse.map((e) => NoteDocModel.fromJson(e)).toList()[0];
-            if (noteDocModel != null) {
-              try {
-                getNoteImage64(
-                    noteDocModel!.name ?? "", noteDocModel!.path ?? "");
-              } catch (e) {
-                log("IMAGECONVERTERROR : $e");
-              }
-            }
+            print("jResponseGetNoteDocs $jResponse");
+            noteDocList =
+                jResponse.map((e) => NoteDocModel.fromJson(e)).toList();
+            // if (noteDocModel != null) {
+            //   try {
+            //     for (NoteDocModel model in noteDocModel!) {
+            //       getNoteImage64(model);
+            //     }
+            //   } catch (e) {
+            //     log("IMAGECONVERTERROR : $e");
+            //   }
+            // }
             setState(() {});
           }
           /*else {
@@ -282,13 +289,15 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     });
   }
 
-  getNoteImage64(String imageName, String imagePath) async {
+  getNoteImage64(NoteDocModel model) async {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
-      'imageName': imageName, //"957-Bump96-161023-1.jpg",
-      'imagePath': imagePath.isEmpty ? "96/notespic/" : imagePath,
+      'imageName': model.name, //"957-Bump96-161023-1.jpg",
+      'imagePath': model.path != null && model.path!.isNotEmpty
+          ? model.path!.toString()
+          : "${widget.clientId}/notespic/",
     };
     print("params : $params");
     isConnected().then((hasInternet) async {
@@ -319,6 +328,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 noteDocImage = const Base64Decoder().convert(
                     (signatureModel!.noteImagebase64 ?? "")
                         .replaceAll("data:image/png;base64,", ""));
+                setState(() {});
               } catch (e) {
                 log("IMAGECONVERTERROR : $e");
               }
@@ -345,6 +355,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   @override
   Widget build(BuildContext context) {
+    // print("noteDocModel: ${noteDocModel!.length}");
     return Scaffold(
       key: _keyScaffold,
       backgroundColor: colorLiteBlueBackGround,
@@ -712,6 +723,27 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
                     ),
                     const SizedBox(height: spaceVertical),
+                    if (noteDocList != null && noteDocList!.isNotEmpty)
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: noteDocList!.length,
+                        itemBuilder: (context, index) => InkWell(
+                          onTap: () {
+                            getNoteImage64(noteDocList![index]);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                ThemedText(
+                                    text: noteDocList![index].name ?? ""),
+                                const Icon(Icons.close_rounded),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     if (noteDocImage != null)
                       SizedBox(
                         height: 200,
@@ -808,37 +840,42 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     if (model != null && imageFile != null) {
       // print("base64 : ${base64.encode(await imageFile!.readAsBytes())}");
       Map<String, dynamic> params = <String, dynamic>{
-        'noteID': "957",//widget.noteId.toString(),
-        "NoteDate": "16/10/23",//DateFormat("dd/MM/yy").format(serviceTypeDateTime),
-        "clientName": "Bump, Donald - 00096",//"${widget.clientName}",
+        'noteID': "957",
+        //widget.noteId.toString(),
+        "NoteDate": "16/10/23",
+        //DateFormat("dd/MM/yy").format(serviceTypeDateTime),
+        "clientName": "Bump, Donald - 00096",
+        //"${widget.clientName}",
         "noteimageurl": imageFile != null
-            ? "data:image/png;base64,${base64.encode(await imageFile!.readAsBytes())}"
+            ? "data:image/png;base64, ${base64.encode(await imageFile!.readAsBytes())}"
             : "null",
       };
 
       print(params);
       isConnected().then((hasInternet) async {
         if (hasInternet) {
-          var response;
-          HttpRequestModel request = HttpRequestModel(
-              url: /*getUrl(*/
-                  endSaveNotePicture /*, params: params).toString()*/,
-              //endSaveEmployeeProfile,
-              authMethod: '',
-              body: '',
-              headerType: '',
-              params: params.toString(),
-              //params.toString(),
-              method: 'POST');
-
           try {
             getOverlay(context);
-            response = await HttpService().init(request, _keyScaffold);
-            print("response $response");
-            if (response != null && response != "") {
-              var jResponse = json.decode(response.toString());
-              if (jResponse["status"] == 1) {
-                showSnackBarWithText(_keyScaffold.currentState, "Success");
+            Response response = await http.post(
+              Uri.parse(
+                  "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/saveNotePicture"),
+              headers: {"Content-Type": "application/json"},
+              body: json.encode({
+                "noteId": widget.noteId.toString(),
+                "NoteDate": DateFormat("dd/MM/yy").format(serviceTypeDateTime),
+                "clientName": "${widget.clientName}",
+                "noteimageurl": imageFile != null
+                    ? "data:image/png;base64, ${base64.encode(await imageFile!.readAsBytes())}"
+                    : "null",
+              }),
+            );
+            print("response ${response.body}");
+            if (response.statusCode == 200 || response.statusCode == 201) {
+              var jResponse = json.decode(response.body.toString());
+              var jrs = json.decode(jResponse["d"]);
+              if (jrs["status"] == 1) {
+                showSnackBarWithText(_keyScaffold.currentState, "Success",
+                    color: colorGreen);
               }
             } else {
               showSnackBarWithText(

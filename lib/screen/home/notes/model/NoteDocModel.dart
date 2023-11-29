@@ -1,7 +1,10 @@
+import 'package:flutter/services.dart';
+
 class NoteDocModel {
   String? name;
   String? createdon;
   String? path;
+  Uint8List? image;
 
   NoteDocModel({this.name, this.createdon, this.path});
 

@@ -277,9 +277,10 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                               builder: (context) => ProgressNoteDetails(
                                 userId: widget.model.empID ?? 0,
                                 noteId: widget.model.noteID ?? 0,
+                                clientId: widget.model.clientID ?? 0,
                                 serviceName: widget.model.serviceName ?? "",
                                 clientName:
-                                "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                    "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                               ),
                             ));
                       }

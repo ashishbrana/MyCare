@@ -253,6 +253,7 @@ class _ProgressNoteState extends State<ProgressNote> {
                               MaterialPageRoute(
                                 builder: (context) => ProgressNoteDetails(
                                   userId: model.serviceScheduleEmpID ?? 0,
+                                  clientId: model.clientID ?? 0,
                                   noteId: model.noteID ?? 0,
                                   serviceName: model.serviceName ?? "",
                                   clientName: model.clientName,

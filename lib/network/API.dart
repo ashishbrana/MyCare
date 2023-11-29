@@ -92,11 +92,11 @@ class HttpService {
               nestedUrl.trim() +
               httpRequestModel.url.trim();
 
-          // log(url);
+          log(url);
           http.Response response =
-              await doPost(url, httpRequestModel.params!, headers);
+              await doPost(url, httpRequestModel.body!, headers);
 
-          log("API_RESPONSE ${httpRequestModel.url}  $headers: ${response.body.toString()}");
+          log("API_RESPONSE ${httpRequestModel.url} ${httpRequestModel.body}  $headers: ${response.body.toString()}");
           return handleResponse(response, keyScaffold, callback);
         }
 
@@ -227,6 +227,7 @@ class HttpService {
 
   Future<http.Response> doPost(
       String subUrl, String body, Map<String, String> headerType) {
+    log("DOPOST $subUrl $headerType $body");
     return getHttpClient()
         .post(Uri.parse(subUrl), headers: headerType, body: body)
         .timeout(const Duration(seconds: 30), onTimeout: () {
