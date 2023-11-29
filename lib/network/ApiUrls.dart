@@ -20,6 +20,7 @@ const String endCareWorkersList = 'CareWorkersList';
 const String endDNSList = 'DSNList';
 const String endNoteDetailsByID = 'NoteDetailsByID';
 const String endSaveNoteDetails = 'saveNoteDetails';
+const String endSaveNotePicture = 'saveNotePicture';
 const String endGetNoteDocs = 'getNotedocs';
 const String endGetClientSignature = 'getClientSignatureBase64';
 const String endGetImageBase64 = 'getNoteImageBase64';

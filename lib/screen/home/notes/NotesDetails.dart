@@ -47,7 +47,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   DateTime serviceTypeDateTime = DateTime.now();
   String _assesmentScale = "1";
-  File? imageFile;
   final TextEditingController _serviceType = TextEditingController();
   final TextEditingController _subject = TextEditingController();
   final TextEditingController _disscription = TextEditingController();
@@ -66,6 +65,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   NoteDocModel? noteDocModel;
   Uint8List? signatureImage;
   Uint8List? noteDocImage;
+  File? imageFile;
   int? clientRating;
 
   @override
@@ -126,7 +126,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 getClientSignatureData(model!.clientsignature!);
               }
               if (model!.noteID != 0) {
-                getNoteDocs(getDateTime(model!.noteDate ?? ""), widget.clientName ?? " ", model!.noteID ?? 0);
+                getNoteDocs(getDateTime(model!.noteDate ?? ""),
+                    widget.clientName ?? " ", model!.noteID ?? 0);
               }
               serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
                       int.parse(model!.noteDate!
@@ -595,7 +596,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               title: "Save",
                               fontSize: 12,
                               onTap: () async {
-                                saveNoteApiCall();
+                                await saveNoteApiCall();
+                                saveNoteDoc();
                               },
                             ),
                           ),
@@ -651,7 +653,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                             final XFile? image =
                                                 await picker.pickImage(
                                               source: ImageSource.camera,
-                                              imageQuality: 50,
+                                              imageQuality: 30,
                                             );
                                             if (image != null) {
                                               setState(() {
@@ -680,7 +682,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                             final XFile? image =
                                                 await picker.pickImage(
                                               source: ImageSource.gallery,
-                                              imageQuality: 50,
+                                              imageQuality: 30,
                                             );
                                             if (image != null) {
                                               setState(() {
@@ -741,7 +743,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         "Description":
             _disscription.text.isNotEmpty ? _disscription.text : "null",
         "Subject": _subject.text,
-        "img": noteDocImage != null ? base64.encode(noteDocImage!) : "null",
+        "img": "null",
+        //noteDocImage != null ? base64.encode(noteDocImage!) : "null",
         "userID": widget.userId.toString(),
         "clientID": model!.clientID != null ? model!.clientID!.toString() : "0",
         "ServiceScheduleClientID": model!.serviceScheduleClientID != null
@@ -778,6 +781,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             print("response $response");
             if (response != null && response != "") {
               var jResponse = json.decode(response.toString());
+              if (jResponse["status"] == 1) {
+                showSnackBarWithText(_keyScaffold.currentState, "Success");
+              }
             } else {
               showSnackBarWithText(
                   _keyScaffold.currentState, stringSomeThingWentWrong);
@@ -786,7 +792,63 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           } catch (e) {
             log("SignUp$e");
             removeOverlay();
-            throw e;
+            // throw e;
+          } finally {
+            removeOverlay();
+          }
+        } else {
+          showSnackBarWithText(
+              _keyScaffold.currentState, stringErrorNoInterNet);
+        }
+      });
+    }
+  }
+
+  saveNoteDoc() async {
+    if (model != null && imageFile != null) {
+      print("base64 : ${base64.encode(await imageFile!.readAsBytes())}");
+      Map<String, dynamic> params = <String, dynamic>{
+        'noteID': widget.noteId.toString(),
+        "NoteDate": DateFormat("dd/MM/yy").format(serviceTypeDateTime),
+        "clientName": "${widget.clientName}",
+        "noteimageurl": imageFile != null
+            ? base64.encode(await imageFile!.readAsBytes())
+            : "null",
+      };
+
+      print(params);
+      isConnected().then((hasInternet) async {
+        if (hasInternet) {
+          var response;
+          HttpRequestModel request = HttpRequestModel(
+              url: /*getUrl(*/
+                  endSaveNotePicture /*, params: params).toString()*/,
+              //endSaveEmployeeProfile,
+              authMethod: '',
+              body: '',
+              headerType: '',
+              params: params.toString(),
+              //params.toString(),
+              method: 'POST');
+
+          try {
+            getOverlay(context);
+            response = await HttpService().init(request, _keyScaffold);
+            print("response $response");
+            if (response != null && response != "") {
+              var jResponse = json.decode(response.toString());
+              if (jResponse["status"] == 1) {
+                showSnackBarWithText(_keyScaffold.currentState, "Success");
+              }
+            } else {
+              showSnackBarWithText(
+                  _keyScaffold.currentState, stringSomeThingWentWrong);
+            }
+            removeOverlay();
+          } catch (e) {
+            log("SignUp$e");
+            removeOverlay();
+            // throw e;
           } finally {
             removeOverlay();
           }
