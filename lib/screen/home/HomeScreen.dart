@@ -1068,10 +1068,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                               size: 22,
                                             ),
                                           ),
-                                        if (model.noteID != 0)
+                                        if (model.noteID != 0 )
                                           const SizedBox(
                                               width: spaceHorizontal / 2),
-                                        if (model.dsnId != 0)
+                                        if (model.dsnId != 0 && bottomCurrentIndex != 3)
                                           InkWell(
                                             onTap: () {
                                               Navigator.push(
@@ -1085,7 +1085,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               );
                                             },
                                             child: const FaIcon(
-                                              FontAwesomeIcons.volcano,
+                                              FontAwesomeIcons.lifeRing,
                                               size: 22,
                                             ),
                                           ),

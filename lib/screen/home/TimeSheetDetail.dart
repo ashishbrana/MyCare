@@ -207,7 +207,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               height: 50,
               width: MediaQuery.of(context).size.width * .85,
               child: ThemedButton(
-                title: widget.indexSelectedFrom == 0
+                title: (widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2)
                     ? getDateTimeFromEpochTime(
                                     widget.model.serviceDate ?? "") !=
                                 null &&
@@ -255,7 +255,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               ),
             ),
             const SizedBox(height: spaceVertical / 1.5),
-            if (widget.indexSelectedFrom == 0 &&
+            if ((widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2)&&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
                     null &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
@@ -287,7 +287,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     },
                   ),
                 ),
-            if (widget.indexSelectedFrom == 0 &&
+            if ((widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2) &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
                     null &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
