@@ -133,14 +133,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 getNoteDocs(getDateTimeFromEpochTime(model!.noteDate ?? "")!,
                     widget.clientName ?? " ", model!.noteID ?? 0);
               }
-              serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(model!.noteDate!
-                          .replaceAll("/Date(", "")
-                          .replaceAll(")/", "")),
-                      isUtc: true)
-                  .add(
-                const Duration(hours: 5, minutes: 30),
-              );
+              serviceTypeDateTime =
+                  getDateTimeFromEpochTime(model!.noteDate ?? "")!;
               _serviceType.text = DateFormat("dd-MM-yyyy").format(
                 serviceTypeDateTime,
               );
@@ -608,7 +602,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               fontSize: 12,
                               onTap: () async {
                                 await saveNoteApiCall();
-                                saveNoteDoc();
+                                // saveNoteDoc();
                               },
                             ),
                           ),
@@ -766,53 +760,36 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   saveNoteApiCall() async {
     if (model != null) {
-      Map<String, dynamic> params = <String, dynamic>{
-        'NoteID': widget.noteId.toString(),
-        "NoteDate": DateFormat("yyyy/MM/dd").format(serviceTypeDateTime),
-        "AssessmentScale": "'${_assesmentScale.toString()}'",
-        "AssessmentComment":
-            _assesment_comment.text.isEmpty ? "null" : _assesment_comment.text,
-        "Description":
-            _disscription.text.isNotEmpty ? _disscription.text : "null",
-        "Subject": _subject.text,
-        "img": "null",
-        //noteDocImage != null ? base64.encode(noteDocImage!) : "null",
-        "userID": widget.userId.toString(),
-        "clientID": model!.clientID != null ? model!.clientID!.toString() : "0",
-        "ServiceScheduleClientID": model!.serviceScheduleClientID != null
-            ? model!.serviceScheduleClientID!.toString()
-            : "0",
-        "bit64Signature": (await _controllerSignature.toPngBytes()) != null
-            ? base64.encode((await _controllerSignature.toPngBytes())!)
-            : signatureImage,
-        "ClientRating": clientRating.toString(),
-        "ssClientIds": model!.serviceScheduleClientID != null
-            ? model!.serviceScheduleClientID!.toString()
-            : "0",
-        "GroupNote": "null",
-        "ssEmployeeID": "0",
-      };
-
-      print(params);
       isConnected().then((hasInternet) async {
         if (hasInternet) {
-          var response;
-          HttpRequestModel request = HttpRequestModel(
-              url: getUrl(endSaveNoteDetails, params: params).toString(),
-              //endSaveEmployeeProfile,
-              authMethod: '',
-              body: '',
-              headerType: '',
-              params: "",
-              //params.toString(),
-              method: 'GET');
-
           try {
             getOverlay(context);
-            response = await HttpService().init(request, _keyScaffold);
-            print("response $response");
-            if (response != null && response != "") {
-              var jResponse = json.decode(response.toString());
+            // response = await HttpService().init(request, _keyScaffold);
+            Response response = await http.post(
+              Uri.parse(
+                  "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveNoteDetails"),
+              headers: {"Content-Type": "application/json"},
+              body: json.encode({
+                "NoteID": 0,
+                "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
+                "AssessmentScale": _assesmentScale.toString(),
+                "AssessmentComment": _assesment_comment.text.isEmpty ? "null" : _assesment_comment.text,
+                "Description": _disscription.text.isNotEmpty ? _disscription.text : "null",
+                "Subject": _subject.text,
+                "img": "null",
+                "userID": widget.userId,
+                "clientID": 5,
+                "ServiceScheduleClientID": 27182,
+                "bit64Signature": "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC",
+                "ClientRating": "1",
+                "ssClientIds": "",
+                "GroupNote": 0,
+                "ssEmployeeID": 23127
+              }),
+            );
+            log("response ${response.body} ${response.request}}");
+            if (response != "") {
+              var jResponse = json.decode(response.body.toString());
               if (jResponse["status"] == 1) {
                 showSnackBarWithText(_keyScaffold.currentState, "Success");
               }

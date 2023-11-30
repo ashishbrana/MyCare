@@ -94,7 +94,7 @@ class HttpService {
 
           log(url);
           http.Response response =
-              await doPost(url, httpRequestModel.body!, headers);
+              await doPost(url, httpRequestModel.params!, headers);
 
           log("API_RESPONSE ${httpRequestModel.url} ${httpRequestModel.body}  $headers: ${response.body.toString()}");
           return handleResponse(response, keyScaffold, callback);
