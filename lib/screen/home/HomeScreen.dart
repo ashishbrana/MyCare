@@ -120,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     model.tSConfirm == false) {
                   // type = "confirmed";
                   confirmedDataList.add(model);
+                  timeSheetDataList.add(model);
                 } else if (model.empID != 0 && model.timesheetStatus == true) {
                   // type = "timesheets";
                   timeSheetDataList.add(model);
@@ -1079,7 +1080,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   builder: (context) => DNSList(
                                                       userId: model.empID ?? 0,
                                                       rosterID:
-                                                          model.rosterID ?? 0),
+                                                          model.serviceShceduleClientID ?? 0),
                                                 ),
                                               );
                                             },
