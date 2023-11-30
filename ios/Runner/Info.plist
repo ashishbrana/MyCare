@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Rcare 2</string>
+	<string>MyCare</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -26,6 +26,14 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app has been use to camera.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Your location is used for determining the nearest bus stop to your current location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used for determining the nearest bus stop to your current location.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app has been use to media.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -38,14 +46,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSLocationAlwaysUsageDescription</key>
-    <string>Your location is used for determining the nearest bus stop to your current location.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Your location is used for determining the nearest bus stop to your current location.</string>
-    <key>NSCameraUsageDescription</key>
-	<string>This app has been use to camera.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-    <string>This app has been use to media.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -53,6 +53,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
