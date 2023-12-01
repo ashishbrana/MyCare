@@ -222,7 +222,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                 padding: EdgeInsets.zero,
                 fontSize: 16,
                 onTap: () {
-                  if (widget.indexSelectedFrom == 0) {
+                  if (widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2) {
                     if (getDateTimeFromEpochTime(
                                 widget.model.serviceDate ?? "") !=
                             null &&
