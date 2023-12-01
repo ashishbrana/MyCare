@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
+import 'package:rcare_2/utils/Images.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -69,30 +70,15 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   List<NoteDocModel>? noteDocList;
   Uint8List? signatureImage;
   Uint8List? noteDocImage;
-  File? imageFile;
+  List<File> selectedImageFilesList = [];
   int? clientRating;
 
   @override
   void initState() {
-    /*serviceTypeDateTime = DateTime.fromMillisecondsSinceEpoch(
-            int.parse(model.noteDate!
-                .replaceAll("/Date(", "")
-                .replaceAll(")/", "")),
-            isUtc: false)
-        .add(
-      const Duration(hours: 5, minutes: 30),
-    );
-    _serviceType.text = DateFormat("dd-MM-yyyy").format(
-      serviceTypeDateTime,
-    );
-
-    _subject.text = widget.model.subject ?? "";
-
-    _disscription.text = widget.model.description ?? "";
-    _assesmentScale = widget.model.assessmentScale ?? "";
-    _assesment_comment.text = widget.model.assessmentComment ?? "";*/
     super.initState();
-    getData();
+    if (widget.noteId != 0) {
+      getData();
+    }
   }
 
   getData() async {
@@ -117,7 +103,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
-          if (response != null && response != "") {
+          if (response != "") {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
@@ -188,7 +174,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
-          if (response != null && response != "") {
+          if (response != "") {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
@@ -247,7 +233,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
-          if (response != null && response != "") {
+          if (response != "") {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
@@ -307,7 +293,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
-          if (response != null && response != "") {
+          if (response != "") {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
@@ -602,7 +588,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               fontSize: 12,
                               onTap: () async {
                                 await saveNoteApiCall();
-                                // saveNoteDoc();
+                                for (File file in selectedImageFilesList) {
+                                  saveNoteDoc(file);
+                                }
                               },
                             ),
                           ),
@@ -663,7 +651,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                             if (image != null) {
                                               setState(() {
                                                 print(image.path);
-                                                imageFile = File(image.path);
+                                                selectedImageFilesList
+                                                    .add(File(image.path));
                                               });
                                             }
                                           },
@@ -684,15 +673,17 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                             Navigator.pop(context);
                                             final ImagePicker picker =
                                                 ImagePicker();
-                                            final XFile? image =
-                                                await picker.pickImage(
-                                              source: ImageSource.gallery,
+                                            final List<XFile> image =
+                                                await picker.pickMultiImage(
                                               imageQuality: 30,
                                             );
-                                            if (image != null) {
+                                            if (image.isNotEmpty) {
                                               setState(() {
-                                                print(image.path);
-                                                imageFile = File(image.path);
+                                                for (XFile file in image) {
+                                                  selectedImageFilesList
+                                                      .add(File(file.path));
+                                                  print(file.path);
+                                                }
                                               });
                                             }
                                           },
@@ -744,11 +735,23 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         width: 300,
                         child: Image.memory(noteDocImage!),
                       ),
-                    if (imageFile != null)
-                      SizedBox(
-                        height: 200,
-                        width: 300,
-                        child: Image.file(imageFile!),
+                    if (selectedImageFilesList.isNotEmpty)
+                      const SizedBox(height: spaceVertical),
+                    if (selectedImageFilesList.isNotEmpty)
+                      ThemedText(text: "Selected Images"),
+                    if (selectedImageFilesList.isNotEmpty)
+                      GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                        ),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: selectedImageFilesList.length,
+                        itemBuilder: (context, index) => AspectRatio(
+                          aspectRatio: 1 / 1,
+                          child: Image.file(selectedImageFilesList[index]),
+                        ),
                       ),
                   ],
                 ),
@@ -773,14 +776,18 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 "NoteID": 0,
                 "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
                 "AssessmentScale": _assesmentScale.toString(),
-                "AssessmentComment": _assesment_comment.text.isEmpty ? "null" : _assesment_comment.text,
-                "Description": _disscription.text.isNotEmpty ? _disscription.text : "null",
+                "AssessmentComment": _assesment_comment.text.isEmpty
+                    ? "null"
+                    : _assesment_comment.text,
+                "Description":
+                    _disscription.text.isNotEmpty ? _disscription.text : "null",
                 "Subject": _subject.text,
                 "img": "null",
                 "userID": widget.userId,
                 "clientID": 5,
                 "ServiceScheduleClientID": 27182,
-                "bit64Signature": "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC",
+                "bit64Signature":
+                    "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC",
                 "ClientRating": "1",
                 "ssClientIds": "",
                 "GroupNote": 0,
@@ -813,22 +820,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     }
   }
 
-  saveNoteDoc() async {
-    if (model != null && imageFile != null) {
-      // print("base64 : ${base64.encode(await imageFile!.readAsBytes())}");
-      Map<String, dynamic> params = <String, dynamic>{
-        'noteID': "957",
-        //widget.noteId.toString(),
-        "NoteDate": "16/10/23",
-        //DateFormat("dd/MM/yy").format(serviceTypeDateTime),
-        "clientName": "Bump, Donald - 00096",
-        //"${widget.clientName}",
-        "noteimageurl": imageFile != null
-            ? "data:image/png;base64, ${base64.encode(await imageFile!.readAsBytes())}"
-            : "null",
-      };
-
-      print(params);
+  saveNoteDoc(File image) async {
+    print("UPLOADING : ${image.path}");
+    if (model != null) {
       isConnected().then((hasInternet) async {
         if (hasInternet) {
           try {
@@ -841,20 +835,21 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 "noteId": widget.noteId.toString(),
                 "NoteDate": DateFormat("dd/MM/yy").format(serviceTypeDateTime),
                 "clientName": "${widget.clientName}",
-                "noteimageurl": imageFile != null
-                    ? "data:image/png;base64, ${base64.encode(await imageFile!.readAsBytes())}"
-                    : "null",
+                "noteimageurl":
+                    "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
               }),
             );
-            print("response ${response.body}");
+            print("responseImageUpload ${response.body}");
             if (response.statusCode == 200 || response.statusCode == 201) {
               var jResponse = json.decode(response.body.toString());
               var jrs = json.decode(jResponse["d"]);
               if (jrs["status"] == 1) {
+                print("UPLOADED : ${image.path} Success");
                 showSnackBarWithText(_keyScaffold.currentState, "Success",
                     color: colorGreen);
               }
             } else {
+              print("UPLOADED : ${image.path} failed");
               showSnackBarWithText(
                   _keyScaffold.currentState, stringSomeThingWentWrong);
             }
