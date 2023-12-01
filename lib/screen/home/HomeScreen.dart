@@ -120,7 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     model.tSConfirm == false) {
                   // type = "confirmed";
                   confirmedDataList.add(model);
-                  timeSheetDataList.add(model);
+                  DateTime? serviceDate = getDateTimeFromEpochTime(model.serviceDate!);
+                  if(serviceDate!.compareTo(DateTime.now()) < 0){
+                    timeSheetDataList.add(model);
+                  }
                 } else if (model.empID != 0 && model.timesheetStatus == true) {
                   // type = "timesheets";
                   timeSheetDataList.add(model);
