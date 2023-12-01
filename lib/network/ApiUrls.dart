@@ -22,6 +22,7 @@ const String endNoteDetailsByID = 'NoteDetailsByID';
 const String endSaveNoteDetails = 'saveNoteDetails';
 const String endSaveNotePicture = 'saveNotePicture';
 const String endGetNoteDocs = 'getNotedocs';
+const String endDeleteNotePicture = 'DeleteNotePicture';
 const String endGetClientSignature = 'getClientSignatureBase64';
 const String endGetImageBase64 = 'getNoteImageBase64';
 const String endProgressNotesList = 'ProgressNotesList';

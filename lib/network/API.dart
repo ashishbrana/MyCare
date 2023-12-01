@@ -182,8 +182,8 @@ class HttpService {
 
       case 500:
         {
-          showSnackBarWithText(
-              keyScaffoldState.currentState!, "Internal Server Error!");
+          // showSnackBarWithText(
+          //     keyScaffoldState.currentState!, "Internal Server Error!");
           return Future(() => "");
         }
 
@@ -204,9 +204,7 @@ class HttpService {
     }
   }
 
-  static String stripHtmlIfNeeded(String text) {
-    return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
-  }
+
 
   Future<http.Response> callGetMethod(String subUrl) {
     return getHttpClient()
@@ -243,4 +241,8 @@ class HttpService {
       throw TimeoutException('The connection has timed out, Please try again!');
     });
   }
+}
+
+String stripHtmlIfNeeded(String text) {
+  return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
 }

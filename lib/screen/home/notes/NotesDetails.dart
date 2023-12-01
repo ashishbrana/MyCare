@@ -13,7 +13,7 @@ import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-import '../../../Network/API.dart';
+import '../../../network/API.dart';
 import '../../../network/ApiUrls.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
@@ -723,7 +723,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               children: [
                                 ThemedText(
                                     text: noteDocList![index].name ?? ""),
-                                const Icon(Icons.close_rounded),
+                                IconButton(
+                                  icon: const Icon(Icons.close_rounded),
+                                  onPressed: () {
+                                    deleteNoteDoc(
+                                        noteDocList![index].name ?? "");
+                                  },
+                                ),
                               ],
                             ),
                           ),
@@ -850,6 +856,49 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               }
             } else {
               print("UPLOADED : ${image.path} failed");
+              showSnackBarWithText(
+                  _keyScaffold.currentState, stringSomeThingWentWrong);
+            }
+            removeOverlay();
+          } catch (e) {
+            log("SignUp$e");
+            removeOverlay();
+            // throw e;
+          } finally {
+            removeOverlay();
+          }
+        } else {
+          showSnackBarWithText(
+              _keyScaffold.currentState, stringErrorNoInterNet);
+        }
+      });
+    }
+  }
+
+  deleteNoteDoc(String imageName) async {
+    print("UPLOADING : $imageName");
+    if (model != null) {
+      isConnected().then((hasInternet) async {
+        if (hasInternet) {
+          try {
+            getOverlay(context);
+            Response response = await http.get(Uri.parse(
+                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
+            print("responseDELETERESPONSE ${response.body}");
+            if (response.statusCode == 200 || response.statusCode == 201) {
+              var jResponse = json.decode(
+                  stripHtmlIfNeeded(response.body.toString()).toString());
+              if (jResponse["status"] == 1) {
+                print("DELETED : $imageName Success");
+                if (model != null && model!.noteID != 0) {
+                  getNoteDocs(getDateTimeFromEpochTime(model!.noteDate ?? "")!,
+                      widget.clientName ?? " ", model!.noteID ?? 0);
+                }
+                showSnackBarWithText(_keyScaffold.currentState, "Success",
+                    color: colorGreen);
+              }
+            } else {
+              print("DELETED : $imageName failed");
               showSnackBarWithText(
                   _keyScaffold.currentState, stringSomeThingWentWrong);
             }
