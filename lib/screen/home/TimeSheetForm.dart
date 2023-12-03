@@ -17,6 +17,14 @@ import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
 import 'models/ConfirmedResponseModel.dart';
 
+extension TimeOfDayConverter on TimeOfDay {
+  String to24hours() {
+    final hour = this.hour.toString().padLeft(2, "0");
+    final min = this.minute.toString().padLeft(2, "0");
+    return "$hour:$min";
+  }
+}
+
 class TimeSheetForm extends StatefulWidget {
   final TimeShiteResponseModel model;
 
@@ -415,15 +423,36 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               ),
                               SizedBox(
                                 height: textFiledHeight,
-                                child: ThemedDropDown(
-                                  defaultValue: fromHourService,
-                                  dataString: hourList,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      fromHourService = value;
-                                    });
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
+                                  ),
+                                  child: Text(fromHourService),
+                                  onPressed: () async{
+                                    TimeOfDay? pickedTime = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now(),
+                                      builder: (BuildContext? context, Widget? child) {
+                                        return MediaQuery(
+                                          data: MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+
+
+                                    if(pickedTime != null ){
+                                      print("24h: ${pickedTime.to24hours()}");
+                                      String timeOfDay = pickedTime.to24hours();
+
+                                      setState(() {
+                                        fromHourService = timeOfDay;
+                                      });
+                                    }else{
+                                      print("Time is not selected");
+                                    }
                                   },
-                                ),
+                              ),
                               ),
                             ],
                           ),
@@ -431,9 +460,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         const SizedBox(width: spaceHorizontal / 2),
                         Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ThemedText(
-                                text: "",
+                                text: "Until Time*",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
