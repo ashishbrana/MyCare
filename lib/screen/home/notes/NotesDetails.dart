@@ -79,6 +79,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     if (widget.noteId != 0) {
       getData();
     }
+    else{
+      //Fill model with defalt value and save with noteid = 0
+      model = ProgressNoteListByNoteIdModel();
+      model?.subject = "Progress Note";
+      _serviceType.text = DateFormat("dd-MM-yyyy").format(
+        serviceTypeDateTime,
+      );
+    }
   }
 
   getData() async {
