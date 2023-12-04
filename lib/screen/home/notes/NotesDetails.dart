@@ -83,6 +83,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       //Fill model with defalt value and save with noteid = 0
       model = ProgressNoteListByNoteIdModel();
       model?.subject = "Progress Note";
+      _subject.text = model!.subject ?? "";
       _serviceType.text = DateFormat("dd-MM-yyyy").format(
         serviceTypeDateTime,
       );
