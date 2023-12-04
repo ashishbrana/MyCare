@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import '../../Network/API.dart';
@@ -16,14 +18,6 @@ import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
 import 'models/ConfirmedResponseModel.dart';
-
-extension TimeOfDayConverter on TimeOfDay {
-  String to24hours() {
-    final hour = this.hour.toString().padLeft(2, "0");
-    final min = this.minute.toString().padLeft(2, "0");
-    return "$hour:$min";
-  }
-}
 
 class TimeSheetForm extends StatefulWidget {
   final TimeShiteResponseModel model;
@@ -38,16 +32,32 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   String fromHourService = "00";
+  final TextEditingController _controllerFromService = TextEditingController();
   String fromMinuteService = "00";
+
+  // final TextEditingController _controllerFromMinuteService = TextEditingController();
   String toHourService = "00";
+  final TextEditingController _controllerToService = TextEditingController();
   String toMinuteService = "00";
 
+  // final TextEditingController _controllerToMinuteService = TextEditingController();
+
   String hourLaunch = "00";
+  final TextEditingController _controllerHourLaunch = TextEditingController();
   String minuteLaunch = "00";
+  final TextEditingController _controllerMinuteLaunch = TextEditingController();
+
   String fromHourLaunch = "00";
+  final TextEditingController _controllerFromLaunch = TextEditingController();
   String fromMinuteLaunch = "00";
+
+  // final TextEditingController _controllerFromMinuteLaunch = TextEditingController();
+
   String toHourLaunch = "00";
+  final TextEditingController _controllerToLaunch = TextEditingController();
   String toMinuteLaunch = "00";
+
+  // final TextEditingController _controllerToMinuteLaunch = TextEditingController();
 
   final TextEditingController _controllerServiceType = TextEditingController();
   final TextEditingController _controllerHours = TextEditingController();
@@ -166,39 +176,27 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     _controllerServiceType.text = widget.model.serviceName ?? "";
     if (widget.model.timeFrom != null &&
         widget.model.timeFrom!.split(":").isNotEmpty) {
-      fromHourService = widget.model.timeFrom!.split(":")[0];
-      if (widget.model.timeFrom!.split(":").length > 1) {
-        fromMinuteService = widget.model.timeFrom!.split(":")[1];
-      }
+      _controllerFromService.text = widget.model.timeFrom!;
     }
     if (widget.model.timeUntil != null &&
         widget.model.timeUntil!.split(":").isNotEmpty) {
-      toHourService = widget.model.timeUntil!.split(":")[0];
-      if (widget.model.timeUntil!.split(":").length > 1) {
-        toMinuteService = widget.model.timeUntil!.split(":")[1];
-      }
+      _controllerToService.text = widget.model.timeUntil!;
     }
     isIncludeLaunchBrake = widget.model.lunchBreakSetting ?? false;
     if (widget.model.lunchBreak != null &&
         widget.model.lunchBreak!.split(":").isNotEmpty) {
-      hourLaunch = widget.model.lunchBreak!.split(":")[0];
+      _controllerHourLaunch.text = widget.model.lunchBreak!.split(":")[0];
       if (widget.model.lunchBreak!.split(":").length > 1) {
-        minuteLaunch = widget.model.lunchBreak!.split(":")[1];
+        _controllerMinuteLaunch.text = widget.model.lunchBreak!.split(":")[1];
       }
     }
     if (widget.model.lunchBreakFrom != null &&
         widget.model.lunchBreakFrom!.split(":").isNotEmpty) {
-      fromHourLaunch = widget.model.lunchBreakFrom!.split(":")[0];
-      if (widget.model.lunchBreakFrom!.split(":").length > 1) {
-        fromMinuteLaunch = widget.model.lunchBreakFrom!.split(":")[1];
-      }
+      _controllerFromLaunch.text = widget.model.lunchBreakFrom!;
     }
     if (widget.model.lunchBreakTo != null &&
         widget.model.lunchBreakTo!.split(":").isNotEmpty) {
-      toHourLaunch = widget.model.lunchBreakTo!.split(":")[0];
-      if (widget.model.lunchBreakTo!.split(":").length > 1) {
-        toMinuteLaunch = widget.model.lunchBreakTo!.split(":")[1];
-      }
+      _controllerToLaunch.text = widget.model.lunchBreakTo!;
     }
     _controllerHours.text = widget.model.tSHours.toString();
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
@@ -215,6 +213,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _keyScaffold,
       backgroundColor: colorLiteBlueBackGround,
       appBar: buildAppBar(context, title: "Timesheet Form"),
       body: SingleChildScrollView(
@@ -423,36 +422,26 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               ),
                               SizedBox(
                                 height: textFiledHeight,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize: Size.fromHeight(40), // fromHeight use double.infinity as width and 40 is the height
-                                  ),
-                                  child: Text(fromHourService),
-                                  onPressed: () async{
-                                    TimeOfDay? pickedTime = await showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now(),
-                                      builder: (BuildContext? context, Widget? child) {
-                                        return MediaQuery(
-                                          data: MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
-                                          child: child!,
-                                        );
+                                child: ThemedTextField(
+                                  controller: _controllerFromService,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: spaceHorizontal),
+                                  borderColor: colorGreyBorderD3,
+                                  backgroundColor: colorWhite,
+                                  isReadOnly: true,
+                                  onTap: () async {
+                                    showTimePickerDialog(
+                                      initialTimeText:
+                                          _controllerFromService.text,
+                                      onTimePick: (hours, minutes) {
+                                        _controllerFromService.text =
+                                            "${get2CharString(hours)}:${get2CharString(minutes)}";
+
+                                        setState(() {});
                                       },
                                     );
-
-
-                                    if(pickedTime != null ){
-                                      print("24h: ${pickedTime.to24hours()}");
-                                      String timeOfDay = pickedTime.to24hours();
-
-                                      setState(() {
-                                        fromHourService = timeOfDay;
-                                      });
-                                    }else{
-                                      print("Time is not selected");
-                                    }
                                   },
-                              ),
+                                ),
                               ),
                             ],
                           ),
@@ -469,72 +458,29 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               ),
                               SizedBox(
                                 height: textFiledHeight,
-                                child: ThemedDropDown(
-                                  defaultValue: fromMinuteService,
-                                  dataString: minuteList,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      fromMinuteService = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ThemedText(
-                                text: "Until Time*",
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedDropDown(
-                                  defaultValue: toHourService,
-                                  dataString: hourList,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      toHourService = value;
-                                    });
+                                child: ThemedTextField(
+                                  controller: _controllerToService,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: spaceHorizontal),
+                                  borderColor: colorGreyBorderD3,
+                                  backgroundColor: colorWhite,
+                                  isReadOnly: true,
+                                  onTap: () async {
+                                    showTimePickerDialog(
+                                      initialTimeText:
+                                          _controllerToService.text,
+                                      onTimePick: (hours, minutes) {
+                                        _controllerToService.text =
+                                            "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                        setState(() {});
+                                      },
+                                    );
                                   },
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: spaceHorizontal / 2),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              ThemedText(
-                                text: "",
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedDropDown(
-                                  defaultValue: toMinuteService,
-                                  dataString: minuteList,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      toMinuteService = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
                       ],
                     ),
                     const SizedBox(height: spaceBetween),
@@ -628,11 +574,14 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     const SizedBox(height: spaceBetween),
                                     SizedBox(
                                       height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: hourLaunch,
-                                        dataString: hourList,
-                                        isDisabled: true,
-                                        onChanged: (String) {},
+                                      child: ThemedTextField(
+                                        controller: _controllerHourLaunch,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: spaceHorizontal),
+                                        borderColor: colorGreyBorderD3,
+                                        backgroundColor: colorWhite,
+                                        isReadOnly: true,
+                                        onTap: () {},
                                       ),
                                     ),
                                   ],
@@ -650,11 +599,14 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     ),
                                     SizedBox(
                                       height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: minuteLaunch,
-                                        dataString: minuteList,
-                                        isDisabled: true,
-                                        onChanged: (String) {},
+                                      child: ThemedTextField(
+                                        controller: _controllerMinuteLaunch,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: spaceHorizontal),
+                                        borderColor: colorGreyBorderD3,
+                                        backgroundColor: colorWhite,
+                                        isReadOnly: true,
+                                        onTap: () {},
                                       ),
                                     ),
                                   ],
@@ -687,14 +639,32 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     const SizedBox(height: spaceBetween),
                                     SizedBox(
                                       height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: fromHourLaunch,
-                                        dataString: hourList,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            fromHourLaunch = value;
-                                            findDurationDifference();
-                                          });
+                                      child: ThemedTextField(
+                                        controller: _controllerFromLaunch,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: spaceHorizontal),
+                                        borderColor: colorGreyBorderD3,
+                                        backgroundColor: colorWhite,
+                                        isReadOnly: true,
+                                        onTap: () async {
+                                          showTimePickerDialog(
+                                            initialTimeText:
+                                                _controllerFromLaunch.text,
+                                            onTimePick: (hours, minutes) {
+                                              _controllerFromLaunch.text =
+                                                  "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                              String diff =
+                                                  findDurationDifference(
+                                                      _controllerFromLaunch
+                                                          .text,
+                                                      _controllerToLaunch.text);
+                                              _controllerHourLaunch.text =
+                                                  diff.split(":").first;
+                                              _controllerMinuteLaunch.text =
+                                                  diff.split(":").last;
+                                              setState(() {});
+                                            },
+                                          );
                                         },
                                       ),
                                     ),
@@ -705,31 +675,60 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               Expanded(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ThemedText(
-                                      text: "",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    ThemedRichText(spanList: [
+                                      getTextSpan(
+                                        text: "TS Launch To",
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: colorBlack,
+                                      ),
+                                      getTextSpan(
+                                        text: "*",
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: colorRed,
+                                      ),
+                                    ]),
+                                    const SizedBox(height: spaceBetween),
                                     SizedBox(
                                       height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: fromMinuteLaunch,
-                                        dataString: minuteList,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            fromMinuteLaunch = value;
-                                            findDurationDifference();
-                                          });
+                                      child: ThemedTextField(
+                                        controller: _controllerToLaunch,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: spaceHorizontal),
+                                        borderColor: colorGreyBorderD3,
+                                        backgroundColor: colorWhite,
+                                        isReadOnly: true,
+                                        onTap: () async {
+                                          showTimePickerDialog(
+                                            initialTimeText:
+                                                _controllerToLaunch.text,
+                                            onTimePick: (hours, minutes) {
+                                              _controllerToLaunch.text =
+                                                  "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                              String diff =
+                                                  findDurationDifference(
+                                                      _controllerFromLaunch
+                                                          .text,
+                                                      _controllerToLaunch.text);
+                                              _controllerHourLaunch.text =
+                                                  diff.split(":").first;
+                                              _controllerMinuteLaunch.text =
+                                                  diff.split(":").last;
+                                              setState(() {});
+                                            },
+                                          );
                                         },
                                       ),
                                     ),
                                   ],
                                 ),
-                              )
+                              ),
                             ],
                           ),
-                          const SizedBox(height: spaceBetween),
+                          /*  const SizedBox(height: spaceBetween),
                           Row(
                             children: [
                               Expanded(
@@ -795,7 +794,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                 ),
                               )
                             ],
-                          ),
+                          ),*/
                           const SizedBox(height: spaceBetween),
                         ],
                       ),
@@ -1134,25 +1133,52 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     );
   }
 
-  findDurationDifference() {
-    Duration difference = DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-            int.parse(toHourLaunch),
-            int.parse(toMinuteLaunch))
-        .difference(DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-            int.parse(fromHourLaunch),
-            int.parse(fromMinuteLaunch)));
+  showTimePickerDialog(
+      {required String? initialTimeText,
+      required void Function(int hours, int minutes) onTimePick}) async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: initialTimeText != null
+            ? int.tryParse(initialTimeText.split(":").first) ??
+                TimeOfDay.now().hour
+            : TimeOfDay.now().hour,
+        minute: initialTimeText != null
+            ? int.tryParse(initialTimeText.split(":").last) ??
+                TimeOfDay.now().minute
+            : TimeOfDay.now().minute,
+      ),
+      initialEntryMode: TimePickerEntryMode.dial,
+    );
+    if (newTime != null) {
+      onTimePick(newTime.hour, newTime.minute);
+    }
+  }
+
+  String findDurationDifference(String dataFromString, String dataToString) {
+    int fromHourLaunch = dataFromString.isNotEmpty
+        ? int.tryParse(dataFromString.split(":").first) ?? TimeOfDay.now().hour
+        : TimeOfDay.now().hour;
+    int fromMinuteLaunch = dataFromString.isNotEmpty
+        ? int.tryParse(dataFromString.split(":").last) ?? TimeOfDay.now().minute
+        : TimeOfDay.now().minute;
+    int toHourLaunch = dataToString.isNotEmpty
+        ? int.tryParse(dataToString.split(":").first) ?? TimeOfDay.now().hour
+        : TimeOfDay.now().hour;
+    int toMinuteLaunch = dataToString.isNotEmpty
+        ? int.tryParse(dataToString.split(":").last) ?? TimeOfDay.now().minute
+        : TimeOfDay.now().minute;
+
+    Duration difference = DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day, toHourLaunch, toMinuteLaunch)
+        .difference(DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day, fromHourLaunch, fromMinuteLaunch));
     int hour = difference.inHours;
     int minute = difference.inMinutes;
 
     setState(() {
       if (hour >= 0) {
-        hourLaunch = hour < 10 ? "0${hour}" : hour.toString();
+        hourLaunch = hour < 10 ? "0$hour" : hour.toString();
         if (minute >= 0) {
           minuteLaunch = (minute % 60) < 10
               ? "0${(minute % 60)}"
@@ -1166,80 +1192,135 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
     print("Launch : $hourLaunch:$minuteLaunch");
+    return "$hourLaunch:$minuteLaunch";
+  }
+
+  get2CharString(int data) {
+    return data > 9 ? data.toString() : "0$data";
   }
 
   saveTimeSheet() async {
-    if (widget.model != null) {
-      Map<String, dynamic> params = <String, dynamic>{
-        'auth_code':
-            (await Preferences().getPrefString(Preferences.prefAuthCode)),
-        'timesheetID':
-            (await Preferences().getPrefString(Preferences.prefAuthCode)),
-        'RosterID':
-            (await Preferences().getPrefString(Preferences.prefAuthCode)),
-        'TSFrom': "$fromHourService:$fromMinuteService",
-        'TSUntil': "$toHourService:$toMinuteService",
-        'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
-        'TSLunchBreak': isIncludeLaunchBrake ? "$hourLaunch:$minuteLaunch" : "",
-        'TSLBFrom':
-            isIncludeLaunchBrake ? "$fromHourLaunch:$fromMinuteLaunch" : "",
-        'TSLBTo': isIncludeLaunchBrake ? "$toHourLaunch:$toMinuteLaunch" : "",
-        'TSHours': _controllerHours.text,
-        'TSTravelDistance': _controllerTravelDistance.text,
-        'TSComments': _controllerTimeSheetComments.text,
-        'TSConfirm': widget.model.tSConfirm,
-        'TSHoursDiff': _controllerHoursDifference.text,
-        //---change
-        'TSTravelDistanceDiff': "$fromHourService:$fromMinuteService",
-        //---change
-        'TSTravelTime': _controllerTravelTime.text,
-        'tsHoursDifference': "$fromHourService:$fromMinuteService",
-        //--change
-        'empID': widget.model.empID,
-        'RosterDate': "null",
-        'RiskAlert': isRiskAlert.toString(),
-        'clientID': widget.model.clientID,
-        'TSClientTravelDistance': _controllerClientTravelDistance.text,
-        'ssEmployeeID': widget.model.servicescheduleemployeeID,
-        'servicetypeid': widget.model.tsservicetype,
-        'fundingSourceName': widget.model.fundingsourcename,
-      };
-
-      print(params);
-      isConnected().then((hasInternet) async {
-        if (hasInternet) {
-          var response;
-          HttpRequestModel request = HttpRequestModel(
-              url: getUrl(endSaveTimesheet, params: params).toString(),
-              authMethod: '',
-              body: '',
-              headerType: '',
-              params: "",
-              method: 'GET');
-
-          try {
-            getOverlay(context);
-            response = await HttpService().init(request, _keyScaffold);
-            print("response $response");
-            if (response != null && response != "") {
-              var jResponse = json.decode(response.toString());
-            } else {
-              showSnackBarWithText(
-                  _keyScaffold.currentState, stringSomeThingWentWrong);
-            }
-            removeOverlay();
-          } catch (e) {
-            log("SignUp$e");
-            removeOverlay();
-            throw e;
-          } finally {
-            removeOverlay();
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        try {
+          getOverlay(context);
+          Response response = await http.post(
+            Uri.parse(
+                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveTimesheet"),
+            headers: {"Content-Type": "application/json"},
+            body: json.encode({
+              'auth_code':
+                  (await Preferences().getPrefString(Preferences.prefAuthCode)),
+              'timesheetID': widget.model.timesheetID != null
+                  ? widget.model.timesheetID.toString()
+                  : "0",
+              'RosterID': widget.model.rosterID != null
+                  ? widget.model.rosterID.toString()
+                  : "0",
+              'TSFrom': "1899-12-30 ${_controllerFromService.text}",
+              'TSUntil': "1899-12-30 ${_controllerToService.text}",
+              'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
+              'TSLunchBreak': isIncludeLaunchBrake
+                  ? "${_controllerHourLaunch.text}:${_controllerMinuteLaunch.text}"
+                  : "",
+              'TSLBFrom': isIncludeLaunchBrake
+                  ? "1899-12-30 ${_controllerFromLaunch.text}"
+                  : "",
+              'TSLBTo': isIncludeLaunchBrake
+                  ? "1899-12-30 ${_controllerToLaunch.text}"
+                  : "",
+              'TSHours': _controllerHours.text,
+              'TSTravelDistance': _controllerTravelDistance.text,
+              'TSComments': _controllerTimeSheetComments.text + " ",
+              'TSConfirm': widget.model.tSConfirm != null
+                  ? widget.model.tSConfirm.toString()
+                  : false.toString(),
+              'TSHoursDiff': _controllerHoursDifference.text,
+              'TSTravelDistanceDiff': "$fromHourService:$fromMinuteService",
+              'TSTravelTime': _controllerTravelTime.text,
+              'tsHoursDifference': "$fromHourService:$fromMinuteService",
+              'empID': widget.model.empID != null
+                  ? widget.model.empID.toString()
+                  : 0,
+              'RosterDate': "",
+              'RiskAlert': isRiskAlert.toString(),
+              'clientID': widget.model.clientID != null
+                  ? widget.model.clientID.toString()
+                  : "0",
+              'TSClientTravelDistance': _controllerClientTravelDistance.text,
+              'ssEmployeeID': widget.model.servicescheduleemployeeID != null
+                  ? widget.model.servicescheduleemployeeID.toString()
+                  : "0",
+              'servicetypeid': widget.model.tsservicetype != null
+                  ? widget.model.tsservicetype.toString()
+                  : "0",
+              'fundingSourceName': widget.model.fundingsourcename,
+            }),
+          );
+          // response = await HttpService().init(request, _keyScaffold);
+          print(
+              "responseendSaveTimesheet ${response.body} ${response.request!.url.toString()}  ${json.encode({
+                'auth_code': (await Preferences()
+                    .getPrefString(Preferences.prefAuthCode)),
+                'timesheetID': widget.model.timesheetID != null
+                    ? widget.model.timesheetID.toString()
+                    : "0",
+                'RosterID': widget.model.rosterID != null
+                    ? widget.model.rosterID.toString()
+                    : "0",
+                'TSFrom': _controllerFromService.text,
+                'TSUntil': _controllerToService.text,
+                'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
+                'TSLunchBreak': isIncludeLaunchBrake
+                    ? "${_controllerHourLaunch.text}:${_controllerMinuteLaunch.text}"
+                    : "",
+                'TSLBFrom':
+                    isIncludeLaunchBrake ? _controllerFromLaunch.text : "",
+                'TSLBTo': isIncludeLaunchBrake ? _controllerToLaunch.text : "",
+                'TSHours': _controllerHours.text,
+                'TSTravelDistance': _controllerTravelDistance.text,
+                'TSComments': _controllerTimeSheetComments.text + " ",
+                'TSConfirm': widget.model.tSConfirm != null
+                    ? widget.model.tSConfirm.toString()
+                    : false.toString(),
+                'TSHoursDiff': _controllerHoursDifference.text,
+                'TSTravelDistanceDiff': "$fromHourService:$fromMinuteService",
+                'TSTravelTime': _controllerTravelTime.text,
+                'tsHoursDifference': "$fromHourService:$fromMinuteService",
+                'empID': widget.model.empID != null
+                    ? widget.model.empID.toString()
+                    : 0,
+                'RosterDate': "",
+                'RiskAlert': isRiskAlert.toString(),
+                'clientID': widget.model.clientID != null
+                    ? widget.model.clientID.toString()
+                    : "0",
+                'TSClientTravelDistance': _controllerClientTravelDistance.text,
+                'ssEmployeeID': widget.model.servicescheduleemployeeID != null
+                    ? widget.model.servicescheduleemployeeID.toString()
+                    : "0",
+                'servicetypeid': widget.model.tsservicetype != null
+                    ? widget.model.tsservicetype.toString()
+                    : "0",
+                'fundingSourceName': widget.model.fundingsourcename,
+              })}");
+          if (response != null) {
+            var jResponse = json.decode(response.body.toString());
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
           }
-        } else {
-          showSnackBarWithText(
-              _keyScaffold.currentState, stringErrorNoInterNet);
+          removeOverlay();
+        } catch (e) {
+          log("SignUp$e");
+          removeOverlay();
+          throw e;
+        } finally {
+          removeOverlay();
         }
-      });
-    }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
   }
 }

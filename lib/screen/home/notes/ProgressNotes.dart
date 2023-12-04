@@ -371,5 +371,3 @@ class _ProgressNoteState extends State<ProgressNote> {
     );
   }
 }
-
-class _keyScaffold {}
