@@ -4,7 +4,7 @@ String nestedUrl = 'MobileAPI/v1.asmx/';
 
 const String endLogin = 'Login';
 const String endTimeSheets = 'timesheets';
-const String endSaveTimesheet = 'savetimesheet';
+const String endSaveTimesheet = 'savetimesheetform';
 const String endPickupShift = 'pickupshift';
 const String endConfirmShift = 'confirmshift';
 const String endAvailableShifts = 'availableshifts';

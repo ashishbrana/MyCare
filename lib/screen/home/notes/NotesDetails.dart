@@ -31,6 +31,8 @@ class ProgressNoteDetails extends StatefulWidget {
   final int userId;
   final int clientId;
   final int noteId;
+  final int serviceShceduleClientID;
+  final int servicescheduleemployeeID;
   String? clientName;
   final String serviceName;
 
@@ -39,6 +41,8 @@ class ProgressNoteDetails extends StatefulWidget {
     /* required this.model,*/ required this.userId,
     required this.noteId,
     required this.clientId,
+    required this.serviceShceduleClientID,
+    required this.servicescheduleemployeeID,
     this.clientName,
     required this.serviceName,
   });
@@ -772,31 +776,37 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           getOverlay(context);
           // response = await HttpService().init(request, _keyScaffold);
+          String strBody = json.encode({
+            "NoteID": model != null ? model!.noteID ?? 0 : 0,
+            "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
+            "AssessmentScale": _assesmentScale.toString(),
+            "AssessmentComment": _assesment_comment.text.isEmpty
+                ? ""
+                : _assesment_comment.text,
+            "Description":
+            _disscription.text.isNotEmpty ? _disscription.text : "",
+            "Subject": _subject.text,
+            "img": 0,
+            "userID": widget.userId,
+            "clientID": widget.clientId,
+            "ServiceScheduleClientID": widget.serviceShceduleClientID,
+            "bit64Signature":
+            "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC",
+            "ClientRating": "1",
+            "ssClientIds":"",
+            "GroupNote": 0,
+            "ssEmployeeID": widget.servicescheduleemployeeID
+          });
+          print(strBody);
+          if(strBody.isEmpty){
+            return;
+          }
+
           Response response = await http.post(
             Uri.parse(
                 "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveNoteDetails"),
             headers: {"Content-Type": "application/json"},
-            body: json.encode({
-              "NoteID": model != null ? model!.noteID ?? 0 : 0,
-              "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
-              "AssessmentScale": _assesmentScale.toString(),
-              "AssessmentComment": _assesment_comment.text.isEmpty
-                  ? "null"
-                  : _assesment_comment.text,
-              "Description":
-              _disscription.text.isNotEmpty ? _disscription.text : "null",
-              "Subject": _subject.text,
-              "img": "null",
-              "userID": widget.userId,
-              "clientID": 5,
-              "ServiceScheduleClientID": 27182,
-              "bit64Signature":
-              "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC",
-              "ClientRating": "1",
-              "ssClientIds": "",
-              "GroupNote": 0,
-              "ssEmployeeID": 23127
-            }),
+            body: strBody,
           );
           log("response ${response.body} ${response.request}}");
           if (response != "") {

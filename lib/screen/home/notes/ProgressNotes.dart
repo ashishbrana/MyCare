@@ -255,6 +255,8 @@ class _ProgressNoteState extends State<ProgressNote> {
                                   userId: model.serviceScheduleEmpID ?? 0,
                                   clientId: model.clientID ?? 0,
                                   noteId: model.noteID ?? 0,
+                                  serviceShceduleClientID: model.servicescheduleCLientID ?? 0,
+                                  servicescheduleemployeeID: model.serviceScheduleEmpID ?? 0,
                                   serviceName: model.serviceName ?? "",
                                   clientName: model.clientName,
                                 ),

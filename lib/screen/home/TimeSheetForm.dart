@@ -1204,58 +1204,69 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       if (hasInternet) {
         try {
           getOverlay(context);
+
+          int tsconfirm = 0;
+          if(widget.model.tSConfirm != null){
+            tsconfirm = widget.model.tSConfirm! ? 1 : 0;
+         }
+
+          String body = json.encode({
+            'auth_code':
+            (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            'timesheetID': widget.model.timesheetID != null
+                ? widget.model.timesheetID.toString()
+                : "0",
+            'RosterID': widget.model.rosterID != null
+                ? widget.model.rosterID.toString()
+                : "0",
+            'TSFrom': "1899-12-30 ${_controllerFromService.text}",
+            'TSUntil': "1899-12-30 ${_controllerToService.text}",
+            'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
+            'TSLunchBreak': isIncludeLaunchBrake
+                ? "${_controllerHourLaunch.text}:${_controllerMinuteLaunch.text}"
+                : "00.00",
+            'TSLBFrom': isIncludeLaunchBrake
+                ? "1899-12-30 ${_controllerFromLaunch.text}"
+                : "1899-12-30 00:00",
+            'TSLBTo': isIncludeLaunchBrake
+                ? "1899-12-30 ${_controllerToLaunch.text}"
+                : "1899-12-30 00:00",
+            'TSHours': _controllerHours.text,
+            'TSTravelDistance': 0.0,
+            'TSComments': _controllerTimeSheetComments.text + " ",
+            'TSConfirm': tsconfirm,
+            'TSHoursDiff': 0.0,
+            'TSTravelDistanceDiff': "0.0",
+            'TSTravelTime': "0",
+            'tsHoursDifference': "0.0",
+            'empID': widget.model.empID != null
+                ? widget.model.empID.toString()
+                : 0,
+            'RosterDate': DateFormat("dd/MM/yyyy").format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
+            'RiskAlert': isRiskAlert.toString(),
+            'clientID': widget.model.rESID != null
+                ? widget.model.rESID.toString()
+                : "0",
+            'TSClientTravelDistance': _controllerClientTravelDistance.text,
+            'ssEmployeeID': widget.model.servicescheduleemployeeID != null
+                ? widget.model.servicescheduleemployeeID.toString()
+                : "0",
+            'servicetypeid': widget.model.tsservicetype != null
+                ? widget.model.tsservicetype.toString()
+                : "0",
+            'fundingSourceName': widget.model.fundingsourcename,
+          });
+
+          if(body.isNotEmpty){
+            print(body);
+            return;
+          }
+
           Response response = await http.post(
             Uri.parse(
                 "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveTimesheet"),
             headers: {"Content-Type": "application/json"},
-            body: json.encode({
-              'auth_code':
-                  (await Preferences().getPrefString(Preferences.prefAuthCode)),
-              'timesheetID': widget.model.timesheetID != null
-                  ? widget.model.timesheetID.toString()
-                  : "0",
-              'RosterID': widget.model.rosterID != null
-                  ? widget.model.rosterID.toString()
-                  : "0",
-              'TSFrom': "1899-12-30 ${_controllerFromService.text}",
-              'TSUntil': "1899-12-30 ${_controllerToService.text}",
-              'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
-              'TSLunchBreak': isIncludeLaunchBrake
-                  ? "${_controllerHourLaunch.text}:${_controllerMinuteLaunch.text}"
-                  : "",
-              'TSLBFrom': isIncludeLaunchBrake
-                  ? "1899-12-30 ${_controllerFromLaunch.text}"
-                  : "",
-              'TSLBTo': isIncludeLaunchBrake
-                  ? "1899-12-30 ${_controllerToLaunch.text}"
-                  : "",
-              'TSHours': _controllerHours.text,
-              'TSTravelDistance': _controllerTravelDistance.text,
-              'TSComments': _controllerTimeSheetComments.text + " ",
-              'TSConfirm': widget.model.tSConfirm != null
-                  ? widget.model.tSConfirm.toString()
-                  : false.toString(),
-              'TSHoursDiff': _controllerHoursDifference.text,
-              'TSTravelDistanceDiff': "$fromHourService:$fromMinuteService",
-              'TSTravelTime': _controllerTravelTime.text,
-              'tsHoursDifference': "$fromHourService:$fromMinuteService",
-              'empID': widget.model.empID != null
-                  ? widget.model.empID.toString()
-                  : 0,
-              'RosterDate': "",
-              'RiskAlert': isRiskAlert.toString(),
-              'clientID': widget.model.clientID != null
-                  ? widget.model.clientID.toString()
-                  : "0",
-              'TSClientTravelDistance': _controllerClientTravelDistance.text,
-              'ssEmployeeID': widget.model.servicescheduleemployeeID != null
-                  ? widget.model.servicescheduleemployeeID.toString()
-                  : "0",
-              'servicetypeid': widget.model.tsservicetype != null
-                  ? widget.model.tsservicetype.toString()
-                  : "0",
-              'fundingSourceName': widget.model.fundingsourcename,
-            }),
+            body:  body
           );
           // response = await HttpService().init(request, _keyScaffold);
           print(
