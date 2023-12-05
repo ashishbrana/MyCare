@@ -207,7 +207,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               height: 50,
               width: MediaQuery.of(context).size.width * .85,
               child: ThemedButton(
-                title: (widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2)
+                title: (widget.indexSelectedFrom == 0 ||
+                        widget.indexSelectedFrom == 2)
                     ? getDateTimeFromEpochTime(
                                     widget.model.serviceDate ?? "") !=
                                 null &&
@@ -222,7 +223,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                 padding: EdgeInsets.zero,
                 fontSize: 16,
                 onTap: () {
-                  if (widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2) {
+                  if (widget.indexSelectedFrom == 0 ||
+                      widget.indexSelectedFrom == 2) {
                     if (getDateTimeFromEpochTime(
                                 widget.model.serviceDate ?? "") !=
                             null &&
@@ -235,7 +237,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                           builder: (context) =>
                               TimeSheetForm(model: widget.model),
                         ),
-                      );
+                      ).then((value) => value != null && value ? Navigator.pop(context, true) : () {});
                     }
                   } else {
                     showConfirmationDialog(
@@ -255,7 +257,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               ),
             ),
             const SizedBox(height: spaceVertical / 1.5),
-            if ((widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2)&&
+            if ((widget.indexSelectedFrom == 0 ||
+                    widget.indexSelectedFrom == 2) &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
                     null &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
@@ -278,18 +281,24 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                                 userId: widget.model.empID ?? 0,
                                 noteId: widget.model.noteID ?? 0,
                                 clientId: widget.model.rESID ?? 0,
-                                servicescheduleemployeeID: widget.model.servicescheduleemployeeID ?? 0,
-                                serviceShceduleClientID: widget.model.serviceShceduleClientID ?? 0,
+                                servicescheduleemployeeID:
+                                    widget.model.servicescheduleemployeeID ?? 0,
+                                serviceShceduleClientID:
+                                    widget.model.serviceShceduleClientID ?? 0,
                                 serviceName: widget.model.serviceName ?? "",
                                 clientName:
                                     "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                               ),
-                            ));
+                            )).then((value) => value != null &&
+                                value
+                            ? Navigator.pop(context, true)
+                            : () {});
                       }
                     },
                   ),
                 ),
-            if ((widget.indexSelectedFrom == 0 || widget.indexSelectedFrom == 2) &&
+            if ((widget.indexSelectedFrom == 0 ||
+                    widget.indexSelectedFrom == 2) &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
                     null &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
@@ -448,7 +457,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
 
             var jsonResponse = json.decode(response);
             if (jsonResponse["status"] == 1) {
-              showSnackBarWithText(keyScaffold.currentState, "Success");
+              showSnackBarWithText(keyScaffold.currentState, "Success",
+                  color: colorGreen);
               Navigator.pop(context);
               Navigator.pop(context, true);
             }
