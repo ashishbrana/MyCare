@@ -227,6 +227,40 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   children: [
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: textFiledHeight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const SizedBox(width: spaceHorizontal),
+                          Expanded(
+                            child: ThemedButton(
+                              padding: EdgeInsets.zero,
+                              title: "Save",
+                              fontSize: 12,
+                              onTap: () async {
+                                saveTimeSheet();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: spaceHorizontal),
+                          Expanded(
+                            // height: textFiledHeight,
+                            child: ThemedButton(
+                              padding: EdgeInsets.zero,
+                              title: "Cancel",
+                              fontSize: 12,
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: spaceHorizontal),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     ThemedText(
                       text: widget.model.resName ?? "",
                       color: colorBlack,
@@ -1112,7 +1146,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                     ),
                     const SizedBox(height: spaceBetween),
                     const SizedBox(height: spaceBetween),
-                    SizedBox(
+                   /* SizedBox(
                       height: 50,
                       child: ThemedButton(
                         title: "Save",
@@ -1122,7 +1156,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         },
                       ),
                     ),
-                    const SizedBox(height: spaceBetween),
+                    const SizedBox(height: spaceBetween),*/
                   ],
                 ),
               ),
