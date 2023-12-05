@@ -82,8 +82,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     super.initState();
     if (widget.noteId != 0) {
       getData();
-    }
-    else {
+    } else {
       //Fill model with defalt value and save with noteid = 0
       model = ProgressNoteListByNoteIdModel();
       model?.subject = "Progress Note";
@@ -98,7 +97,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'NoteID': widget.noteId.toString(),
     };
@@ -133,7 +132,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     widget.clientName ?? " ", model!.noteID ?? 0);
               }
               serviceTypeDateTime =
-              getDateTimeFromEpochTime(model!.noteDate ?? "")!;
+                  getDateTimeFromEpochTime(model!.noteDate ?? "")!;
               _serviceType.text = DateFormat("dd-MM-yyyy").format(
                 serviceTypeDateTime,
               );
@@ -169,7 +168,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'clientSignature': imageName,
     };
@@ -235,9 +234,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
             url:
-            "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat(
-                "dd/MM/yy").format(
-                noteDate)}&clientName=$clientName&noteid=${noteid.toString()}",
+                "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat("dd/MM/yy").format(noteDate)}&clientName=$clientName&noteid=${noteid.toString()}",
             //getUrl(endGetNoteDocs, params: params).toString(),
             authMethod: '',
             body: '',
@@ -287,7 +284,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   getNoteImage64(NoteDocModel model) async {
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'imageName': model.name, //"957-Bump96-161023-1.jpg",
       'imagePath': model.path != null && model.path!.isNotEmpty
@@ -386,16 +383,16 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 height: textFiledHeight,
                 child: ThemedTextField(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                      const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   isReadOnly: true,
                   onTap: () {
                     showDatePicker(
-                        context: context,
-                        initialDate: serviceTypeDateTime,
-                        firstDate: DateTime(serviceTypeDateTime.year - 23),
-                        lastDate: DateTime(serviceTypeDateTime.year + 23))
+                            context: context,
+                            initialDate: serviceTypeDateTime,
+                            firstDate: DateTime(serviceTypeDateTime.year - 23),
+                            lastDate: DateTime(serviceTypeDateTime.year + 23))
                         .then((value) {
                       if (value != null) {
                         setState(() {
@@ -499,11 +496,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 child: signatureImage != null
                     ? Image.memory(signatureImage!)
                     : Signature(
-                  backgroundColor: Colors.white,
-                  controller: _controllerSignature,
-                  width: 300,
-                  height: 180,
-                ),
+                        backgroundColor: Colors.white,
+                        controller: _controllerSignature,
+                        width: 300,
+                        height: 180,
+                      ),
               ),
               const SizedBox(height: spaceVertical),
               Row(
@@ -629,73 +626,72 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         onTap: () async {
                           showModalBottomSheet(
                             context: context,
-                            builder: (context) =>
-                                Container(
-                                  /*insetPadding: EdgeInsets.zero,
+                            builder: (context) => Container(
+                              /*insetPadding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: boxBorderRadius,
                                     ),*/
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: ThemedText(
-                                          text: 'Camera',
-                                        ),
-                                        leading: const Icon(
-                                          Icons.camera_alt_rounded,
-                                          color: colorGreen,
-                                        ),
-                                        onTap: () async {
-                                          Navigator.pop(context);
-                                          final ImagePicker picker = ImagePicker();
-                                          final XFile? image =
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    title: ThemedText(
+                                      text: 'Camera',
+                                    ),
+                                    leading: const Icon(
+                                      Icons.camera_alt_rounded,
+                                      color: colorGreen,
+                                    ),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final ImagePicker picker = ImagePicker();
+                                      final XFile? image =
                                           await picker.pickImage(
-                                            source: ImageSource.camera,
-                                            imageQuality: 30,
-                                          );
-                                          if (image != null) {
-                                            setState(() {
-                                              print(image.path);
-                                              selectedImageFilesList
-                                                  .add(File(image.path));
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      const Divider(
-                                        color: colorDivider,
-                                        height: 1,
-                                      ),
-                                      ListTile(
-                                        title: ThemedText(
-                                          text: 'Gallery',
-                                        ),
-                                        leading: const Icon(
-                                          Icons.photo_rounded,
-                                          color: colorGreen,
-                                        ),
-                                        onTap: () async {
-                                          Navigator.pop(context);
-                                          final ImagePicker picker = ImagePicker();
-                                          final List<XFile> image =
-                                          await picker.pickMultiImage(
-                                            imageQuality: 30,
-                                          );
-                                          if (image.isNotEmpty) {
-                                            setState(() {
-                                              for (XFile file in image) {
-                                                selectedImageFilesList
-                                                    .add(File(file.path));
-                                                print(file.path);
-                                              }
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ],
+                                        source: ImageSource.camera,
+                                        imageQuality: 30,
+                                      );
+                                      if (image != null) {
+                                        setState(() {
+                                          print(image.path);
+                                          selectedImageFilesList
+                                              .add(File(image.path));
+                                        });
+                                      }
+                                    },
                                   ),
-                                ),
+                                  const Divider(
+                                    color: colorDivider,
+                                    height: 1,
+                                  ),
+                                  ListTile(
+                                    title: ThemedText(
+                                      text: 'Gallery',
+                                    ),
+                                    leading: const Icon(
+                                      Icons.photo_rounded,
+                                      color: colorGreen,
+                                    ),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final ImagePicker picker = ImagePicker();
+                                      final List<XFile> image =
+                                          await picker.pickMultiImage(
+                                        imageQuality: 30,
+                                      );
+                                      if (image.isNotEmpty) {
+                                        setState(() {
+                                          for (XFile file in image) {
+                                            selectedImageFilesList
+                                                .add(File(file.path));
+                                            print(file.path);
+                                          }
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -718,26 +714,25 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: noteDocList!.length,
-                  itemBuilder: (context, index) =>
-                      InkWell(
-                        onTap: () {
-                          getNoteImage64(noteDocList![index]);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              ThemedText(text: noteDocList![index].name ?? ""),
-                              IconButton(
-                                icon: const Icon(Icons.close_rounded),
-                                onPressed: () {
-                                  deleteNoteDoc(noteDocList![index].name ?? "");
-                                },
-                              ),
-                            ],
+                  itemBuilder: (context, index) => InkWell(
+                    onTap: () {
+                      getNoteImage64(noteDocList![index]);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          ThemedText(text: noteDocList![index].name ?? ""),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () {
+                              deleteNoteDoc(noteDocList![index].name ?? "");
+                            },
                           ),
-                        ),
+                        ],
                       ),
+                    ),
+                  ),
                 ),
               if (noteDocImage != null)
                 SizedBox(
@@ -757,11 +752,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: selectedImageFilesList.length,
-                  itemBuilder: (context, index) =>
-                      AspectRatio(
-                        aspectRatio: 1 / 1,
-                        child: Image.file(selectedImageFilesList[index]),
-                      ),
+                  itemBuilder: (context, index) => AspectRatio(
+                    aspectRatio: 1 / 1,
+                    child: Image.file(selectedImageFilesList[index]),
+                  ),
                 ),
             ],
           ),
@@ -776,29 +770,30 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           getOverlay(context);
           // response = await HttpService().init(request, _keyScaffold);
+          Uint8List? signature = await _controllerSignature.toPngBytes();
           String strBody = json.encode({
             "NoteID": model != null ? model!.noteID ?? 0 : 0,
             "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
             "AssessmentScale": _assesmentScale.toString(),
-            "AssessmentComment": _assesment_comment.text.isEmpty
-                ? ""
-                : _assesment_comment.text,
+            "AssessmentComment":
+                _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
             "Description":
-            _disscription.text.isNotEmpty ? _disscription.text : "",
+                _disscription.text.isNotEmpty ? _disscription.text : "",
             "Subject": _subject.text,
             "img": 0,
             "userID": widget.userId,
             "clientID": widget.clientId,
             "ServiceScheduleClientID": widget.serviceShceduleClientID,
-            "bit64Signature":
-            "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC",
-            "ClientRating": "1",
-            "ssClientIds":"",
+            "bit64Signature": signature != null
+                ? "data:image/png;base64, ${base64.encode(signature)}"
+                : " ",
+            "ClientRating": clientRating.toString(),
+            "ssClientIds": "",
             "GroupNote": 0,
             "ssEmployeeID": widget.servicescheduleemployeeID
           });
           print(strBody);
-          if(strBody.isEmpty){
+          if (strBody.isEmpty) {
             return;
           }
 
@@ -811,8 +806,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           log("response ${response.body} ${response.request}}");
           if (response != "") {
             var jResponse = json.decode(response.body.toString());
-            if (jResponse["status"] == 1) {
-              showSnackBarWithText(_keyScaffold.currentState, "Success");
+            var jres = json.decode(jResponse["d"]);
+            if (jres["status"] == 1) {
+              showSnackBarWithText(_keyScaffold.currentState, "Success",
+                  color: colorGreen);
+              if (selectedImageFilesList.isEmpty) {
+                Navigator.pop(context, true);
+              }
             }
           } else {
             showSnackBarWithText(
@@ -827,8 +827,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           removeOverlay();
         }
       } else {
-        showSnackBarWithText(
-            _keyScaffold.currentState, stringErrorNoInterNet);
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
       }
     });
   }
@@ -849,8 +848,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               "NoteDate": DateFormat("dd/MM/yy").format(serviceTypeDateTime),
               "clientName": "${widget.clientName}",
               "noteimageurl":
-              "data:image/png;base64, ${base64.encode(
-                  await image.readAsBytes())}",
+                  "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
             }),
           );
           print("responseImageUpload ${response.body}");
@@ -889,8 +887,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           try {
             getOverlay(context);
             Response response = await http.get(Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endDeleteNotePicture?fileName=$imageName&clientId=${widget
-                    .clientId.toString()}"));
+                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
             print("responseDELETERESPONSE ${response.body}");
             if (response.statusCode == 200 || response.statusCode == 201) {
               var jResponse = json.decode(
