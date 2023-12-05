@@ -425,7 +425,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'userid': (widget.model.empID ?? 0).toString(),
+      'userid': (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'rosterid': (widget.model.rosterID ?? 0).toString(),
       'totalhours': (widget.model.totalHours ?? 0).toString(),
       'serviceDate': DateFormat("EEE MMM dd yyyy ").format(
