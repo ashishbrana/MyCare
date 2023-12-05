@@ -362,6 +362,40 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(
+                height: textFiledHeight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: ThemedButton(
+                        padding: EdgeInsets.zero,
+                        title: "Save",
+                        fontSize: 12,
+                        onTap: () async {
+                          await saveNoteApiCall();
+                          for (File file in selectedImageFilesList) {
+                            saveNoteDoc(file);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: spaceHorizontal),
+                    Expanded(
+                      // height: textFiledHeight,
+                      child: ThemedButton(
+                        padding: EdgeInsets.zero,
+                        title: "Cancel",
+                        fontSize: 12,
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               ThemedText(
                 text: "Service Schedule Client ${widget.serviceName ?? ""}",
                 color: colorFontColor,
@@ -584,7 +618,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Expanded(
+                    /*Expanded(
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Save",
@@ -596,7 +630,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                           }
                         },
                       ),
-                    ),
+                    ),*/
+                    const Spacer(),
                     const SizedBox(width: spaceHorizontal),
                     SizedBox(
                       width: 100,
@@ -856,8 +891,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jrs = json.decode(jResponse["d"]);
             if (jrs["status"] == 1) {
               print("UPLOADED : ${image.path} Success");
-              showSnackBarWithText(_keyScaffold.currentState, "Success",
+              showSnackBarWithText(_keyScaffold.currentState, "Upload Success",
                   color: colorGreen);
+              if (selectedImageFilesList.indexOf(image) ==
+                  selectedImageFilesList.length - 1) {
+                Navigator.pop(context, true);
+              }
             }
           } else {
             print("UPLOADED : ${image.path} failed");

@@ -55,10 +55,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List<TimeShiteResponseModel> confirmedDataList = [];
   List<TimeShiteResponseModel> unConfirmedDataList = [];
   List<TimeShiteResponseModel> timeSheetDataList = [];
-  List<TimeShiteResponseModel> avaliableDataList = [];
+  List<TimeShiteResponseModel> availableDataList = [];
+  List<TimeShiteResponseModel> mainList = [];
+  List<TimeShiteResponseModel> tempList = [];
 
   final TextEditingController _controllerFromDate = TextEditingController();
   final TextEditingController _controllerToDate = TextEditingController();
+  final TextEditingController _controllerSearch = TextEditingController();
+  FocusScopeNode focusNode = FocusScopeNode();
+  FocusScopeNode focusNavigatorNode = FocusScopeNode();
 
   @override
   void initState() {
@@ -81,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
     };
-    print("params : ${params}");
+    print("params : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -120,8 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     model.tSConfirm == false) {
                   // type = "confirmed";
                   confirmedDataList.add(model);
-                  DateTime? serviceDate = getDateTimeFromEpochTime(model.serviceDate!);
-                  if(serviceDate!.compareTo(DateTime.now()) < 0){
+                  DateTime? serviceDate =
+                      getDateTimeFromEpochTime(model.serviceDate!);
+                  if (serviceDate!.compareTo(DateTime.now()) < 0) {
                     timeSheetDataList.add(model);
                   }
                 } else if (model.empID != 0 && model.timesheetStatus == true) {
@@ -158,11 +164,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             }
-            // confirmedDataList = dataList.where((element) => element.confirmCW == true).toList();
-            // unConfirmedDataList = dataList
-            //     .where((element) => element.confirmCW == false)
-            //     .toList();
+            switch (bottomCurrentIndex) {
+              case 1:
+                mainList = unConfirmedDataList;
 
+                break;
+              case 2:
+                mainList = timeSheetDataList;
+
+                break;
+              default:
+                mainList = confirmedDataList;
+                break;
+            }
+            tempList.clear();
+            tempList.addAll(mainList);
             setState(() {});
           } else {
             showSnackBarWithText(
@@ -187,9 +203,6 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      /*   'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),*/
       'userid':
           (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
@@ -214,11 +227,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
             List jResponse = json.decode(response);
             print("jResponse $endAvailableShifts $jResponse");
-            avaliableDataList.clear();
-            avaliableDataList = jResponse
+            availableDataList.clear();
+            availableDataList = jResponse
                 .map((e) => TimeShiteResponseModel.fromJson(e))
                 .toList();
-            print("models.length : ${avaliableDataList.length}");
+            print("models.length : ${availableDataList.length}");
+
+            if (bottomCurrentIndex == 3) {
+              mainList.addAll(availableDataList);
+              tempList.clear();
+              tempList.addAll(mainList);
+            }
             setState(() {});
           } else {
             showSnackBarWithText(
@@ -266,14 +285,45 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: SizedBox(
             height: 40,
-            child: ThemedTextField(
-              borderColor: colorPrimary,
-              preFix: const FaIcon(
-                FontAwesomeIcons.search,
-                color: Color(0XFFBBBECB),
-                size: 20,
+            child: FocusScope(
+              node: focusNode,
+              child: ThemedTextField(
+                borderColor: colorPrimary,
+                controller: _controllerSearch,
+                // currentFocusNode: focusNode,
+                preFix: const FaIcon(
+                  FontAwesomeIcons.search,
+                  color: Color(0XFFBBBECB),
+                  size: 20,
+                ),
+                padding: EdgeInsets.zero,
+                hintText: "Search...",
+                onTap: () {
+                  focusNavigatorNode.unfocus();
+                  focusNode.requestFocus();
+                },
+                onChanged: (string) {
+                  if (string.isNotEmpty && string.length > 1) {
+                    tempList = [];
+                    for (TimeShiteResponseModel model in mainList) {
+                      if ((model.serviceName != null &&
+                              model.serviceName!
+                                  .toLowerCase()
+                                  .contains(string.toLowerCase())) ||
+                          (model.serviceName != null &&
+                              model.resName!
+                                  .toLowerCase()
+                                  .contains(string.toLowerCase()))) {
+                        tempList.add(model);
+                      }
+                    }
+                  } else {
+                    tempList = [];
+                    tempList.addAll(mainList);
+                  }
+                  setState(() {});
+                },
               ),
-              hintText: "Search...",
             ),
           ),
           titleSpacing: spaceHorizontal / 2,
@@ -291,26 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     bottomCurrentIndex = 5;
                   });
-
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) => ProgressNote(),
-                  //     ));
                 },
-              ),
-            ),
-            const SizedBox(width: spaceHorizontal / 2),
-            SizedBox(
-              height: 40,
-              child: MaterialButton(
-                color: colorGreen,
-                child: ThemedText(
-                  text: "Refresh",
-                  fontSize: 16,
-                  color: colorWhite,
-                ),
-                onPressed: () {},
               ),
             ),
             const SizedBox(width: spaceHorizontal / 2),
@@ -357,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   Container(
                     decoration: BoxDecoration(
                       color: colorWhite,
@@ -679,658 +710,709 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         Expanded(
-          child: Navigator(
-            key: _keyNavigator,
-            pages: [
-              MaterialPage(
-                child: ListView.builder(
-                  itemCount: list.length,
-                  primary: true,
-                  itemBuilder: (context, index) {
-                    TimeShiteResponseModel model = list[index];
-                    DateTime? serviceDate =
-                        getDateTimeFromEpochTime(model.serviceDate!);
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      margin:
-                          const EdgeInsets.only(top: 8, right: 15, left: 15),
-                      color: colorWhite,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
+          child: FocusScope(
+            node: focusNavigatorNode,
+            child: Navigator(
+              key: _keyNavigator,
+              onPopPage: (route, result) {
+                if (_keyNavigator.currentState != null) {
+                  return _keyNavigator.currentState!.canPop();
+                } else {
+                  return false;
+                }
+              },
+              pages: [
+                MaterialPage(
+                  child: Scaffold(
+                    body: ListView.builder(
+                      itemCount: list.length,
+                      primary: true,
+                      itemBuilder: (context, index) {
+                        TimeShiteResponseModel model = list[index];
+                        DateTime? serviceDate =
+                            getDateTimeFromEpochTime(model.serviceDate!);
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          margin: const EdgeInsets.only(
+                              top: 8, right: 15, left: 15),
+                          color: colorWhite,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
-                                flex: 8,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 8,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Expanded(
-                                          child: RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: "${model.resName} ",
-                                                  style: const TextStyle(
-                                                    color: colorGreyText,
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 14,
-                                                  ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: "${model.resName} ",
+                                                      style: const TextStyle(
+                                                        color: colorGreyText,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text: model.serviceName,
+                                                      style: const TextStyle(
+                                                        color:
+                                                            colorGreyLiteText,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                TextSpan(
-                                                  text: model.serviceName,
-                                                  style: const TextStyle(
-                                                    color: colorGreyLiteText,
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        if (model.noteID != 0)
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ProgressNoteListByNoteId(
-                                                    userId: model.empID ?? 0,
-                                                    noteID: model.noteID ?? 0,
-                                                    rosterID:
-                                                        model.rosterID ?? 0,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            child: const FaIcon(
-                                              FontAwesomeIcons.calendarDays,
-                                              size: 22,
-                                            ),
-                                          ),
-                                        const SizedBox(
-                                            width: spaceHorizontal / 2),
-                                        if (bottomCurrentIndex != 3)
-                                          InkWell(
-                                            onTap: () {
-                                              print(
-                                                  "CareWorkerList ${model.empID} ${model.rosterID}");
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CareWorkerList(
-                                                          userId:
-                                                              model.empID ?? 0,
-                                                          rosterID:
-                                                              model.rosterID ??
-                                                                  0),
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
                                               ),
-                                              child: const Icon(
-                                                  CupertinoIcons
-                                                      .person_crop_circle,
-                                                  color: Colors.white,
-                                                  size: 22),
                                             ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      height: 1,
-                                      color: colorGreyBorderD3,
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              if (selectedExpandedIndex !=
-                                                  index) {
-                                                selectedExpandedIndex = index;
-                                              } else {
-                                                selectedExpandedIndex = -1;
-                                              }
-                                            });
-                                          },
-                                          child: const SizedBox(
-                                            width: 30,
-                                            height: 30,
-                                            child: Icon(
-                                              Icons.arrow_downward_rounded,
-                                              color: colorGreen,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      const SizedBox(width: 5),
-                                                      const FaIcon(
-                                                        FontAwesomeIcons
-                                                            .calendarDays,
-                                                        color: colorGreen,
-                                                        size: 14,
+                                            if (model.noteID != 0)
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ProgressNoteListByNoteId(
+                                                        userId:
+                                                            model.empID ?? 0,
+                                                        noteID:
+                                                            model.noteID ?? 0,
+                                                        rosterID:
+                                                            model.rosterID ?? 0,
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      if (getDateTimeFromEpochTime(
-                                                              model
-                                                                  .serviceDate!) !=
-                                                          null)
-                                                        Text(
-                                                          // model.serviceDate!,
-                                                          model.serviceDate !=
-                                                                  null
-                                                              ? DateFormat(
-                                                                      "EEE,dd-MM-yyyy")
-                                                                  .format(getDateTimeFromEpochTime(
-                                                                      model
-                                                                          .serviceDate!)!)
-                                                              : "",
-                                                          style:
-                                                              const TextStyle(
-                                                            color:
-                                                                colorGreyText,
-                                                            fontSize: 14,
+                                                    ),
+                                                  );
+                                                },
+                                                child: const FaIcon(
+                                                  FontAwesomeIcons.calendarDays,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            if (bottomCurrentIndex != 3)
+                                              InkWell(
+                                                onTap: () {
+                                                  print(
+                                                      "CareWorkerList ${model.empID} ${model.rosterID}");
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          CareWorkerList(
+                                                              userId:
+                                                                  model.empID ??
+                                                                      0,
+                                                              rosterID: model
+                                                                      .rosterID ??
+                                                                  0),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                  ),
+                                                  child: const Icon(
+                                                      CupertinoIcons
+                                                          .person_crop_circle,
+                                                      color: Colors.white,
+                                                      size: 22),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: 1,
+                                          color: colorGreyBorderD3,
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (selectedExpandedIndex !=
+                                                      index) {
+                                                    selectedExpandedIndex =
+                                                        index;
+                                                  } else {
+                                                    selectedExpandedIndex = -1;
+                                                  }
+                                                });
+                                              },
+                                              child: const SizedBox(
+                                                width: 30,
+                                                height: 30,
+                                                child: Icon(
+                                                  Icons.arrow_downward_rounded,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    WidgetSpan(
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          const FaIcon(
+                                                            FontAwesomeIcons
+                                                                .calendarDays,
+                                                            color: colorGreen,
+                                                            size: 14,
                                                           ),
-                                                        ),
-                                                      const SizedBox(width: 5),
-                                                      Container(
-                                                        width: 1,
-                                                        height: 25,
-                                                        color:
-                                                            colorGreyBorderD3,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      /* const SizedBox(
-                                                    width: 30,
-                                                    height: 30,
-                                                  ),*/
-                                                      const SizedBox(width: 5),
-                                                      const Icon(
-                                                        CupertinoIcons.time,
-                                                        color: colorGreen,
-                                                        size: 14,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        "${model.totalHours}hrs",
-                                                        style: const TextStyle(
-                                                          color: colorGreyText,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Container(
-                                                        width: 1,
-                                                        height: 25,
-                                                        color:
-                                                            colorGreyBorderD3,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                    ],
-                                                  ),
-                                                ),
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    children: [
-                                                      /*   SizedBox(
-                                                  width: 30,
-                                                  height: 30,
-                                                ),*/
-                                                      const SizedBox(width: 5),
-                                                      const Icon(
-                                                        Icons.timer,
-                                                        color: colorGreen,
-                                                        size: 14,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        model.shift ?? "",
-                                                        style: const TextStyle(
-                                                          color: colorGreyText,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 5),
-                                        if ((bottomCurrentIndex == 0 ||
-                                                bottomCurrentIndex == 2) &&
-                                            serviceDate != null &&
-                                            serviceDate.day ==
-                                                DateTime.now().day &&
-                                            serviceDate.month ==
-                                                DateTime.now().month &&
-                                            serviceDate.year ==
-                                                DateTime.now().year)
-                                          InkWell(
-                                            onTap:
-                                                model.locationName != null &&
-                                                        model.locationName!
-                                                            .isNotEmpty
-                                                    ? null
-                                                    : () {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (context) =>
-                                                              Dialog(
-                                                            shape: RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    boxBorderRadius),
-                                                            child: Padding(
-                                                              padding: const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      spaceHorizontal,
-                                                                  vertical:
-                                                                      spaceVertical),
-                                                              child: Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  ThemedText(
-                                                                      text:
-                                                                          "Are You Sure You Want To Logon The Shift ?"),
-                                                                  const SizedBox(
-                                                                      height:
-                                                                          spaceVertical),
-                                                                  Row(
-                                                                    children: [
-                                                                      Expanded(
-                                                                        child:
-                                                                            ThemedButton(
-                                                                          onTap:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                          title:
-                                                                              "Cancel",
-                                                                          fontSize:
-                                                                              18,
-                                                                          padding:
-                                                                              EdgeInsets.zero,
-                                                                        ),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width:
-                                                                            spaceHorizontal /
-                                                                                2,
-                                                                      ),
-                                                                      Expanded(
-                                                                        child:
-                                                                            ThemedButton(
-                                                                          onTap:
-                                                                              () async {
-                                                                            Navigator.pop(context);
-                                                                            String?
-                                                                                address =
-                                                                                await getAddress();
-                                                                            if (address !=
-                                                                                null) {
-                                                                              print("ADDRESS : $address");
-                                                                              saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
-                                                                            }
-                                                                          },
-                                                                          title:
-                                                                              "Ok",
-                                                                          fontSize:
-                                                                              18,
-                                                                          padding:
-                                                                              EdgeInsets.zero,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  )
-                                                                ],
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          if (getDateTimeFromEpochTime(
+                                                                  model
+                                                                      .serviceDate!) !=
+                                                              null)
+                                                            Text(
+                                                              // model.serviceDate!,
+                                                              model.serviceDate !=
+                                                                      null
+                                                                  ? DateFormat(
+                                                                          "EEE,dd-MM-yyyy")
+                                                                      .format(getDateTimeFromEpochTime(
+                                                                          model
+                                                                              .serviceDate!)!)
+                                                                  : "",
+                                                              style:
+                                                                  const TextStyle(
+                                                                color:
+                                                                    colorGreyText,
+                                                                fontSize: 14,
                                                               ),
                                                             ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Container(
+                                                            width: 1,
+                                                            height: 25,
+                                                            color:
+                                                                colorGreyBorderD3,
                                                           ),
-                                                        );
-                                                      },
-                                            child: FaIcon(
-                                              Icons.history,
-                                              color:
-                                                  model.locationName != null &&
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    WidgetSpan(
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          /* const SizedBox(
+                                                        width: 30,
+                                                        height: 30,
+                                                      ),*/
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          const Icon(
+                                                            CupertinoIcons.time,
+                                                            color: colorGreen,
+                                                            size: 14,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Text(
+                                                            "${model.totalHours}hrs",
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  colorGreyText,
+                                                              fontSize: 14,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Container(
+                                                            width: 1,
+                                                            height: 25,
+                                                            color:
+                                                                colorGreyBorderD3,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    WidgetSpan(
+                                                      child: Row(
+                                                        children: [
+                                                          /*   SizedBox(
+                                                      width: 30,
+                                                      height: 30,
+                                                    ),*/
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          const Icon(
+                                                            Icons.timer,
+                                                            color: colorGreen,
+                                                            size: 14,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Text(
+                                                            model.shift ?? "",
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  colorGreyText,
+                                                              fontSize: 14,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            if ((bottomCurrentIndex == 0 ||
+                                                    bottomCurrentIndex == 2) &&
+                                                serviceDate != null &&
+                                                serviceDate.day ==
+                                                    DateTime.now().day &&
+                                                serviceDate.month ==
+                                                    DateTime.now().month &&
+                                                serviceDate.year ==
+                                                    DateTime.now().year)
+                                              InkWell(
+                                                onTap:
+                                                    model.locationName !=
+                                                                null &&
+                                                            model.locationName!
+                                                                .isNotEmpty
+                                                        ? null
+                                                        : () {
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) =>
+                                                                      Dialog(
+                                                                shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        boxBorderRadius),
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          spaceHorizontal,
+                                                                      vertical:
+                                                                          spaceVertical),
+                                                                  child: Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      ThemedText(
+                                                                          text:
+                                                                              "Are You Sure You Want To Logon The Shift ?"),
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              spaceVertical),
+                                                                      Row(
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                ThemedButton(
+                                                                              onTap: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                              title: "Cancel",
+                                                                              fontSize: 18,
+                                                                              padding: EdgeInsets.zero,
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                spaceHorizontal / 2,
+                                                                          ),
+                                                                          Expanded(
+                                                                            child:
+                                                                                ThemedButton(
+                                                                              onTap: () async {
+                                                                                Navigator.pop(context);
+                                                                                String? address = await getAddress();
+                                                                                if (address != null) {
+                                                                                  print("ADDRESS : $address");
+                                                                                  saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
+                                                                                }
+                                                                              },
+                                                                              title: "Ok",
+                                                                              fontSize: 18,
+                                                                              padding: EdgeInsets.zero,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                child: FaIcon(
+                                                  Icons.history,
+                                                  color: model.locationName !=
+                                                              null &&
                                                           model.locationName!
                                                               .isNotEmpty
                                                       ? colorGreen
                                                       : colorRed,
-                                              size: 22,
-                                            ),
-                                          ),
-                                        if ((bottomCurrentIndex == 0 ||
-                                                bottomCurrentIndex == 2) &&
-                                            serviceDate != null &&
-                                            serviceDate.day ==
-                                                DateTime.now().day &&
-                                            serviceDate.month ==
-                                                DateTime.now().month &&
-                                            serviceDate.year ==
-                                                DateTime.now().year)
-                                          const SizedBox(
-                                              width: spaceHorizontal / 2),
-                                        if (model.noteID != 0)
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                keyScaffold.currentContext!,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ProgressNoteDetails(
-                                                    userId: model.empID ?? 0,
-                                                    noteId: model.noteID ?? 0,
-                                                    clientId: model.clientID ?? 0,
-                                                    servicescheduleemployeeID: model.servicescheduleemployeeID ?? 0,
-                                                        serviceShceduleClientID: model.serviceShceduleClientID ?? 0,
-                                                    serviceName:
-                                                        model.serviceName ?? "",
-                                                    clientName:
-                                                        "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
-                                                  ),
+                                                  size: 22,
                                                 ),
-                                              );
-                                            },
-                                            child: const FaIcon(
-                                              FontAwesomeIcons.notesMedical,
-                                              size: 22,
-                                            ),
-                                          ),
-                                        if (model.noteID != 0 )
-                                          const SizedBox(
-                                              width: spaceHorizontal / 2),
-                                        if (model.dsnId != 0 && bottomCurrentIndex != 3)
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => DNSList(
-                                                      userId: model.empID ?? 0,
-                                                      rosterID:
-                                                          model.serviceShceduleClientID ?? 0),
+                                              ),
+                                            if ((bottomCurrentIndex == 0 ||
+                                                    bottomCurrentIndex == 2) &&
+                                                serviceDate != null &&
+                                                serviceDate.day ==
+                                                    DateTime.now().day &&
+                                                serviceDate.month ==
+                                                    DateTime.now().month &&
+                                                serviceDate.year ==
+                                                    DateTime.now().year)
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                            if (model.noteID != 0)
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    keyScaffold.currentContext!,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ProgressNoteDetails(
+                                                        userId:
+                                                            model.empID ?? 0,
+                                                        noteId:
+                                                            model.noteID ?? 0,
+                                                        clientId:
+                                                            model.clientID ?? 0,
+                                                        servicescheduleemployeeID:
+                                                            model.servicescheduleemployeeID ??
+                                                                0,
+                                                        serviceShceduleClientID:
+                                                            model.serviceShceduleClientID ??
+                                                                0,
+                                                        serviceName:
+                                                            model.serviceName ??
+                                                                "",
+                                                        clientName:
+                                                            "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const FaIcon(
+                                                  FontAwesomeIcons.notesMedical,
+                                                  size: 22,
                                                 ),
-                                              );
-                                            },
-                                            child: const FaIcon(
-                                              FontAwesomeIcons.lifeRing,
-                                              size: 22,
+                                              ),
+                                            if (model.noteID != 0)
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                            if (model.dsnId != 0 &&
+                                                bottomCurrentIndex != 3)
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) => DNSList(
+                                                          userId:
+                                                              model.empID ?? 0,
+                                                          rosterID: model
+                                                                  .serviceShceduleClientID ??
+                                                              0),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const FaIcon(
+                                                  FontAwesomeIcons.lifeRing,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            if (model.dsnId != 0)
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                            if (bottomCurrentIndex == 2)
+                                              Icon(
+                                                Icons.check_circle_rounded,
+                                                color: model.locationName ==
+                                                            "" ||
+                                                        model.logOffLocationName ==
+                                                            ""
+                                                    ? colorRed
+                                                    : colorGreen,
+                                                size: 22,
+                                              ),
+                                            if (bottomCurrentIndex == 2)
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                            /*const Expanded(
+                                            child: Icon(
+                                          Icons.timelapse_rounded,
+                                          color: colorGreen,
+                                          size: 26,
+                                        )),*/
+                                            // const SizedBox(width: 5),
+                                            Container(
+                                              width: 1,
+                                              height: 30,
+                                              color: colorGreyBorderD3,
                                             ),
-                                          ),
-                                        if (model.dsnId != 0)
-                                          const SizedBox(
-                                              width: spaceHorizontal / 2),
-                                        if (bottomCurrentIndex == 2)
-                                          Icon(
-                                            Icons.check_circle_rounded,
-                                            color: model.locationName == "" ||
-                                                    model.logOffLocationName ==
-                                                        ""
-                                                ? colorRed
-                                                : colorGreen,
-                                            size: 22,
-                                          ),
-                                        if (bottomCurrentIndex == 2)
-                                          const SizedBox(
-                                              width: spaceHorizontal / 2),
-                                        /*const Expanded(
-                                        child: Icon(
-                                      Icons.timelapse_rounded,
-                                      color: colorGreen,
-                                      size: 26,
-                                    )),*/
-                                        // const SizedBox(width: 5),
-                                        Container(
-                                          width: 1,
-                                          height: 30,
-                                          color: colorGreyBorderD3,
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    keyScaffold.currentContext!,
-                                    MaterialPageRoute(
-                                      builder: (context) => TimeSheetDetail(
-                                        model: model,
-                                        indexSelectedFrom: bottomCurrentIndex,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        keyScaffold.currentContext!,
+                                        MaterialPageRoute(
+                                          builder: (context) => TimeSheetDetail(
+                                            model: model,
+                                            indexSelectedFrom:
+                                                bottomCurrentIndex,
+                                          ),
+                                        ),
+                                      ).then((value) {
+                                        if (value != null && value) {
+                                          getData();
+                                          getAvailableShiftsData();
+                                        }
+                                      });
+                                    },
+                                    child: const Align(
+                                      child: Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: colorGreen,
+                                        size: 30,
                                       ),
                                     ),
-                                  ).then((value) {
-                                    if (value != null && value) {
-                                      getData();
-                                      getAvailableShiftsData();
-                                    }
-                                  });
-                                },
-                                child: const Align(
-                                  child: Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: colorGreen,
-                                    size: 30,
+                                  ),
+                                ],
+                              ),
+                              ExpandableContainer(
+                                expanded: selectedExpandedIndex == index,
+                                expandedHeight: 225,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ThemedText(
+                                          text: model.shiftComments != null &&
+                                                  model
+                                                      .shiftComments!.isNotEmpty
+                                              ? model.shiftComments!
+                                              : "No shift comments provided."),
+                                      ThemedText(
+                                          text: model.comments != null &&
+                                                  model.comments!.isNotEmpty
+                                              ? model.comments!
+                                              : "No shift comments provided."),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlMethod(
+                                              "http://maps.google.com/?q=${model.resAddress}");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.locationDot,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text: model.resAddress ?? ""),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlMethod(
+                                              "tel:${model.resHomePhone}");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.phoneVolume,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text:
+                                                      model.resHomePhone ?? ""),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlMethod(
+                                              "tel:${model.resMobilePhone}");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.mobileAlt,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text: model.resMobilePhone ??
+                                                      ""),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ClientDocument(
+                                                id: (model.clientID ?? 0)
+                                                    .toString(),
+                                                resId: (model.rESID ?? 0)
+                                                    .toString(),
+                                              ),
+                                            ),
+                                          );
+                                          // _launchUrl(
+                                          //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.fileLines,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text:
+                                                      "View Client Documents"),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          print(
+                                              "model.clientID : ${model.rESID}");
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ClientInfo(
+                                                  clientId: (model.rESID ?? 0)
+                                                      .toString(),
+                                                ),
+                                              ));
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.circleInfo,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text: "View Client Info"),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                    ],
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          ExpandableContainer(
-                            expanded: selectedExpandedIndex == index,
-                            expandedHeight: 225,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ThemedText(
-                                      text: model.shiftComments != null &&
-                                              model.shiftComments!.isNotEmpty
-                                          ? model.shiftComments!
-                                          : "No shift comments provided."),
-                                  ThemedText(
-                                      text: model.comments != null &&
-                                              model.comments!.isNotEmpty
-                                          ? model.comments!
-                                          : "No shift comments provided."),
-                                  const SizedBox(height: 7),
-                                  InkWell(
-                                    onTap: () {
-                                      launchUrlMethod(
-                                          "http://maps.google.com/?q=${model.resAddress}");
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: Center(
-                                            child: FaIcon(
-                                              FontAwesomeIcons.locationDot,
-                                              color: colorGreen,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                              text: model.resAddress ?? ""),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 7),
-                                  InkWell(
-                                    onTap: () {
-                                      launchUrlMethod(
-                                          "tel:${model.resHomePhone}");
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: Center(
-                                            child: FaIcon(
-                                              FontAwesomeIcons.phoneVolume,
-                                              color: colorGreen,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                              text: model.resHomePhone ?? ""),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 7),
-                                  InkWell(
-                                    onTap: () {
-                                      launchUrlMethod(
-                                          "tel:${model.resMobilePhone}");
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: Center(
-                                            child: FaIcon(
-                                              FontAwesomeIcons.mobileAlt,
-                                              color: colorGreen,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                              text: model.resMobilePhone ?? ""),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 7),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ClientDocument(
-                                            id: (model.clientID ?? 0)
-                                                .toString(),
-                                            resId:
-                                                (model.rESID ?? 0).toString(),
-                                          ),
-                                        ),
-                                      );
-                                      // _launchUrl(
-                                      //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: Center(
-                                            child: FaIcon(
-                                              FontAwesomeIcons.fileLines,
-                                              color: colorGreen,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                              text: "View Client Documents"),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 7),
-                                  InkWell(
-                                    onTap: () {
-                                      print("model.clientID : ${model.rESID}");
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ClientInfo(
-                                              clientId:
-                                                  (model.rESID ?? 0).toString(),
-                                            ),
-                                          ));
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: Center(
-                                            child: FaIcon(
-                                              FontAwesomeIcons.circleInfo,
-                                              color: colorGreen,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                              text: "View Client Info"),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 7),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -1437,19 +1519,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget getViewAsPerIndex(int index) {
-    switch (index) {
-      // case 0:
-      //   return _buildList(list: confirmedDataList);
-      case 1:
-        return _buildList(list: unConfirmedDataList);
-      case 2:
-        return _buildList(list: timeSheetDataList);
-      case 3:
-        return _buildList(list: avaliableDataList);
-      case 5:
-        return const ProgressNote();
-      default:
-        return _buildList(list: confirmedDataList);
+    if (index < 4) {
+      return _buildList(list: tempList);
+    } else {
+      return const ProgressNote();
     }
   }
 
@@ -1463,7 +1536,36 @@ class _HomeScreenState extends State<HomeScreen> {
               _keyNavigator.currentState!.pop();
             }
           }
-          if (index < 4) {
+          switch (index) {
+            case 1:
+              mainList = unConfirmedDataList;
+              bottomCurrentIndex = index;
+              break;
+            case 2:
+              mainList = timeSheetDataList;
+              bottomCurrentIndex = index;
+              break;
+            case 3:
+              mainList = availableDataList;
+              bottomCurrentIndex = index;
+              break;
+            case 5:
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileTabScreen(),
+                  ));
+              break;
+            default:
+              mainList = confirmedDataList;
+              bottomCurrentIndex = index;
+              break;
+          }
+          _controllerSearch.text = "";
+          tempList.clear();
+          tempList.addAll(mainList);
+          setState(() {});
+          /*if (index < 4) {
             bottomCurrentIndex = index;
           } else {
             Navigator.push(
@@ -1471,7 +1573,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                   builder: (context) => ProfileTabScreen(),
                 ));
-          }
+          }*/
         });
       },
       child: Container(
@@ -1504,7 +1606,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             : index == 2
                                 ? timeSheetDataList.length.toString()
                                 : index == 3
-                                    ? avaliableDataList.length.toString()
+                                    ? availableDataList.length.toString()
                                     : confirmedDataList.length.toString(),
                         style: const TextStyle(
                           color: colorPrimary,
