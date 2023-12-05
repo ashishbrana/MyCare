@@ -1223,7 +1223,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'TSUntil': "1899-12-30 ${_controllerToService.text}",
             'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
             'TSLunchBreak': isIncludeLaunchBrake
-                ? "${_controllerHourLaunch.text}:${_controllerMinuteLaunch.text}"
+                ? "${_controllerHourLaunch.text}.${_controllerMinuteLaunch.text}"
                 : "00.00",
             'TSLBFrom': isIncludeLaunchBrake
                 ? "1899-12-30 ${_controllerFromLaunch.text}"
@@ -1235,8 +1235,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'TSTravelDistance': 0.0,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
-            'TSHoursDiff': 0.0,
-            'TSTravelDistanceDiff': "0.0",
+            'TSHoursDiff': 0.0,//not in use
+            'TSTravelDistanceDiff': "0.0", //not in use
             'TSTravelTime': "0",
             'tsHoursDifference': "0.0",
             'empID': widget.model.empID != null
@@ -1257,10 +1257,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'fundingSourceName': widget.model.fundingsourcename,
           });
 
-          if(body.isNotEmpty){
-            print(body);
-            return;
-          }
+
 
           Response response = await http.post(
             Uri.parse(
