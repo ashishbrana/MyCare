@@ -523,14 +523,13 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       ],
                     ),
                     const SizedBox(height: spaceBetween),
+                Row(
+                  children: [
                     ThemedText(
                       text: "TS Lunch Break*",
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
                         Radio<bool>(
                           value: true,
                           groupValue: isIncludeLaunchBrake,

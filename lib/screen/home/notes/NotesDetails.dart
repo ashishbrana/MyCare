@@ -523,11 +523,26 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
+          Row(children:[
               ThemedText(
                 text: "Client Signature",
                 color: colorFontColor,
                 fontSize: 18,
               ),
+            Spacer(),
+            SizedBox(
+                width: 100,
+            child: ThemedButton(
+              padding: EdgeInsets.zero,
+              title: "Clear",
+              fontSize: 14,
+              onTap: () {
+                _controllerSignature.clear();
+              },
+            ),
+                ),
+              ]
+          ),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: colorGreyBorderD3),
@@ -636,7 +651,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         },
                       ),
                     ),*/
-                    const Spacer(),
+                   /* const Spacer(),
                     const SizedBox(width: spaceHorizontal),
                     SizedBox(
                       width: 100,
@@ -649,7 +664,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                           _controllerSignature.clear();
                         },
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),
