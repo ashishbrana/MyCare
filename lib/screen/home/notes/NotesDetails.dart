@@ -371,8 +371,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Save",
-                        fontSize: 12,
+                        fontSize: 14,
                         onTap: () async {
+                          if(_disscription.text.isEmpty){
+                            showSnackBarWithText(_keyScaffold.currentState, "Description can not be blank",
+                                color: colorRed);
+                            return;
+                          }
                           await saveNoteApiCall();
                           for (File file in selectedImageFilesList) {
                             saveNoteDoc(file);
@@ -386,7 +391,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Cancel",
-                        fontSize: 12,
+                        fontSize: 14,
                         onTap: () {
                           Navigator.pop(context);
                         },
@@ -622,7 +627,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Save",
-                        fontSize: 12,
+                        fontSize: 14,
                         onTap: () async {
                           await saveNoteApiCall();
                           for (File file in selectedImageFilesList) {
@@ -639,7 +644,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Clear",
-                        fontSize: 12,
+                        fontSize: 14,
                         onTap: () {
                           _controllerSignature.clear();
                         },
@@ -656,8 +661,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     Expanded(
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
-                        title: "Capture Image From Camera",
-                        fontSize: 12,
+                        title: "Add Image",
+                        fontSize: 14,
                         onTap: () async {
                           showModalBottomSheet(
                             context: context,
@@ -737,7 +742,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Refresh",
-                        fontSize: 12,
+                        fontSize: 14,
                       ),
                     ),
                   ],

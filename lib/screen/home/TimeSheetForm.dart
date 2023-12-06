@@ -238,8 +238,13 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                             child: ThemedButton(
                               padding: EdgeInsets.zero,
                               title: "Save",
-                              fontSize: 12,
+                              fontSize: 14,
                               onTap: () async {
+                                if(isRiskAlert && _controllerTimeSheetComments.text.isEmpty){
+                                  showSnackBarWithText(_keyScaffold.currentState, "Please enter Timesheet comment",
+                                      color: colorRed);
+                                  return;
+                                }
                                 saveTimeSheet();
                               },
                             ),
