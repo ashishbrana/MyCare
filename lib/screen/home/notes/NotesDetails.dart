@@ -66,7 +66,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   final SignatureController _controllerSignature = SignatureController(
     penStrokeWidth: 5,
     penColor: Colors.black,
-    exportBackgroundColor: Colors.grey,
+    exportBackgroundColor: Colors.white,
   );
 
   ProgressNoteListByNoteIdModel? model;
@@ -806,7 +806,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           getOverlay(context);
           // response = await HttpService().init(request, _keyScaffold);
           Uint8List? signature = await _controllerSignature.toPngBytes();
-          String stri = "iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAABGdBTUEAALGPC/xhBQAAAPNJREFUeF7t1MEJgDAQRNHtvylLsYQcPYianETCBvQk6HvwOxgmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgC84pEv7g7abrV3LoNI1t6YWnLLR6r9lxzQqO6cshwUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADviKj9UU7A+mOSSQAAAABJRU5ErkJggg==";
+          String stri =
+              "iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAABGdBTUEAALGPC/xhBQAAAPNJREFUeF7t1MEJgDAQRNHtvylLsYQcPYianETCBvQk6HvwOxgmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgC84pEv7g7abrV3LoNI1t6YWnLLR6r9lxzQqO6cshwUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADviKj9UU7A+mOSSQAAAABJRU5ErkJggg==";
           String strBody = json.encode({
             "NoteID": model != null ? model!.noteID ?? 0 : 0,
             "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
@@ -820,13 +821,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             "userID": widget.userId,
             "clientID": widget.clientId,
             "ServiceScheduleClientID": widget.serviceShceduleClientID,
-            "bit64Signature":  signature != null ? "${base64.encode(signature)}" : " ",
+            "bit64Signature":
+                signature != null ? "${base64.encode(signature)}" : " ",
             "ClientRating": clientRating.toString(),
             "ssClientIds": "",
             "GroupNote": 0,
             "ssEmployeeID": widget.servicescheduleemployeeID
           });
-          print(strBody);
+          log(strBody);
           if (strBody.isEmpty) {
             return;
           }
