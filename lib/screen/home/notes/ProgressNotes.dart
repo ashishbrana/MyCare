@@ -21,13 +21,14 @@ class ProgressNote extends StatefulWidget {
   const ProgressNote({super.key});
 
   @override
-  State<ProgressNote> createState() => _ProgressNoteState();
+  State<ProgressNote> createState() => ProgressNoteState();
 }
 
-class _ProgressNoteState extends State<ProgressNote> {
+class ProgressNoteState extends State<ProgressNote> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
   String userName = "";
   List<ProgressNoteModel> dataList = [];
+  List<ProgressNoteModel> tempList = [];
   int selectedExpandedIndex = -1;
 
   @override
@@ -76,6 +77,8 @@ class _ProgressNoteState extends State<ProgressNote> {
             print("jResponse $jResponse");
             dataList =
                 jResponse.map((e) => ProgressNoteModel.fromJson(e)).toList();
+            tempList.clear();
+            tempList.addAll(dataList);
             print("models.length : ${dataList.length}");
 
             int accType =
@@ -126,7 +129,7 @@ class _ProgressNoteState extends State<ProgressNote> {
           Expanded(
             child: Container(
               color: colorLiteBlueBackGround,
-              child: _buildList(list: dataList),
+              child: _buildList(list: tempList),
             ),
           ),
         ],
@@ -255,8 +258,10 @@ class _ProgressNoteState extends State<ProgressNote> {
                                   userId: model.serviceScheduleEmpID ?? 0,
                                   clientId: model.clientID ?? 0,
                                   noteId: model.noteID ?? 0,
-                                  serviceShceduleClientID: model.servicescheduleCLientID ?? 0,
-                                  servicescheduleemployeeID: model.serviceScheduleEmpID ?? 0,
+                                  serviceShceduleClientID:
+                                      model.servicescheduleCLientID ?? 0,
+                                  servicescheduleemployeeID:
+                                      model.serviceScheduleEmpID ?? 0,
                                   serviceName: model.serviceName ?? "",
                                   clientName: model.clientName,
                                 ),

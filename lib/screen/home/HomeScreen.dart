@@ -30,6 +30,7 @@ import '../../utils/methods.dart';
 import 'Tabs/ConfirmedTabScreen.dart';
 import 'TimeSheetDetail.dart';
 import 'models/ConfirmedResponseModel.dart';
+import 'models/ProgressNoteModel.dart';
 
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime(
@@ -64,6 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controllerSearch = TextEditingController();
   FocusScopeNode focusNode = FocusScopeNode();
   FocusScopeNode focusNavigatorNode = FocusScopeNode();
+
+  GlobalKey<ProgressNoteState> keyProgressNoteTab =
+      GlobalKey<ProgressNoteState>();
 
   @override
   void initState() {
@@ -303,23 +307,47 @@ class _HomeScreenState extends State<HomeScreen> {
                   focusNode.requestFocus();
                 },
                 onChanged: (string) {
-                  if (string.isNotEmpty && string.length > 1) {
-                    tempList = [];
-                    for (TimeShiteResponseModel model in mainList) {
-                      if ((model.serviceName != null &&
-                              model.serviceName!
-                                  .toLowerCase()
-                                  .contains(string.toLowerCase())) ||
-                          (model.serviceName != null &&
-                              model.resName!
-                                  .toLowerCase()
-                                  .contains(string.toLowerCase()))) {
-                        tempList.add(model);
+                  if (bottomCurrentIndex != 5) {
+                    if (string.isNotEmpty && string.length > 1) {
+                      tempList = [];
+                      for (TimeShiteResponseModel model in mainList) {
+                        if ((model.serviceName != null &&
+                                model.serviceName!
+                                    .toLowerCase()
+                                    .contains(string.toLowerCase())) ||
+                            (model.serviceName != null &&
+                                model.resName!
+                                    .toLowerCase()
+                                    .contains(string.toLowerCase()))) {
+                          tempList.add(model);
+                        }
                       }
+                    } else {
+                      tempList = [];
+                      tempList.addAll(mainList);
                     }
-                  } else {
-                    tempList = [];
-                    tempList.addAll(mainList);
+                  } else if (keyProgressNoteTab.currentState != null) {
+                    if (string.isNotEmpty && string.length > 1) {
+                      keyProgressNoteTab.currentState!.tempList = [];
+                      for (ProgressNoteModel model
+                          in keyProgressNoteTab.currentState!.dataList) {
+                        if ((model.serviceName != null &&
+                                model.serviceName!
+                                    .toLowerCase()
+                                    .contains(string.toLowerCase())) ||
+                            (model.serviceName != null &&
+                                model.serviceName!
+                                    .toLowerCase()
+                                    .contains(string.toLowerCase()))) {
+                          keyProgressNoteTab.currentState!.tempList.add(model);
+                        }
+                      }
+                    } else {
+                      keyProgressNoteTab.currentState!.tempList = [];
+                      keyProgressNoteTab.currentState!.tempList
+                          .addAll(keyProgressNoteTab.currentState!.dataList);
+                    }
+                    keyProgressNoteTab.currentState!.setState(() {});
                   }
                   setState(() {});
                 },
@@ -338,6 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: colorWhite,
                 ),
                 onPressed: () {
+                  _controllerSearch.text = "";
                   setState(() {
                     bottomCurrentIndex = 5;
                   });
@@ -1529,7 +1558,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (index < 4) {
       return _buildList(list: tempList);
     } else {
-      return const ProgressNote();
+      return ProgressNote(
+        key: keyProgressNoteTab,
+      );
     }
   }
 
