@@ -33,7 +33,7 @@ class TimeShiteResponseModel {
   String? tSLunchBreak;
   String? tSLunchBreakFrom;
   String? tSLunchBreakTo;
-  dynamic? tSHours;
+  double? tSHours;
   String? tSTravelTime;
   dynamic? tSTravelDistance;
   dynamic? tSTravelH;

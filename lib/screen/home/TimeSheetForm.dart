@@ -31,6 +31,20 @@ class TimeSheetForm extends StatefulWidget {
 class _TimeSheetFormState extends State<TimeSheetForm> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
+  int fromHour = 0;
+  int fromMin = 0;
+  int toHour = 0;
+  int toMin = 0;
+
+
+
+  int fromHourBreak = 0;
+  int fromMinBreak = 0;
+  int toHourBreak = 0;
+  int toMinBreak = 0;
+
+  int origionalMins = 0;
+
   String fromHourService = "00";
   final TextEditingController _controllerFromService = TextEditingController();
   String fromMinuteService = "00";
@@ -177,10 +191,17 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     if (widget.model.timeFrom != null &&
         widget.model.timeFrom!.split(":").isNotEmpty) {
       _controllerFromService.text = widget.model.timeFrom!;
+      var list = widget.model.timeFrom!.split(":");
+      fromHour = int.parse(list.first);
+      fromMin = int.parse(list.last);
+
     }
     if (widget.model.timeUntil != null &&
         widget.model.timeUntil!.split(":").isNotEmpty) {
       _controllerToService.text = widget.model.timeUntil!;
+      var list = widget.model.timeUntil!.split(":");
+      toHour = int.parse(list.first);
+      toMin = int.parse(list.last);
     }
     isIncludeLaunchBrake = widget.model.lunchBreakSetting ?? false;
     if (widget.model.lunchBreak != null &&
@@ -199,6 +220,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       _controllerToLaunch.text = widget.model.lunchBreakTo!;
     }
     _controllerHours.text = widget.model.tSHours.toString();
+    if(widget.model.tSHours != null){
+      origionalMins = widget.model.tSHours!.toInt() * 60;
+    }
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
     _controllerTravelTime.text = widget.model.tSTravelTime.toString();
     _controllerTravelDistance.text = widget.model.tSTravelDistance.toString();
@@ -473,6 +497,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                       initialTimeText:
                                           _controllerFromService.text,
                                       onTimePick: (hours, minutes) {
+                                        fromHour = hours;
+                                        fromMin = minutes;
+                                        calculateHours();
                                         _controllerFromService.text =
                                             "${get2CharString(hours)}:${get2CharString(minutes)}";
 
@@ -509,6 +536,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                       initialTimeText:
                                           _controllerToService.text,
                                       onTimePick: (hours, minutes) {
+                                        toHour = hours;
+                                        toMin = minutes;
+                                       calculateHours();
                                         _controllerToService.text =
                                             "${get2CharString(hours)}:${get2CharString(minutes)}";
                                         setState(() {});
@@ -1170,6 +1200,24 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       ),
     );
   }
+
+  calculateHours(){
+    print(fromHour);
+    print(fromMin);
+    print(toHour);
+    print(toMin);
+    print(origionalMins);
+
+    int diff =  ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
+    print(diff);
+    int totalHours =  (diff / 60) .toInt();
+    int totalMin = (diff % 60).toInt();
+    _controllerHours.text = "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
+    double diffMin = (((diff - origionalMins) * 100)/60)/100;
+    _controllerHours.text = "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
+    _controllerHoursDifference.text = "$diffMin";
+  }
+
 
   showTimePickerDialog(
       {required String? initialTimeText,
