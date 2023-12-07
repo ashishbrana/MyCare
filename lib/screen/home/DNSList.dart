@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/models/DSNListModel.dart';
+import 'package:rcare_2/screen/home/notes/DNSNotesDetails.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
 import '../../Network/API.dart';
@@ -16,6 +17,7 @@ import '../../utils/Constants.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/methods.dart';
+import 'TimeSheetDetail.dart';
 import 'models/CareWorkerModel.dart';
 
 class DNSList extends StatefulWidget {
@@ -145,129 +147,155 @@ class _DNSListState extends State<DNSList> {
                             Row(
                               children: [
                                 Expanded(
-                                  flex: 8,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
+                                  child: Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text: "${model.sscname} ",
-                                                    style: const TextStyle(
-                                                      color: colorGreyText,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                  TextSpan(
-                                                    text:
-                                                        "Note Writer: ${model.notewriter}",
-                                                    style: const TextStyle(
-                                                      color: colorGreyLiteText,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height: 1,
-                                        color: colorGreyBorderD3,
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                if (selectedExpandedIndex !=
-                                                    index) {
-                                                  selectedExpandedIndex = index;
-                                                } else {
-                                                  selectedExpandedIndex = -1;
-                                                }
-                                              });
-                                            },
-                                            child: const SizedBox(
-                                              width: 30,
-                                              height: 30,
-                                              child: Icon(
-                                                Icons.arrow_downward_rounded,
-                                                color: colorGreen,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: RichText(
-                                              textAlign: TextAlign.left,
-                                              text: TextSpan(
-                                                children: [
-                                                  WidgetSpan(
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
+                                      Expanded(
+                                        flex: 8,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: RichText(
+                                                    text: TextSpan(
                                                       children: [
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        const FaIcon(
-                                                          FontAwesomeIcons
-                                                              .calendarDays,
-                                                          color: colorGreen,
-                                                          size: 14,
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Text(
-                                                          "Time: ${model.timefrom ?? ""} - ${model.timeto ?? ""}",
-                                                          style:
-                                                              const TextStyle(
-                                                            color:
-                                                                colorGreyText,
+                                                        TextSpan(
+                                                          text: "${model.sscname} ",
+                                                          style: const TextStyle(
+                                                            color: colorGreyText,
+                                                            fontWeight:
+                                                                FontWeight.w400,
                                                             fontSize: 14,
                                                           ),
                                                         ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Container(
-                                                          width: 1,
-                                                          height: 25,
-                                                          color:
-                                                              colorGreyBorderD3,
+                                                        TextSpan(
+                                                          text:
+                                                              "Note Writer: ${model.notewriter}",
+                                                          style: const TextStyle(
+                                                            color: colorGreyLiteText,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            fontSize: 14,
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Container(
-                                            width: 1,
-                                            height: 30,
-                                            color: colorGreyBorderD3,
-                                          ),
-                                        ],
+                                            const SizedBox(height: 8),
+                                            Container(
+                                              width:
+                                                  MediaQuery.of(context).size.width,
+                                              height: 1,
+                                              color: colorGreyBorderD3,
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                InkWell(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      if (selectedExpandedIndex !=
+                                                          index) {
+                                                        selectedExpandedIndex = index;
+                                                      } else {
+                                                        selectedExpandedIndex = -1;
+                                                      }
+                                                    });
+                                                  },
+                                                  child: const SizedBox(
+                                                    width: 30,
+                                                    height: 30,
+                                                    child: Icon(
+                                                      Icons.arrow_downward_rounded,
+                                                      color: colorGreen,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: RichText(
+                                                    textAlign: TextAlign.left,
+                                                    text: TextSpan(
+                                                      children: [
+                                                        WidgetSpan(
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize.min,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              const FaIcon(
+                                                                FontAwesomeIcons
+                                                                    .calendarDays,
+                                                                color: colorGreen,
+                                                                size: 14,
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Text(
+                                                                "Time: ${model.timefrom ?? ""} - ${model.timeto ?? ""}",
+                                                                style:
+                                                                    const TextStyle(
+                                                                  color:
+                                                                      colorGreyText,
+                                                                  fontSize: 14,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Container(
+                                                                width: 1,
+                                                                height: 25,
+                                                                color:
+                                                                    colorGreyBorderD3,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Container(
+                                                  width: 1,
+                                                  height: 30,
+                                                  color: colorGreyBorderD3,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DNSNotesDetails(
+                                                dsnListModel: model,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Align(
+                                    child: Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: colorGreen,
+                                      size: 30,
+                                    ),
                                   ),
                                 ),
                               ],
