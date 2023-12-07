@@ -114,7 +114,7 @@ class _DNSListState extends State<DNSList> {
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(3),
             child: ThemedText(
-              text: "DSNList",
+              text: "Daily Support Needs",
               color: colorWhite,
               fontSize: 12,
               textAlign: TextAlign.center,
