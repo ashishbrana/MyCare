@@ -692,15 +692,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: spaceHorizontal, vertical: spaceVertical),
-          child: ThemedText(
-            text:
-                "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex == 2 ? "TimeSheet" : bottomCurrentIndex == 3 ? "Available" : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: colorGreyText,
+        InkWell(
+          onTap: () {
+            if (keyScaffold.currentState != null) {
+              keyScaffold.currentState!.openEndDrawer();
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: spaceHorizontal, vertical: spaceVertical),
+            child: ThemedText(
+              text:
+                  "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex == 2 ? "TimeSheet" : bottomCurrentIndex == 3 ? "Available" : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: colorGreyText,
+            ),
           ),
         ),
         const Divider(
@@ -1549,7 +1556,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainList = availableDataList;
               bottomCurrentIndex = index;
               break;
-            case 5:
+            case 4:
               Navigator.push(
                   context,
                   MaterialPageRoute(
