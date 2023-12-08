@@ -510,7 +510,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               body: '',
               headerType: '',
               params: "",//params.toString(),
-              method: 'GET');
+              method: 'POST');
 
           try {
             getOverlay(context);

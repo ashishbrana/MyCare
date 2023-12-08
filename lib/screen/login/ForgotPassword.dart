@@ -178,8 +178,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 "New Password and confirm password has to be same!");
                           } */
                           else {
-                            /*_forgotApiCall(selectedAccountType,
-                                _controllerNewPassword.text.trim());*/
+                            _forgotApiCall(selectedAccountType,
+                                _controllerNewPassword.text.trim());
                           }
                         },
                       ),
