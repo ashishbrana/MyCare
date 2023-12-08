@@ -376,21 +376,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(width: 5),
-                SizedBox(
-                  height: 40,
-                  child: MaterialButton(
-                    color: colorGreen,
-                    child: ThemedText(
-                      text: "Refresh",
-                      fontSize: 16,
-                      color: colorWhite,
-                    ),
-                    onPressed: () {
-                      getData();
-                      getAvailableShiftsData();
-                    },
-                  ),
+                 Container(
+                   height: 40,
+                   width: 40,
+                   color: colorGreen,
+                   child: InkWell(
+                     onTap: () {
+                       getData();
+                       getAvailableShiftsData();
+                     },
+                     child: Center(
+                       child: FaIcon(
+
+                        FontAwesomeIcons.refresh,
+                        color: Colors.white,
+                        size: 25,
                 ),
+                     ),
+                   ),
+                 ),
+                // SizedBox(
+                //   height: 40,
+                //   child: MaterialButton(
+                //     color: colorGreen,
+                //     child: ThemedText(
+                //       text: "Refresh",
+                //       fontSize: 16,
+                //       color: colorWhite,
+                //     ),
+                //     onPressed: () {
+                //       getData();
+                //       getAvailableShiftsData();
+                //     },
+                //   ),
+                // ),
               ],
             ),
             const SizedBox(width: spaceHorizontal / 2),
