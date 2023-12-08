@@ -281,11 +281,13 @@ class _DNSListState extends State<DNSList> {
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
-                                      context,
+                                      keyScaffold.currentContext!,
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             DNSNotesDetails(
                                                 dsnListModel: model,
+                                              userId: widget.userId,
+                                              serviceShceduleClientID: widget.rosterID,
                                             ),
                                       ),
                                     );
