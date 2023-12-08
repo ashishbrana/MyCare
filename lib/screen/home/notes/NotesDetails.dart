@@ -252,21 +252,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             print("jResponseGetNoteDocs $jResponse");
             noteDocList =
                 jResponse.map((e) => NoteDocModel.fromJson(e)).toList();
-            // if (noteDocModel != null) {
-            //   try {
-            //     for (NoteDocModel model in noteDocModel!) {
-            //       getNoteImage64(model);
-            //     }
-            //   } catch (e) {
-            //     log("IMAGECONVERTERROR : $e");
-            //   }
-            // }
+
             setState(() {});
           }
-          /*else {
-            showSnackBarWithText(
-                _keyScaffold.currentState, stringSomeThingWentWrong);
-          }*/
+
           removeOverlay();
         } catch (e) {
           print("ERROR : $e");

@@ -356,22 +356,42 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           titleSpacing: spaceHorizontal / 2,
           actions: [
-            SizedBox(
-              height: 40,
-              child: MaterialButton(
-                color: colorGreen,
-                child: ThemedText(
-                  text: "Note",
-                  fontSize: 16,
-                  color: colorWhite,
+            Row(
+              children: [
+                SizedBox(
+                  height: 40,
+                  child: MaterialButton(
+                    color: colorGreen,
+                    child: ThemedText(
+                      text: "Note",
+                      fontSize: 16,
+                      color: colorWhite,
+                    ),
+                    onPressed: () {
+                      _controllerSearch.text = "";
+                      setState(() {
+                        bottomCurrentIndex = 5;
+                      });
+                    },
+                  ),
                 ),
-                onPressed: () {
-                  _controllerSearch.text = "";
-                  setState(() {
-                    bottomCurrentIndex = 5;
-                  });
-                },
-              ),
+                const SizedBox(width: 5),
+                SizedBox(
+                  height: 40,
+                  child: MaterialButton(
+                    color: colorGreen,
+                    child: ThemedText(
+                      text: "Refresh",
+                      fontSize: 16,
+                      color: colorWhite,
+                    ),
+                    onPressed: () {
+                      getData();
+                      getAvailableShiftsData();
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(width: spaceHorizontal / 2),
             InkWell(

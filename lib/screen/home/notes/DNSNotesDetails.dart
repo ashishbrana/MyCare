@@ -324,9 +324,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
             if (jres["status"] == 1) {
               showSnackBarWithText(_keyScaffold.currentState, "Success",
                   color: colorGreen);
-              if (selectedImageFilesList.isEmpty) {
-                Navigator.pop(context, true);
-              }
+              Navigator.pop(context, true);
             }
           } else {
             showSnackBarWithText(

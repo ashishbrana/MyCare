@@ -290,7 +290,11 @@ class _DNSListState extends State<DNSList> {
                                               serviceShceduleClientID: widget.rosterID,
                                             ),
                                       ),
-                                    );
+                                    ).then((value) {
+                                      if (value != null && value) {
+                                        getData();
+                                      }
+                                    });
                                   },
                                   child: const Align(
                                     child: Icon(
