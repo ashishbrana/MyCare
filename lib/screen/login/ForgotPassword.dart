@@ -199,7 +199,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     var params = {
       'UserID':
           (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
-      'UserType': userTye,
+      'UserType': 'user',
       'NewPassword': password,
     };
     isConnected().then((hasInternet) async {
