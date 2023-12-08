@@ -246,17 +246,29 @@ class _DNSListState extends State<DNSList> {
                                                                     const TextStyle(
                                                                   color:
                                                                       colorGreyText,
-                                                                  fontSize: 14,
+                                                                  fontSize: 12,
                                                                 ),
                                                               ),
                                                               const SizedBox(
                                                                   width: 5),
+                                                              
                                                               Container(
                                                                 width: 1,
                                                                 height: 25,
                                                                 color:
                                                                     colorGreyBorderD3,
+
                                                               ),
+                                                              const SizedBox(width: 10),
+                                                              Text(
+                                                                "${model.taskcompleted == false ? "Not Completed" : "Completed"}",
+                                                                style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                  colorGreyText,
+                                                                  fontSize: 10,
+                                                                ),
+                                                              )
                                                             ],
                                                           ),
                                                         ),
