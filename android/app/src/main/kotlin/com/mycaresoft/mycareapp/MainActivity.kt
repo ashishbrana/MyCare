@@ -1,4 +1,4 @@
-package com.example.rcare_2
+package com.mycaresoft.mycareapp
 
 import io.flutter.embedding.android.FlutterActivity
 
