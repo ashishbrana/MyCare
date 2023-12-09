@@ -48,6 +48,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
+                  isPasswordTextField: true,
                   controller: _controllerOldPassword,
                   padding: EdgeInsets.symmetric(vertical: spaceHorizontal,horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
@@ -65,6 +66,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
+                  isPasswordTextField: true,
                   padding: EdgeInsets.symmetric(vertical: spaceHorizontal,horizontal: spaceHorizontal),
                   controller: _controllerNewPassword,
                   borderColor: colorGreyBorderD3,
@@ -82,6 +84,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
+                  isPasswordTextField: true,
                   controller: _controllerConfirmPassword,
                   padding: EdgeInsets.symmetric(vertical: spaceHorizontal,horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,

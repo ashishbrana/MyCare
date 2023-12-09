@@ -268,6 +268,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  keyBoardType: TextInputType.emailAddress,
                                   borderColor: colorGreyBorderD3,
                                   controller: _controllerEmail,
                                   backgroundColor: colorWhite,

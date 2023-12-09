@@ -35,13 +35,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   int fromMin = 0;
   int toHour = 0;
   int toMin = 0;
+  int totalWorkMin =0;
+
+  int breakMin = 0;
 
 
-
-  int fromHourBreak = 0;
-  int fromMinBreak = 0;
-  int toHourBreak = 0;
-  int toMinBreak = 0;
 
   int origionalMins = 0;
 
@@ -203,7 +201,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       toHour = int.parse(list.first);
       toMin = int.parse(list.last);
     }
-    isIncludeLaunchBrake = widget.model.lunchBreakSetting ?? false;
+    isIncludeLaunchBrake = widget.model.tSLunchBreakSetting ?? false;
     if (widget.model.lunchBreak != null &&
         widget.model.lunchBreak!.split(":").isNotEmpty) {
       _controllerHourLaunch.text = widget.model.lunchBreak!.split(":")[0];
@@ -231,7 +229,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     _controllerClientTravelDistance.text =
         widget.model.clienttraveldistance.toString();
     isRiskAlert = false;
-    _controllerTimeSheetComments.text = widget.model.comments ?? "";
+    _controllerTimeSheetComments.text = widget.model.tSComments ?? "";
   }
 
   @override
@@ -781,6 +779,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                       _controllerFromLaunch
                                                           .text,
                                                       _controllerToLaunch.text);
+                                              calculateHours();
                                               _controllerHourLaunch.text =
                                                   diff.split(":").first;
                                               _controllerMinuteLaunch.text =
@@ -1207,14 +1206,17 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     print(toHour);
     print(toMin);
     print(origionalMins);
+    print(breakMin);
 
     int diff =  ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
+    totalWorkMin = diff;
     print(diff);
     int totalHours =  (diff / 60) .toInt();
     int totalMin = (diff % 60).toInt();
     _controllerHours.text = "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
-    double diffMin = (((diff - origionalMins) * 100)/60)/100;
-    _controllerHours.text = "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
+    double diffMin = ((((diff - breakMin) - origionalMins) * 100)/60)/100;
+    String stdiffMin = diffMin.toStringAsFixed(2);
+    diffMin = double.parse(stdiffMin);
     _controllerHoursDifference.text = "$diffMin";
   }
 
@@ -1261,6 +1263,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             DateTime.now().day, fromHourLaunch, fromMinuteLaunch));
     int hour = difference.inHours;
     int minute = difference.inMinutes;
+    breakMin =  (hour * 60) + minute;
 
     setState(() {
       if (hour >= 0) {
@@ -1317,7 +1320,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'TSLBTo': isIncludeLaunchBrake
                 ? "1899-12-30 ${_controllerToLaunch.text}"
                 : "1899-12-30 00:00",
-            'TSHours': _controllerHours.text,
+            'TSHours': "${get2CharString((totalWorkMin / 60) .toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
             'TSTravelDistance': 0.0,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
@@ -1343,6 +1346,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'fundingSourceName': widget.model.fundingsourcename,
           });
 
+         /* if(body.isNotEmpty){
+            print(body);
+            return;
+          }*/
  
 
 
