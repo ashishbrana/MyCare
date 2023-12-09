@@ -35,7 +35,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   int fromMin = 0;
   int toHour = 0;
   int toMin = 0;
-  int totalWorkMin =0;
+  int totalWorkMin = 0;
 
   int breakMin = 0;
 
@@ -192,7 +192,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       var list = widget.model.timeFrom!.split(":");
       fromHour = int.parse(list.first);
       fromMin = int.parse(list.last);
-
     }
     if (widget.model.timeUntil != null &&
         widget.model.timeUntil!.split(":").isNotEmpty) {
@@ -218,7 +217,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       _controllerToLaunch.text = widget.model.lunchBreakTo!;
     }
     _controllerHours.text = widget.model.tSHours.toString();
-    if(widget.model.tSHours != null){
+    if (widget.model.tSHours != null) {
       origionalMins = widget.model.tSHours!.toInt() * 60;
     }
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
@@ -262,8 +261,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               title: "Save",
                               fontSize: 14,
                               onTap: () async {
-                                if(isRiskAlert && _controllerTimeSheetComments.text.isEmpty){
-                                  showSnackBarWithText(_keyScaffold.currentState, "Please enter Timesheet comment",
+                                if (isRiskAlert &&
+                                    _controllerTimeSheetComments.text.isEmpty) {
+                                  showSnackBarWithText(
+                                      _keyScaffold.currentState,
+                                      "Please enter Timesheet comment",
                                       color: colorRed);
                                   return;
                                 }
@@ -464,7 +466,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: spaceHorizontal),
                         borderColor: colorGreyBorderD3,
-                        backgroundColor: colorWhite,
+                        backgroundColor: colorGreyE8,
                         isReadOnly: true,
                         controller: _controllerServiceType,
                       ),
@@ -491,19 +493,21 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   backgroundColor: colorWhite,
                                   isReadOnly: true,
                                   onTap: () async {
-                                    showTimePickerDialog(
-                                      initialTimeText:
-                                          _controllerFromService.text,
-                                      onTimePick: (hours, minutes) {
-                                        fromHour = hours;
-                                        fromMin = minutes;
-                                        calculateHours();
-                                        _controllerFromService.text =
-                                            "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                    if (widget.model.tSConfirm == false) {
+                                      showTimePickerDialog(
+                                        initialTimeText:
+                                            _controllerFromService.text,
+                                        onTimePick: (hours, minutes) {
+                                          fromHour = hours;
+                                          fromMin = minutes;
+                                          calculateHours();
+                                          _controllerFromService.text =
+                                              "${get2CharString(hours)}:${get2CharString(minutes)}";
 
-                                        setState(() {});
-                                      },
-                                    );
+                                          setState(() {});
+                                        },
+                                      );
+                                    }
                                   },
                                 ),
                               ),
@@ -530,18 +534,20 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   backgroundColor: colorWhite,
                                   isReadOnly: true,
                                   onTap: () async {
-                                    showTimePickerDialog(
-                                      initialTimeText:
-                                          _controllerToService.text,
-                                      onTimePick: (hours, minutes) {
-                                        toHour = hours;
-                                        toMin = minutes;
-                                       calculateHours();
-                                        _controllerToService.text =
-                                            "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                        setState(() {});
-                                      },
-                                    );
+                                    if (widget.model.tSConfirm == false) {
+                                      showTimePickerDialog(
+                                        initialTimeText:
+                                            _controllerToService.text,
+                                        onTimePick: (hours, minutes) {
+                                          toHour = hours;
+                                          toMin = minutes;
+                                          calculateHours();
+                                          _controllerToService.text =
+                                              "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                          setState(() {});
+                                        },
+                                      );
+                                    }
                                   },
                                 ),
                               ),
@@ -551,18 +557,18 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       ],
                     ),
                     const SizedBox(height: spaceBetween),
-                Row(
-                  children: [
-                    ThemedText(
-                      text: "TS Lunch Break*",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    Row(
+                      children: [
+                        ThemedText(
+                          text: "TS Lunch Break*",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                         Radio<bool>(
                           value: true,
                           groupValue: isIncludeLaunchBrake,
                           activeColor: colorGreen,
-                          onChanged: (bool? value) {
+                          onChanged: widget.model.tSConfirm == true ? null:(bool? value) {
                             if (value != null) {
                               setState(() {
                                 isIncludeLaunchBrake = value;
@@ -587,7 +593,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                           value: false,
                           groupValue: isIncludeLaunchBrake,
                           activeColor: colorGreen,
-                          onChanged: (bool? value) {
+                          onChanged: widget.model.tSConfirm == true ? null:(bool? value) {
                             if (value != null) {
                               setState(() {
                                 isIncludeLaunchBrake = value;
@@ -645,7 +651,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: spaceHorizontal),
                                         borderColor: colorGreyBorderD3,
-                                        backgroundColor: colorWhite,
+                                        backgroundColor: colorGreyE8,
                                         isReadOnly: true,
                                         onTap: () {},
                                       ),
@@ -712,7 +718,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                         borderColor: colorGreyBorderD3,
                                         backgroundColor: colorWhite,
                                         isReadOnly: true,
-                                        onTap: () async {
+                                        onTap: widget.model.tSConfirm == true ? () {} : () async {
                                           showTimePickerDialog(
                                             initialTimeText:
                                                 _controllerFromLaunch.text,
@@ -767,7 +773,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                         borderColor: colorGreyBorderD3,
                                         backgroundColor: colorWhite,
                                         isReadOnly: true,
-                                        onTap: () async {
+                                        onTap: widget.model.tSConfirm == true ? () {} : () async {
                                           showTimePickerDialog(
                                             initialTimeText:
                                                 _controllerToLaunch.text,
@@ -891,10 +897,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isReadOnly: widget.model.tSConfirm == true,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
                                   borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorWhite,
+                                  backgroundColor: colorGreyE8,
                                   controller: _controllerHours,
                                 ),
                               ),
@@ -925,10 +932,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isReadOnly: true,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
                                   borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorWhite,
+                                  backgroundColor: colorGreyE8,
                                   controller: _controllerHoursDifference,
                                 ),
                               ),
@@ -963,6 +971,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isReadOnly: widget.model.tSConfirm == true,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
                                   borderColor: colorGreyBorderD3,
@@ -997,6 +1006,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isReadOnly: widget.model.tSConfirm == true,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
                                   borderColor: colorGreyBorderD3,
@@ -1035,11 +1045,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isReadOnly: true,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
                                   borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorWhite,
-                                  isReadOnly: true,
+                                  backgroundColor: colorGreyE8,
                                   controller: _controllerTravelDistanceMax,
                                 ),
                               ),
@@ -1070,6 +1080,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isReadOnly: widget.model.tSConfirm == true,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
                                   borderColor: colorGreyBorderD3,
@@ -1179,7 +1190,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                     ),
                     const SizedBox(height: spaceBetween),
                     const SizedBox(height: spaceBetween),
-                   /* SizedBox(
+                    /* SizedBox(
                       height: 50,
                       child: ThemedButton(
                         title: "Save",
@@ -1200,7 +1211,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     );
   }
 
-  calculateHours(){
+  calculateHours() {
     print(fromHour);
     print(fromMin);
     print(toHour);
@@ -1208,18 +1219,18 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     print(origionalMins);
     print(breakMin);
 
-    int diff =  ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
+    int diff = ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
     totalWorkMin = diff;
     print(diff);
-    int totalHours =  (diff / 60) .toInt();
+    int totalHours = (diff / 60).toInt();
     int totalMin = (diff % 60).toInt();
-    _controllerHours.text = "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
-    double diffMin = ((((diff - breakMin) - origionalMins) * 100)/60)/100;
+    _controllerHours.text =
+        "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
+    double diffMin = ((((diff - breakMin) - origionalMins) * 100) / 60) / 100;
     String stdiffMin = diffMin.toStringAsFixed(2);
     diffMin = double.parse(stdiffMin);
     _controllerHoursDifference.text = "$diffMin";
   }
-
 
   showTimePickerDialog(
       {required String? initialTimeText,
@@ -1263,7 +1274,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             DateTime.now().day, fromHourLaunch, fromMinuteLaunch));
     int hour = difference.inHours;
     int minute = difference.inMinutes;
-    breakMin =  (hour * 60) + minute;
+    breakMin = (hour * 60) + minute;
 
     setState(() {
       if (hour >= 0) {
@@ -1320,11 +1331,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'TSLBTo': isIncludeLaunchBrake
                 ? "1899-12-30 ${_controllerToLaunch.text}"
                 : "1899-12-30 00:00",
-            'TSHours': "${get2CharString((totalWorkMin / 60) .toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
+            'TSHours':
+                "${get2CharString((totalWorkMin / 60).toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
             'TSTravelDistance': 0.0,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
-            'TSHoursDiff': 0.0,//not in use
+            'TSHoursDiff': 0.0, //not in use
             'TSTravelDistanceDiff': "0.0", //not in use
             'TSTravelTime': "0",
             'tsHoursDifference': "0.0",
@@ -1346,7 +1358,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'fundingSourceName': widget.model.fundingsourcename,
           });
 
-         /* if(body.isNotEmpty){
+          /* if(body.isNotEmpty){
             print(body);
             return;
           }*/

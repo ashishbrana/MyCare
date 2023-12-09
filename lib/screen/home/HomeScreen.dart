@@ -29,6 +29,7 @@ import '../../utils/Preferences.dart';
 import '../../utils/methods.dart';
 import 'Tabs/ConfirmedTabScreen.dart';
 import 'TimeSheetDetail.dart';
+import 'TimeSheetForm.dart';
 import 'models/ConfirmedResponseModel.dart';
 import 'models/ProgressNoteModel.dart';
 
@@ -1189,7 +1190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         noteId:
                                                             model.noteID ?? 0,
                                                         clientId:
-                                                            model.clientID ?? 0,
+                                                            model.rESID ?? 0,
                                                         servicescheduleemployeeID:
                                                             model.servicescheduleemployeeID ??
                                                                 0,
@@ -1237,7 +1238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             if (model.dsnId != 0)
                                               const SizedBox(
                                                   width: spaceHorizontal / 2),
-                                            if (bottomCurrentIndex == 2)
+                                            if (bottomCurrentIndex == 2 && model.tSConfirm == true)
                                               Icon(
                                                 Icons.check_circle_rounded,
                                                 color: model.locationName ==
@@ -1273,11 +1274,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Navigator.push(
                                         keyScaffold.currentContext!,
                                         MaterialPageRoute(
-                                          builder: (context) => TimeSheetDetail(
+                                          builder: (context) => model.tSConfirm == false ? TimeSheetDetail(
                                             model: model,
                                             indexSelectedFrom:
                                                 bottomCurrentIndex,
-                                          ),
+                                          ):
+                                                TimeSheetForm(model: model),
                                         ),
                                       ).then((value) {
                                         if (value != null && value) {
