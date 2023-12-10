@@ -224,7 +224,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                             backgroundColor: colorWhite,
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: spaceHorizontal),
-                                          ),
+                                          )
                                         ),
                                         const SizedBox(height: space),
                                         ThemedRichText(
@@ -340,6 +340,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isAcceptNumbersOnly: true,
+                                  keyBoardType: TextInputType.number,
                                   borderColor: colorGreyBorderD3,
                                   controller: _controllerHomePhone,
                                   backgroundColor: colorWhite,
@@ -357,6 +359,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isAcceptNumbersOnly: true,
+                                  keyBoardType: TextInputType.number,
                                   borderColor: colorGreyBorderD3,
                                   controller: _controllerMobile,
                                   backgroundColor: colorWhite,
@@ -374,6 +378,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  isAcceptNumbersOnly: true,
+                                  keyBoardType: TextInputType.number,
                                   controller: _controllerWorkPhone,
                                   borderColor: colorGreyBorderD3,
                                   padding: const EdgeInsets.symmetric(
