@@ -30,11 +30,12 @@ class ProgressNoteDetails extends StatefulWidget {
   // final ProgressNoteModel model;
   final int userId;
   final int clientId;
-  final int noteId;
+  int noteId;
   final int serviceShceduleClientID;
   final int servicescheduleemployeeID;
   String? clientName;
   final String serviceName;
+  final String noteWriter;
 
   ProgressNoteDetails({
     super.key,
@@ -45,6 +46,7 @@ class ProgressNoteDetails extends StatefulWidget {
     required this.servicescheduleemployeeID,
     this.clientName,
     required this.serviceName,
+    required this.noteWriter,
   });
 
   @override
@@ -368,9 +370,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                             return;
                           }
                           await saveNoteApiCall();
-                          for (File file in selectedImageFilesList) {
+                         /* for (File file in selectedImageFilesList) {
                             saveNoteDoc(file);
-                          }
+                          }*/
                         },
                       ),
                     ),
@@ -397,7 +399,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               ),
               const SizedBox(height: 10),
               ThemedText(
-                text: "Note Writer : ${model?.createdByName ?? ""}",
+                text: "Note Writer : ${model?.createdByName ?? widget.noteWriter}",
                 color: colorFontColor,
                 fontSize: 18,
               ),
@@ -853,10 +855,18 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jResponse = json.decode(response.body.toString());
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
+              widget.noteId = int.parse(jres["message"]);
+
+              print("Response : savedetail with =  ${widget.noteId}");
               showSnackBarWithText(_keyScaffold.currentState, "Success",
                   color: colorGreen);
               if (selectedImageFilesList.isEmpty) {
                 Navigator.pop(context, true);
+              }
+              else{
+                for (File file in selectedImageFilesList) {
+                  await saveNoteDoc(file);
+                }
               }
             }
           } else {
@@ -878,6 +888,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 
   saveNoteDoc(File image) async {
+    print("API : saveNoteDoc with =  ${widget.noteId}");
     print("UPLOADING : ${image.path}");
 
     isConnected().then((hasInternet) async {

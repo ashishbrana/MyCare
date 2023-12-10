@@ -264,6 +264,8 @@ class ProgressNoteState extends State<ProgressNote> {
                                       model.serviceScheduleEmpID ?? 0,
                                   serviceName: model.serviceName ?? "",
                                   clientName: model.clientName,
+                                  noteWriter: model.createdByName ?? "",
+
                                 ),
                               ),
                             );

@@ -272,7 +272,9 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     title: "Notes",
                     padding: EdgeInsets.zero,
                     fontSize: 16,
-                    onTap: () {
+                    onTap: () async {
+                     String fullName =  await Preferences().getPrefString(Preferences.prefUserFullName);
+                     print(fullName);
                       if (keyScaffold.currentContext != null) {
                         Navigator.push(
                             keyScaffold.currentContext!,
@@ -288,6 +290,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                                 serviceName: widget.model.serviceName ?? "",
                                 clientName:
                                     "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                noteWriter: fullName,
                               ),
                             )).then((value) => value != null &&
                                 value
