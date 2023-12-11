@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   confirmedDataList.add(model);
                   DateTime? serviceDate =
                       getDateTimeFromEpochTime(model.serviceDate!);
-                  if (serviceDate!.compareTo(DateTime.now().add(Duration(days: 1))) < 0) {
+                  if (serviceDate!.compareTo(DateTime.now()) < 0) {
                     timeSheetDataList.add(model);
                   }
                 } else if (model.empID != 0 && model.timesheetStatus == true) {
