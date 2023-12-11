@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
+import 'package:rcare_2/screen/home/notes/model/ServiceDetail.dart';
 import 'package:rcare_2/utils/Images.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
@@ -34,7 +35,7 @@ class ProgressNoteDetails extends StatefulWidget {
   final int serviceShceduleClientID;
   final int servicescheduleemployeeID;
   String? clientName;
-  final String serviceName;
+  String serviceName;
   final String noteWriter;
 
   ProgressNoteDetails({
@@ -72,6 +73,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   );
 
   ProgressNoteListByNoteIdModel? model;
+  ServiceDetail? serviceDetail;
   ClientSignatureModel? signatureModel;
   List<NoteDocModel>? noteDocList;
   Uint8List? signatureImage;
@@ -83,7 +85,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   void initState() {
     super.initState();
     if (widget.noteId != 0) {
-      getData();
+      if(widget.noteWriter.isEmpty){
+        getServiceDetail();
+      }
+      else {
+        getData();
+      }
     } else {
       //Fill model with defalt value and save with noteid = 0
       model = ProgressNoteListByNoteIdModel();
@@ -93,6 +100,66 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         serviceTypeDateTime,
       );
     }
+  }
+
+
+  getServiceDetail() async {
+    Map<String, dynamic> params = {
+      'auth_code':
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid': widget.userId.toString(),
+      'ServiceScheduleClientID': widget.serviceShceduleClientID.toString(),
+      'ssEmpID': widget.servicescheduleemployeeID.toString(),
+    };
+    print("params : $params");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(ServiceDetaileByID, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != "") {
+            // print('res ${response}');
+            List<ServiceDetail> serivceList = [];
+
+
+            List jResponse = json.decode(response);
+            print("jResponse $endAvailableShifts $jResponse");
+            serivceList = jResponse
+                .map((e) => ServiceDetail.fromJson(e))
+                .toList();
+            print("availableDataList : ${serivceList.length}");
+            if(serivceList.isNotEmpty){
+              serviceDetail = serivceList.first;
+            }
+
+            if (serviceDetail != null) {
+              getData();
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
   }
 
   getData() async {
@@ -145,6 +212,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               _assesmentScale = (model!.asessmentScale ?? 0).toString();
               _assesment_comment.text = model!.asessmentComment ?? "";
               clientRating = int.parse(model!.clientRating ?? "3");
+
+
+
+              if(this.serviceDetail != null){
+                final serviceDetail = this.serviceDetail;
+                model?.createdByName = serviceDetail?.createdByName;
+                widget.serviceName = serviceDetail!.serviceName!;
+              }
               // print("models.length : ${dataList.length}");
             }
             setState(() {});
@@ -514,6 +589,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
+          widget.noteId == 0 ?
           Row(children:[
               ThemedText(
                 text: "Client Signature",
@@ -533,6 +609,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             ),
                 ),
               ]
+          ):  Row(children:[
+            ThemedText(
+              text: "Client Signature",
+              color: colorFontColor,
+              fontSize: 18,
+            ),
+          ]
           ),
               Container(
                 decoration: BoxDecoration(
@@ -548,6 +631,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
               ),
               const SizedBox(height: spaceVertical),
+              widget.noteId == 0 ?
               Row(
                 children: [
                   InkWell(
@@ -621,6 +705,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                           });
                         }
                       }),
+                ],
+              ): Row(
+                children: [
+                  //you can add more widget in here
                 ],
               ),
               const SizedBox(height: spaceVertical),
