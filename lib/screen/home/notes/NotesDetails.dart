@@ -85,10 +85,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   void initState() {
     super.initState();
     if (widget.noteId != 0) {
-      if(widget.noteWriter.isEmpty){
+      if (widget.noteWriter.isEmpty) {
         getServiceDetail();
-      }
-      else {
+      } else {
         getData();
       }
     } else {
@@ -102,11 +101,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     }
   }
 
-
   getServiceDetail() async {
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'ServiceScheduleClientID': widget.serviceShceduleClientID.toString(),
       'ssEmpID': widget.servicescheduleemployeeID.toString(),
@@ -129,14 +127,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
             List<ServiceDetail> serivceList = [];
 
-
             List jResponse = json.decode(response);
             print("jResponse $endAvailableShifts $jResponse");
-            serivceList = jResponse
-                .map((e) => ServiceDetail.fromJson(e))
-                .toList();
+            serivceList =
+                jResponse.map((e) => ServiceDetail.fromJson(e)).toList();
             print("availableDataList : ${serivceList.length}");
-            if(serivceList.isNotEmpty){
+            if (serivceList.isNotEmpty) {
               serviceDetail = serivceList.first;
             }
 
@@ -213,9 +209,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               _assesment_comment.text = model!.asessmentComment ?? "";
               clientRating = int.parse(model!.clientRating ?? "3");
 
-
-
-              if(this.serviceDetail != null){
+              if (this.serviceDetail != null) {
                 final serviceDetail = this.serviceDetail;
                 model?.createdByName = serviceDetail?.createdByName;
                 widget.serviceName = serviceDetail!.serviceName!;
@@ -439,13 +433,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         title: "Save",
                         fontSize: 14,
                         onTap: () async {
-                          if(_disscription.text.isEmpty){
-                            showSnackBarWithText(_keyScaffold.currentState, "Description can not be blank",
+                          if (_disscription.text.isEmpty) {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "Description can not be blank",
                                 color: colorRed);
                             return;
                           }
                           await saveNoteApiCall();
-                         /* for (File file in selectedImageFilesList) {
+                          /* for (File file in selectedImageFilesList) {
                             saveNoteDoc(file);
                           }*/
                         },
@@ -474,7 +469,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               ),
               const SizedBox(height: 10),
               ThemedText(
-                text: "Note Writer : ${model?.createdByName ?? widget.noteWriter}",
+                text:
+                    "Note Writer : ${model?.createdByName ?? widget.noteWriter}",
                 color: colorFontColor,
                 fontSize: 18,
               ),
@@ -589,34 +585,33 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
-          widget.noteId == 0 ?
-          Row(children:[
-              ThemedText(
-                text: "Client Signature",
-                color: colorFontColor,
-                fontSize: 18,
-              ),
-            Spacer(),
-            SizedBox(
-                width: 100,
-            child: ThemedButton(
-              padding: EdgeInsets.zero,
-              title: "Clear",
-              fontSize: 14,
-              onTap: () {
-                _controllerSignature.clear();
-              },
-            ),
-                ),
-              ]
-          ):  Row(children:[
-            ThemedText(
-              text: "Client Signature",
-              color: colorFontColor,
-              fontSize: 18,
-            ),
-          ]
-          ),
+              widget.noteId == 0
+                  ? Row(children: [
+                      ThemedText(
+                        text: "Client Signature",
+                        color: colorFontColor,
+                        fontSize: 18,
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        width: 100,
+                        child: ThemedButton(
+                          padding: EdgeInsets.zero,
+                          title: "Clear",
+                          fontSize: 14,
+                          onTap: () {
+                            _controllerSignature.clear();
+                          },
+                        ),
+                      ),
+                    ])
+                  : Row(children: [
+                      ThemedText(
+                        text: "Client Signature",
+                        color: colorFontColor,
+                        fontSize: 18,
+                      ),
+                    ]),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: colorGreyBorderD3),
@@ -631,86 +626,87 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
               ),
               const SizedBox(height: spaceVertical),
-              widget.noteId == 0 ?
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        clientRating = 1;
-                      });
-                    },
-                    child: const FaIcon(
-                      FontAwesomeIcons.solidFaceSmile,
-                      color: Colors.amber,
-                      size: 48,
+              widget.noteId == 0
+                  ? Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              clientRating = 1;
+                            });
+                          },
+                          child: const FaIcon(
+                            FontAwesomeIcons.solidFaceSmile,
+                            color: Colors.amber,
+                            size: 48,
+                          ),
+                        ),
+                        Radio<int>(
+                            value: 1,
+                            groupValue: clientRating,
+                            activeColor: colorGreen,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  clientRating = value;
+                                });
+                              }
+                            }),
+                        const SizedBox(width: spaceHorizontal),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              clientRating = 2;
+                            });
+                          },
+                          child: const FaIcon(
+                            FontAwesomeIcons.solidFaceMeh,
+                            color: Colors.amber,
+                            size: 48,
+                          ),
+                        ),
+                        Radio<int>(
+                            value: 2,
+                            groupValue: clientRating,
+                            activeColor: colorGreen,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  clientRating = value;
+                                });
+                              }
+                            }),
+                        const SizedBox(width: spaceHorizontal),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              clientRating = 3;
+                            });
+                          },
+                          child: const FaIcon(
+                            FontAwesomeIcons.solidFaceFrown,
+                            color: Colors.amber,
+                            size: 48,
+                          ),
+                        ),
+                        Radio<int>(
+                            value: 3,
+                            groupValue: clientRating,
+                            activeColor: colorGreen,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  clientRating = value;
+                                });
+                              }
+                            }),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        //you can add more widget in here
+                      ],
                     ),
-                  ),
-                  Radio<int>(
-                      value: 1,
-                      groupValue: clientRating,
-                      activeColor: colorGreen,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            clientRating = value;
-                          });
-                        }
-                      }),
-                  const SizedBox(width: spaceHorizontal),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        clientRating = 2;
-                      });
-                    },
-                    child: const FaIcon(
-                      FontAwesomeIcons.solidFaceMeh,
-                      color: Colors.amber,
-                      size: 48,
-                    ),
-                  ),
-                  Radio<int>(
-                      value: 2,
-                      groupValue: clientRating,
-                      activeColor: colorGreen,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            clientRating = value;
-                          });
-                        }
-                      }),
-                  const SizedBox(width: spaceHorizontal),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        clientRating = 3;
-                      });
-                    },
-                    child: const FaIcon(
-                      FontAwesomeIcons.solidFaceFrown,
-                      color: Colors.amber,
-                      size: 48,
-                    ),
-                  ),
-                  Radio<int>(
-                      value: 3,
-                      groupValue: clientRating,
-                      activeColor: colorGreen,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            clientRating = value;
-                          });
-                        }
-                      }),
-                ],
-              ): Row(
-                children: [
-                  //you can add more widget in here
-                ],
-              ),
               const SizedBox(height: spaceVertical),
               SizedBox(
                 height: textFiledHeight,
@@ -730,7 +726,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         },
                       ),
                     ),*/
-                   /* const Spacer(),
+                    /* const Spacer(),
                     const SizedBox(width: spaceHorizontal),
                     SizedBox(
                       width: 100,
@@ -950,8 +946,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   color: colorGreen);
               if (selectedImageFilesList.isEmpty) {
                 Navigator.pop(context, true);
-              }
-              else{
+              } else {
                 for (File file in selectedImageFilesList) {
                   await saveNoteDoc(file);
                 }
@@ -1001,10 +996,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jrs = json.decode(jResponse["d"]);
             if (jrs["status"] == 1) {
               print("UPLOADED : ${image.path} Success");
-              showSnackBarWithText(_keyScaffold.currentState, "Upload Success",
-                  color: colorGreen);
+
               if (selectedImageFilesList.indexOf(image) ==
                   selectedImageFilesList.length - 1) {
+                showSnackBarWithText(
+                    _keyScaffold.currentState, "Upload Success",
+                    color: colorGreen);
+                await Future.delayed(const Duration(seconds: 4));
                 Navigator.pop(context, true);
               }
             }
