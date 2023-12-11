@@ -41,6 +41,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
   int origionalMins = 0;
 
+  int startBreakMin = 0;
+  int endBrakMin = 0;
+
   String fromHourService = "00";
   final TextEditingController _controllerFromService = TextEditingController();
   String fromMinuteService = "00";
@@ -186,17 +189,32 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     super.initState();
 
     _controllerServiceType.text = widget.model.serviceName ?? "";
-    if (widget.model.timeFrom != null &&
+    if (widget.model.tSConfirm == false && widget.model.timeFrom != null &&
         widget.model.timeFrom!.split(":").isNotEmpty) {
       _controllerFromService.text = widget.model.timeFrom!;
       var list = widget.model.timeFrom!.split(":");
       fromHour = int.parse(list.first);
       fromMin = int.parse(list.last);
     }
-    if (widget.model.timeUntil != null &&
+    if (widget.model.tSConfirm == true && widget.model.tSFrom != null &&
+        widget.model.tSFrom!.split(":").isNotEmpty) {
+      _controllerFromService.text = widget.model.tSFrom!;
+      var list = widget.model.tSFrom!.split(":");
+      fromHour = int.parse(list.first);
+      fromMin = int.parse(list.last);
+    }
+
+    if (widget.model.tSConfirm == false && widget.model.timeUntil != null &&
         widget.model.timeUntil!.split(":").isNotEmpty) {
       _controllerToService.text = widget.model.timeUntil!;
       var list = widget.model.timeUntil!.split(":");
+      toHour = int.parse(list.first);
+      toMin = int.parse(list.last);
+    }
+    if (widget.model.tSConfirm == true && widget.model.tSUntil != null &&
+        widget.model.tSUntil!.split(":").isNotEmpty) {
+      _controllerToService.text = widget.model.tSUntil!;
+      var list = widget.model.tSUntil!.split(":");
       toHour = int.parse(list.first);
       toMin = int.parse(list.last);
     }
@@ -244,7 +262,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     _controllerClientTravelDistance.text =
         widget.model.clienttraveldistance.toString();
     isRiskAlert = false;
-    _controllerTimeSheetComments.text = widget.model.shiftComments ?? "";
+    _controllerTimeSheetComments.text = widget.model.tSComments ?? "";
     setState(() {});
   }
 
@@ -278,6 +296,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               title: "Save",
                               fontSize: 14,
                               onTap: () async {
+
+                                if(isIncludeLaunchBrake && endBrakMin == 0 ){
+                                  showSnackBarWithText(
+                                      _keyScaffold.currentState,
+                                      "Please enter valid lunch break",
+                                      color: colorRed);
+                                  return;
+                                }
+
                                 if (isRiskAlert &&
                                     _controllerTimeSheetComments.text.isEmpty) {
                                   showSnackBarWithText(
@@ -286,7 +313,20 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                       color: colorRed);
                                   return;
                                 }
-                                saveTimeSheet();
+                                if (diffHours != 0.0 && widget.model.tSConfirm == false && _controllerTimeSheetComments.text.isEmpty) {
+                                  showSnackBarWithText(
+                                      _keyScaffold.currentState,
+                                      "Comments are required if hours are differemt",
+                                      color: colorRed);
+                                  return;
+                                }
+                                if(widget.model.tSConfirm == true){
+                                  sendRiskAlert();
+                                }
+                                else{
+                                  saveTimeSheet();
+                                }
+
                               },
                             ),
                           ),
@@ -760,6 +800,22 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                       _controllerFromLaunch
                                                           .text,
                                                   onTimePick: (hours, minutes) {
+                                                    int tempstartBreakMin = (hours * 60)+ minutes ;
+                                                    int startMinTs = (fromHour * 60)+ fromMin ;
+                                                    int endMinTs = (toHour * 60)+ toMin ;
+
+                                                    if(tempstartBreakMin < startMinTs || tempstartBreakMin > endMinTs)  {
+                                                      showSnackBarWithText(
+                                                          _keyScaffold.currentState,
+                                                          "Please enter valid lunch break time",
+                                                          color: colorRed);
+                                                      return;
+                                                    }
+                                                    else{
+                                                      startBreakMin = tempstartBreakMin;
+                                                    }
+
+
                                                     _controllerFromLaunch.text =
                                                         "${get2CharString(hours)}:${get2CharString(minutes)}";
                                                     String diff =
@@ -819,6 +875,26 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                   initialTimeText:
                                                       _controllerToLaunch.text,
                                                   onTimePick: (hours, minutes) {
+                                                    int teampendBrakMin =  (hours * 60)+ minutes ;
+                                                    int startMinTs = (toHour * 60)+ toMin ;
+                                                    if(startBreakMin == 0)  {
+                                                      showSnackBarWithText(
+                                                          _keyScaffold.currentState,
+                                                          "Please enter start lunch break time",
+                                                          color: colorRed);
+                                                      return;
+                                                    }
+                                                    if(teampendBrakMin < startBreakMin || teampendBrakMin > startMinTs)  {
+                                                      showSnackBarWithText(
+                                                          _keyScaffold.currentState,
+                                                          "Please enter valid lunch break time",
+                                                          color: colorRed);
+                                                      return;
+                                                    }
+                                                    else{
+                                                      endBrakMin = teampendBrakMin;
+                                                    }
+
                                                     _controllerToLaunch.text =
                                                         "${get2CharString(hours)}:${get2CharString(minutes)}";
                                                     String diff =
@@ -1348,6 +1424,61 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     return data > 9 ? data.toString() : "0$data";
   }
 
+  sendRiskAlert() async {
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        try {
+          getOverlay(context);
+
+          int tsconfirm = 0;
+          if (widget.model.tSConfirm != null) {
+            tsconfirm = widget.model.tSConfirm! ? 1 : 0;
+          }
+
+          String body = json.encode({
+            'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            'rosterId': widget.model.rosterID != null ? widget.model.rosterID.toString() : "0",
+            'clientId': widget.model.rESID != null ? widget.model.rESID.toString() : "0",
+            'userId': widget.model.empID != null ? widget.model.empID.toString() : 0,
+            'shiftComments': _controllerTimeSheetComments.text + " ",
+            'riskAlert': isRiskAlert.toString(),
+            'tsId': widget.model.timesheetID != null ? widget.model.timesheetID.toString() : "0",
+          });
+          print(body);
+
+
+          Response response = await http.post(
+              Uri.parse(
+                  "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$updateShiftCommentsAndSendRiskAlert"),
+              headers: {"Content-Type": "application/json"},
+              body: body);
+          // response = await HttpService().init(request, _keyScaffold);
+          log("Response $updateShiftCommentsAndSendRiskAlert : ${response.body}");
+          if (response != null) {
+            var jResponse = json.decode(response.body.toString());
+            var jres = json.decode(jResponse["d"]);
+            if (jres["status"] == 1) {
+              showSnackBarWithText(_keyScaffold.currentState, "Success",
+                  color: colorGreen);
+              Navigator.pop(context, true);
+            }
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          log("SignUp $e");
+          removeOverlay();
+          throw e;
+        } finally {
+          removeOverlay();
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
   saveTimeSheet() async {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
@@ -1360,57 +1491,34 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           }
 
           String body = json.encode({
-            'auth_code':
-                (await Preferences().getPrefString(Preferences.prefAuthCode)),
-            'timesheetID': widget.model.timesheetID != null
-                ? widget.model.timesheetID.toString()
-                : "0",
-            'RosterID': widget.model.rosterID != null
-                ? widget.model.rosterID.toString()
-                : "0",
+            'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            'timesheetID': widget.model.timesheetID != null ? widget.model.timesheetID.toString() : "0",
+            'RosterID': widget.model.rosterID != null ? widget.model.rosterID.toString() : "0",
             'TSFrom': "1899-12-30 ${_controllerFromService.text}",
             'TSUntil': "1899-12-30 ${_controllerToService.text}",
             'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
-            'TSLunchBreak': isIncludeLaunchBrake
-                ? "${_controllerHourLaunch.text}.${_controllerMinuteLaunch.text}"
-                : "00.00",
-            'TSLBFrom': isIncludeLaunchBrake
-                ? "1899-12-30 ${_controllerFromLaunch.text}"
-                : "1899-12-30 00:00",
-            'TSLBTo': isIncludeLaunchBrake
-                ? "1899-12-30 ${_controllerToLaunch.text}"
-                : "1899-12-30 00:00",
-            'TSHours':
-                "${get2CharString((totalWorkMin / 60).toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
-            'TSTravelDistance': 0.0,
+            'TSLunchBreak': isIncludeLaunchBrake ? "${_controllerHourLaunch.text}.${_controllerMinuteLaunch.text}" : "00.00",
+            'TSLBFrom': isIncludeLaunchBrake ? "1899-12-30 ${_controllerFromLaunch.text}" : "1899-12-30 00:00",
+            'TSLBTo': isIncludeLaunchBrake ? "1899-12-30 ${_controllerToLaunch.text}" : "1899-12-30 00:00",
+            'TSHours': "${get2CharString((totalWorkMin / 60).toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
+            'TSTravelDistance': _controllerTravelDistance.text,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
             'TSHoursDiff': 0.0, //not in use
             'TSTravelDistanceDiff': "0.0", //not in use
-            'TSTravelTime': "0",
+            'TSTravelTime': _controllerTravelTime.text,
             'tsHoursDifference': diffHours,
-            'empID':
-                widget.model.empID != null ? widget.model.empID.toString() : 0,
-            'RosterDate': DateFormat("dd/MM/yyyy")
-                .format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
+            'empID': widget.model.empID != null ? widget.model.empID.toString() : 0,
+            'RosterDate': DateFormat("dd/MM/yyyy").format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
             'RiskAlert': isRiskAlert.toString(),
-            'clientID': widget.model.rESID != null
-                ? widget.model.rESID.toString()
-                : "0",
+            'clientID': widget.model.rESID != null ? widget.model.rESID.toString() : "0",
             'TSClientTravelDistance': _controllerClientTravelDistance.text,
-            'ssEmployeeID': widget.model.servicescheduleemployeeID != null
-                ? widget.model.servicescheduleemployeeID.toString()
-                : "0",
-            'servicetypeid': widget.model.tsservicetype != null
-                ? widget.model.tsservicetype.toString()
-                : "0",
+            'ssEmployeeID': widget.model.servicescheduleemployeeID != null ? widget.model.servicescheduleemployeeID.toString() : "0",
+            'servicetypeid': widget.model.tsservicetype != null ? widget.model.tsservicetype.toString() : "0",
             'fundingSourceName': widget.model.fundingsourcename,
           });
+          print(body);
 
-          if (body.isNotEmpty) {
-            print(body);
-            return;
-          }
 
           Response response = await http.post(
               Uri.parse(
@@ -1444,6 +1552,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
   }
+
 }
 
 String getTimeStringFromDouble(double value) {

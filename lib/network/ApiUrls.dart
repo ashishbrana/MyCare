@@ -28,6 +28,8 @@ const String endGetClientSignature = 'getClientSignatureBase64';
 const String endGetImageBase64 = 'getNoteImageBase64';
 const String endProgressNotesList = 'ProgressNotesList';
 const String endsaveDSNDetails = 'saveDSNDetails';
+const String updateShiftCommentsAndSendRiskAlert = 'updateShiftCommentsAndSendRiskAlert';
+
 
 
 

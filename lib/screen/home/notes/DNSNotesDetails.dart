@@ -69,6 +69,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
   List<File> selectedImageFilesList = [];
   int? clientRating;
   bool isTaskCompleted = false;
+  bool isCompleted = false;
   @override
   void initState() {
     super.initState();
@@ -78,6 +79,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
     _noteWriter.text=widget.dsnListModel.notewriter ?? "";
     _taskComments.text=widget.dsnListModel.taskcompletedcomments ?? "";
     isTaskCompleted= widget.dsnListModel.taskcompleted!;
+    isCompleted = widget.dsnListModel.taskcompleted!;
     setState(() {
 
     });
@@ -178,7 +180,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                   padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
-                  isReadOnly: false,
+                  isReadOnly: isCompleted,
                   minLine: 2,
                   maxLine: 2,
                   fontSized: 15,
@@ -198,7 +200,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                     value: true,
                     groupValue: isTaskCompleted,
                     activeColor: colorGreen,
-                    onChanged: (bool? value) {
+                    onChanged: isCompleted ? null : (bool? value) {
                       if (value != null) {
                         setState(() {
                           isTaskCompleted = value;
@@ -223,7 +225,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                     value: false,
                     groupValue: isTaskCompleted,
                     activeColor: colorGreen,
-                    onChanged: (bool? value) {
+                    onChanged: isCompleted ? null  : (bool? value) {
                       if (value != null) {
                         setState(() {
                           isTaskCompleted = value;

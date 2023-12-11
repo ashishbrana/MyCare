@@ -378,8 +378,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
 
   confirmApiCall() async {
     Map<String, dynamic> params = {
-      'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': (widget.model.empID ?? 0).toString(),
       'rosterid': (widget.model.rosterID ?? 0).toString(),
       'ssEmployeeID': (widget.model.servicescheduleemployeeID ?? 0).toString(),
@@ -428,7 +427,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'userid': (widget.model.empID ?? 0).toString(),
+      'userid':  (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'rosterid': (widget.model.rosterID ?? 0).toString(),
       'totalhours': (widget.model.totalHours ?? 0).toString(),
       'serviceDate': DateFormat("EEE MMM dd yyyy ").format(
@@ -441,6 +440,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
         const Duration(hours: 5, minutes: 30),
       ))
     };
+
+
     print("params : ${params}");
     isConnected().then((hasInternet) async {
       if (hasInternet) {

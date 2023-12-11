@@ -439,6 +439,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                 color: colorRed);
                             return;
                           }
+                          if (_assesment_comment.text.isEmpty) {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "Assessment Comments can not be blank",
+                                color: colorRed);
+                            return;
+                          }
                           await saveNoteApiCall();
                           /* for (File file in selectedImageFilesList) {
                             saveNoteDoc(file);
@@ -585,7 +591,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
-              widget.noteId == 0
+              signatureImage == null
                   ? Row(children: [
                       ThemedText(
                         text: "Client Signature",
@@ -626,7 +632,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
               ),
               const SizedBox(height: spaceVertical),
-              widget.noteId == 0
+              clientRating == 0
                   ? Row(
                       children: [
                         InkWell(
@@ -896,6 +902,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   saveNoteApiCall() async {
     isConnected().then((hasInternet) async {
+
       if (hasInternet) {
         try {
           getOverlay(context);
@@ -916,17 +923,16 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             "userID": widget.userId,
             "clientID": widget.clientId,
             "ServiceScheduleClientID": widget.serviceShceduleClientID,
-            "bit64Signature":
-                signature != null ? "${base64.encode(signature)}" : " ",
+            "bit64Signature":  _controllerSignature.isNotEmpty ? (signature != null ? "${base64.encode(signature)}" : "") : "",
             "ClientRating": clientRating.toString(),
             "ssClientIds": "",
             "GroupNote": 0,
             "ssEmployeeID": widget.servicescheduleemployeeID
           });
           log(strBody);
-          if (strBody.isEmpty) {
+        /*  if (strBody.isNotEmpty) {
             return;
-          }
+          }*/
 
           Response response = await http.post(
             Uri.parse(

@@ -184,6 +184,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainList = timeSheetDataList;
 
                 break;
+              case 3:
+                mainList = availableDataList;
+
+                break;
               default:
                 mainList = confirmedDataList;
                 break;

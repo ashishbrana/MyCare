@@ -159,7 +159,8 @@ class _ChangePasswordState extends State<ChangePassword> {
     var params = {
       'UserID': (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'NewPassword': _controllerNewPassword.text,
-      'UserType' : 'user'
+      'UserType' : 'user',
+      "auth_code" : (await Preferences().getPrefString(Preferences.prefAuthCode))
     };
     isConnected().then((hasInternet) async {
       if (hasInternet) {
