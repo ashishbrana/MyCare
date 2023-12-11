@@ -467,24 +467,24 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 padding: EdgeInsets.zero,
                                 onTap: () {
 
-                                  if(_controllerFirstName.text.isEmpty){
+                                  if(_controllerFirstName.text.trim().isEmpty){
                                     showSnackBarWithText(
                                         _keyScaffold.currentState, "First name can not be blank!");
 
-                                  }else if(_controllerLastName.text.isEmpty){
+                                  }else if(_controllerLastName.text.trim().isEmpty){
                                     showSnackBarWithText(
                                         _keyScaffold.currentState, "Last name can not be blank!");
                                   }
-                                  else if(_controllerAddress.text.isEmpty){
+                                  else if(_controllerAddress.text.trim().isEmpty){
                                     showSnackBarWithText(
                                         _keyScaffold.currentState, "Address can not be blank!");
                                   }
-                                  else if(_controllerSuburb.text.isEmpty){
+                                  else if(_controllerSuburb.text.trim().isEmpty){
                                     showSnackBarWithText(
                                         _keyScaffold.currentState, "Suburb filed can not be blank!");
-                                  }else if(_controllerEmail.text.isEmpty){
+                                  }else if(_controllerEmail.text.trim().isEmpty){
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "EmilId  can not be blank!");
+                                        _keyScaffold.currentState, "EmilId can not be blank!");
                                   }else if(!isValidateEmail(_controllerEmail.text)){
                                     showSnackBarWithText(
                                         _keyScaffold.currentState, "Please enter valid email ID");
