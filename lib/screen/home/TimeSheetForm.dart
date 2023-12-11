@@ -180,6 +180,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     "60",
   ];
 
+  String timeSheetValidation = "";
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -233,6 +236,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     if (widget.model.tSHoursDiff != null) {
       diffHours = widget.model.tSHoursDiff!.toDouble();
     }
+    if (widget.model.tSHours != null ){
+      timeSheetValidation ="Timesheet Submitted.Only comments can be updated!";
+    }
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
     _controllerTravelTime.text = widget.model.tSTravelTime.toString();
     _controllerTravelDistance.text = widget.model.tSTravelDistance.toString();
@@ -242,6 +248,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
         widget.model.clienttraveldistance.toString();
     isRiskAlert = false;
     _controllerTimeSheetComments.text = widget.model.shiftComments ?? "";
+    setState(() {
+
+    });
   }
 
   @override
@@ -302,6 +311,22 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    timeSheetValidation.isNotEmpty ? SizedBox(
+
+                      child: Container(
+
+                        padding: EdgeInsets.all(10.0),
+                        color: colorRed,
+                        child: ThemedText(
+                          text: timeSheetValidation,
+                          fontSize: 14,
+                          maxLine: 2,
+
+                          color: colorWhite,
+                        ),
+                      ),
+                    ) : Container(),
                     const SizedBox(height: 20),
                     ThemedText(
                       text: widget.model.resName ?? "",
@@ -460,11 +485,14 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                 ),
               ),
               const SizedBox(height: spaceVertical),
+
               Container(
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
+
                     ThemedText(
                       text: "Service Type",
                       fontSize: 14,
