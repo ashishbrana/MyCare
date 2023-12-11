@@ -39,8 +39,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   double diffHours = 0;
   int breakMin = 0;
 
-
-
   int origionalMins = 0;
 
   String fromHourService = "00";
@@ -182,7 +180,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
   String timeSheetValidation = "";
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -203,7 +200,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       toHour = int.parse(list.first);
       toMin = int.parse(list.last);
     }
-    if (widget.model.tSHours != null ){
+    if (widget.model.tSHours != null) {
       totalWorkMin = (widget.model.tSHours!.toDouble() * 60).toInt();
     }
 
@@ -218,26 +215,26 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     if (widget.model.tSLunchBreakFrom != null &&
         widget.model.tSLunchBreakFrom!.split(":").isNotEmpty) {
       _controllerFromLaunch.text = widget.model.tSLunchBreakFrom!;
-    }else{
+    } else {
       _controllerFromLaunch.text = "00:00";
     }
     if (widget.model.tSLunchBreakTo != null &&
         widget.model.tSLunchBreakTo!.split(":").isNotEmpty) {
       _controllerToLaunch.text = widget.model.tSLunchBreakTo!;
-    }
-    else{
+    } else {
       _controllerToLaunch.text = "00:00";
     }
 
     if (widget.model.tSHours != null) {
-      _controllerHours.text = getTimeStringFromDouble(widget.model.tSHours!.toDouble());
+      _controllerHours.text =
+          getTimeStringFromDouble(widget.model.tSHours!.toDouble());
       origionalMins = widget.model.tSHours!.toInt() * 60;
     }
     if (widget.model.tSHoursDiff != null) {
       diffHours = widget.model.tSHoursDiff!.toDouble();
     }
-    if (widget.model.tSHours != null ){
-      timeSheetValidation ="Timesheet Submitted.Only comments can be updated!";
+    if (widget.model.tSConfirm == true) {
+      timeSheetValidation = "Timesheet Submitted.Only comments can be updated!";
     }
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
     _controllerTravelTime.text = widget.model.tSTravelTime.toString();
@@ -248,9 +245,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
         widget.model.clienttraveldistance.toString();
     isRiskAlert = false;
     _controllerTimeSheetComments.text = widget.model.shiftComments ?? "";
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   @override
@@ -312,21 +307,22 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    timeSheetValidation.isNotEmpty ? SizedBox(
-
-                      child: Container(
-
-                        padding: EdgeInsets.all(10.0),
-                        color: colorRed,
-                        child: ThemedText(
-                          text: timeSheetValidation,
-                          fontSize: 14,
-                          maxLine: 2,
-
-                          color: colorWhite,
-                        ),
-                      ),
-                    ) : Container(),
+                    timeSheetValidation.isNotEmpty
+                        ? SizedBox(
+                            child: Container(
+                              padding: EdgeInsets.all(10.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              color: colorRed,
+                              child: ThemedText(
+                                text: timeSheetValidation,
+                                fontSize: 14,
+                                maxLine: 2,
+                                color: colorWhite,
+                              ),
+                            ),
+                          )
+                        : Container(),
                     const SizedBox(height: 20),
                     ThemedText(
                       text: widget.model.resName ?? "",
@@ -361,11 +357,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                           widget.model.serviceDate != null
                               ? DateFormat("EEE,dd-MM-yyyy").format(
                                   DateTime.fromMillisecondsSinceEpoch(
-                                          int.parse(widget.model.serviceDate!
-                                              .replaceAll("/Date(", "")
-                                              .replaceAll(")/", "")),
-                                          isUtc: false)
-                                )
+                                      int.parse(widget.model.serviceDate!
+                                          .replaceAll("/Date(", "")
+                                          .replaceAll(")/", "")),
+                                      isUtc: false))
                               : "",
                           style: const TextStyle(
                             color: colorBlack,
@@ -485,14 +480,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                 ),
               ),
               const SizedBox(height: spaceVertical),
-
               Container(
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-
                     ThemedText(
                       text: "Service Type",
                       fontSize: 14,
@@ -606,13 +598,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                           value: true,
                           groupValue: isIncludeLaunchBrake,
                           activeColor: colorGreen,
-                          onChanged: widget.model.tSConfirm == true ? null:(bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                isIncludeLaunchBrake = value;
-                              });
-                            }
-                          },
+                          onChanged: widget.model.tSConfirm == true
+                              ? null
+                              : (bool? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      isIncludeLaunchBrake = value;
+                                    });
+                                  }
+                                },
                         ),
                         InkWell(
                           onTap: () {
@@ -631,13 +625,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                           value: false,
                           groupValue: isIncludeLaunchBrake,
                           activeColor: colorGreen,
-                          onChanged: widget.model.tSConfirm == true ? null:(bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                isIncludeLaunchBrake = value;
-                              });
-                            }
-                          },
+                          onChanged: widget.model.tSConfirm == true
+                              ? null
+                              : (bool? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      isIncludeLaunchBrake = value;
+                                    });
+                                  }
+                                },
                         ),
                         InkWell(
                           onTap: () {
@@ -756,26 +752,31 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                         borderColor: colorGreyBorderD3,
                                         backgroundColor: colorWhite,
                                         isReadOnly: true,
-                                        onTap: widget.model.tSConfirm == true ? () {} : () async {
-                                          showTimePickerDialog(
-                                            initialTimeText:
-                                                _controllerFromLaunch.text,
-                                            onTimePick: (hours, minutes) {
-                                              _controllerFromLaunch.text =
-                                                  "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                              String diff =
-                                                  findDurationDifference(
+                                        onTap: widget.model.tSConfirm == true
+                                            ? () {}
+                                            : () async {
+                                                showTimePickerDialog(
+                                                  initialTimeText:
                                                       _controllerFromLaunch
                                                           .text,
-                                                      _controllerToLaunch.text);
-                                              _controllerHourLaunch.text =
-                                                  diff.split(":").first;
-                                              _controllerMinuteLaunch.text =
-                                                  diff.split(":").last;
-                                              setState(() {});
-                                            },
-                                          );
-                                        },
+                                                  onTimePick: (hours, minutes) {
+                                                    _controllerFromLaunch.text =
+                                                        "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                                    String diff =
+                                                        findDurationDifference(
+                                                            _controllerFromLaunch
+                                                                .text,
+                                                            _controllerToLaunch
+                                                                .text);
+                                                    _controllerHourLaunch.text =
+                                                        diff.split(":").first;
+                                                    _controllerMinuteLaunch
+                                                            .text =
+                                                        diff.split(":").last;
+                                                    setState(() {});
+                                                  },
+                                                );
+                                              },
                                       ),
                                     ),
                                   ],
@@ -811,27 +812,31 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                         borderColor: colorGreyBorderD3,
                                         backgroundColor: colorWhite,
                                         isReadOnly: true,
-                                        onTap: widget.model.tSConfirm == true ? () {} : () async {
-                                          showTimePickerDialog(
-                                            initialTimeText:
-                                                _controllerToLaunch.text,
-                                            onTimePick: (hours, minutes) {
-                                              _controllerToLaunch.text =
-                                                  "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                              String diff =
-                                                  findDurationDifference(
-                                                      _controllerFromLaunch
-                                                          .text,
-                                                      _controllerToLaunch.text);
-                                              calculateHours();
-                                              _controllerHourLaunch.text =
-                                                  diff.split(":").first;
-                                              _controllerMinuteLaunch.text =
-                                                  diff.split(":").last;
-                                              setState(() {});
-                                            },
-                                          );
-                                        },
+                                        onTap: widget.model.tSConfirm == true
+                                            ? () {}
+                                            : () async {
+                                                showTimePickerDialog(
+                                                  initialTimeText:
+                                                      _controllerToLaunch.text,
+                                                  onTimePick: (hours, minutes) {
+                                                    _controllerToLaunch.text =
+                                                        "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                                    String diff =
+                                                        findDurationDifference(
+                                                            _controllerFromLaunch
+                                                                .text,
+                                                            _controllerToLaunch
+                                                                .text);
+                                                    calculateHours();
+                                                    _controllerHourLaunch.text =
+                                                        diff.split(":").first;
+                                                    _controllerMinuteLaunch
+                                                            .text =
+                                                        diff.split(":").last;
+                                                    setState(() {});
+                                                  },
+                                                );
+                                              },
                                       ),
                                     ),
                                   ],
@@ -1402,12 +1407,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'fundingSourceName': widget.model.fundingsourcename,
           });
 
-           if(body.isNotEmpty){
+          if (body.isNotEmpty) {
             print(body);
             return;
           }
- 
-
 
           Response response = await http.post(
               Uri.parse(
@@ -1442,7 +1445,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     });
   }
 }
-
 
 String getTimeStringFromDouble(double value) {
   if (value < 0) return 'Invalid Value';
