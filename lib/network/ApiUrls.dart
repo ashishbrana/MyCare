@@ -18,6 +18,7 @@ const String endGetDocs = 'getdocs';
 const String progressNotesList = 'ProgressNotesList';
 const String endCareWorkersList = 'CareWorkersList';
 const String endDNSList = 'DSNList';
+const String ServiceDetaileByID = 'ServiceDetaileByID';
 const String endNoteDetailsByID = 'NoteDetailsByID';
 const String endSaveNoteDetails = 'saveNoteDetails';
 const String endSaveNotePicture = 'saveNotePicture';

@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
+import 'package:rcare_2/screen/home/notes/model/ServiceDetail.dart';
 import 'package:rcare_2/utils/Images.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
@@ -34,7 +35,7 @@ class ProgressNoteDetails extends StatefulWidget {
   final int serviceShceduleClientID;
   final int servicescheduleemployeeID;
   String? clientName;
-  final String serviceName;
+  String serviceName;
   final String noteWriter;
 
   ProgressNoteDetails({
@@ -72,6 +73,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   );
 
   ProgressNoteListByNoteIdModel? model;
+  ServiceDetail? serviceDetail;
   ClientSignatureModel? signatureModel;
   List<NoteDocModel>? noteDocList;
   Uint8List? signatureImage;
@@ -83,7 +85,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   void initState() {
     super.initState();
     if (widget.noteId != 0) {
-      getData();
+      if(widget.noteWriter.isEmpty){
+        getServiceDetail();
+      }
+      else {
+        getData();
+      }
     } else {
       //Fill model with defalt value and save with noteid = 0
       model = ProgressNoteListByNoteIdModel();
@@ -95,11 +102,71 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     }
   }
 
+
+  getServiceDetail() async {
+    Map<String, dynamic> params = {
+      'auth_code':
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid': widget.userId.toString(),
+      'ServiceScheduleClientID': widget.serviceShceduleClientID.toString(),
+      'ssEmpID': widget.servicescheduleemployeeID.toString(),
+    };
+    print("params : $params");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(ServiceDetaileByID, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != "") {
+            // print('res ${response}');
+            List<ServiceDetail> serivceList = [];
+
+
+            List jResponse = json.decode(response);
+            print("jResponse $endAvailableShifts $jResponse");
+            serivceList = jResponse
+                .map((e) => ServiceDetail.fromJson(e))
+                .toList();
+            print("availableDataList : ${serivceList.length}");
+            if(serivceList.isNotEmpty){
+              serviceDetail = serivceList.first;
+            }
+
+            if (serviceDetail != null) {
+              getData();
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
   getData() async {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'NoteID': widget.noteId.toString(),
     };
@@ -134,7 +201,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     widget.clientName ?? " ", model!.noteID ?? 0);
               }
               serviceTypeDateTime =
-              getDateTimeFromEpochTime(model!.noteDate ?? "")!;
+                  getDateTimeFromEpochTime(model!.noteDate ?? "")!;
               _serviceType.text = DateFormat("dd-MM-yyyy").format(
                 serviceTypeDateTime,
               );
@@ -145,6 +212,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               _assesmentScale = (model!.asessmentScale ?? 0).toString();
               _assesment_comment.text = model!.asessmentComment ?? "";
               clientRating = int.parse(model!.clientRating ?? "3");
+
+
+
+              if(this.serviceDetail != null){
+                final serviceDetail = this.serviceDetail;
+                model?.createdByName = serviceDetail?.createdByName;
+                widget.serviceName = serviceDetail!.serviceName!;
+              }
               // print("models.length : ${dataList.length}");
             }
             setState(() {});
@@ -170,7 +245,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'clientSignature': imageName,
     };
@@ -236,9 +311,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
             url:
-            "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat(
-                "dd/MM/yy").format(
-                noteDate)}&clientName=$clientName&noteid=${noteid.toString()}",
+                "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat("dd/MM/yy").format(noteDate)}&clientName=$clientName&noteid=${noteid.toString()}",
             //getUrl(endGetNoteDocs, params: params).toString(),
             authMethod: '',
             body: '',
@@ -277,7 +350,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   getNoteImage64(NoteDocModel model) async {
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'imageName': model.name, //"957-Bump96-161023-1.jpg",
       'imagePath': model.path != null && model.path!.isNotEmpty
@@ -366,14 +439,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         title: "Save",
                         fontSize: 14,
                         onTap: () async {
-                          if (_disscription.text.isEmpty) {
-                            showSnackBarWithText(_keyScaffold.currentState,
-                                "Description can not be blank",
+                          if(_disscription.text.isEmpty){
+                            showSnackBarWithText(_keyScaffold.currentState, "Description can not be blank",
                                 color: colorRed);
                             return;
                           }
                           await saveNoteApiCall();
-                          /* for (File file in selectedImageFilesList) {
+                         /* for (File file in selectedImageFilesList) {
                             saveNoteDoc(file);
                           }*/
                         },
@@ -402,8 +474,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               ),
               const SizedBox(height: 10),
               ThemedText(
-                text:
-                "Note Writer : ${model?.createdByName ?? widget.noteWriter}",
+                text: "Note Writer : ${model?.createdByName ?? widget.noteWriter}",
                 color: colorFontColor,
                 fontSize: 18,
               ),
@@ -417,16 +488,16 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 height: textFiledHeight,
                 child: ThemedTextField(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                      const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   isReadOnly: true,
                   onTap: () {
                     showDatePicker(
-                        context: context,
-                        initialDate: serviceTypeDateTime,
-                        firstDate: DateTime(serviceTypeDateTime.year - 23),
-                        lastDate: DateTime(serviceTypeDateTime.year + 23))
+                            context: context,
+                            initialDate: serviceTypeDateTime,
+                            firstDate: DateTime(serviceTypeDateTime.year - 23),
+                            lastDate: DateTime(serviceTypeDateTime.year + 23))
                         .then((value) {
                       if (value != null) {
                         setState(() {
@@ -518,25 +589,34 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
-              Row(children: [
-                ThemedText(
-                  text: "Client Signature",
-                  color: colorFontColor,
-                  fontSize: 18,
+          widget.noteId == 0 ?
+          Row(children:[
+              ThemedText(
+                text: "Client Signature",
+                color: colorFontColor,
+                fontSize: 18,
+              ),
+            Spacer(),
+            SizedBox(
+                width: 100,
+            child: ThemedButton(
+              padding: EdgeInsets.zero,
+              title: "Clear",
+              fontSize: 14,
+              onTap: () {
+                _controllerSignature.clear();
+              },
+            ),
                 ),
-                Spacer(),
-                SizedBox(
-                  width: 100,
-                  child: ThemedButton(
-                    padding: EdgeInsets.zero,
-                    title: "Clear",
-                    fontSize: 14,
-                    onTap: () {
-                      _controllerSignature.clear();
-                    },
-                  ),
-                ),
-              ]),
+              ]
+          ):  Row(children:[
+            ThemedText(
+              text: "Client Signature",
+              color: colorFontColor,
+              fontSize: 18,
+            ),
+          ]
+          ),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: colorGreyBorderD3),
@@ -544,13 +624,14 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 child: signatureImage != null
                     ? Image.memory(signatureImage!)
                     : Signature(
-                  backgroundColor: Colors.white,
-                  controller: _controllerSignature,
-                  width: 300,
-                  height: 180,
-                ),
+                        backgroundColor: Colors.white,
+                        controller: _controllerSignature,
+                        width: 300,
+                        height: 180,
+                      ),
               ),
               const SizedBox(height: spaceVertical),
+              widget.noteId == 0 ?
               Row(
                 children: [
                   InkWell(
@@ -625,6 +706,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         }
                       }),
                 ],
+              ): Row(
+                children: [
+                  //you can add more widget in here
+                ],
               ),
               const SizedBox(height: spaceVertical),
               SizedBox(
@@ -645,7 +730,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         },
                       ),
                     ),*/
-                    /* const Spacer(),
+                   /* const Spacer(),
                     const SizedBox(width: spaceHorizontal),
                     SizedBox(
                       width: 100,
@@ -675,73 +760,72 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         onTap: () async {
                           showModalBottomSheet(
                             context: context,
-                            builder: (context) =>
-                                Container(
-                                  /*insetPadding: EdgeInsets.zero,
+                            builder: (context) => Container(
+                              /*insetPadding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: boxBorderRadius,
                                     ),*/
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: ThemedText(
-                                          text: 'Camera',
-                                        ),
-                                        leading: const Icon(
-                                          Icons.camera_alt_rounded,
-                                          color: colorGreen,
-                                        ),
-                                        onTap: () async {
-                                          Navigator.pop(context);
-                                          final ImagePicker picker = ImagePicker();
-                                          final XFile? image =
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    title: ThemedText(
+                                      text: 'Camera',
+                                    ),
+                                    leading: const Icon(
+                                      Icons.camera_alt_rounded,
+                                      color: colorGreen,
+                                    ),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final ImagePicker picker = ImagePicker();
+                                      final XFile? image =
                                           await picker.pickImage(
-                                            source: ImageSource.camera,
-                                            imageQuality: 30,
-                                          );
-                                          if (image != null) {
-                                            setState(() {
-                                              print(image.path);
-                                              selectedImageFilesList
-                                                  .add(File(image.path));
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      const Divider(
-                                        color: colorDivider,
-                                        height: 1,
-                                      ),
-                                      ListTile(
-                                        title: ThemedText(
-                                          text: 'Gallery',
-                                        ),
-                                        leading: const Icon(
-                                          Icons.photo_rounded,
-                                          color: colorGreen,
-                                        ),
-                                        onTap: () async {
-                                          Navigator.pop(context);
-                                          final ImagePicker picker = ImagePicker();
-                                          final List<XFile> image =
-                                          await picker.pickMultiImage(
-                                            imageQuality: 30,
-                                          );
-                                          if (image.isNotEmpty) {
-                                            setState(() {
-                                              for (XFile file in image) {
-                                                selectedImageFilesList
-                                                    .add(File(file.path));
-                                                print(file.path);
-                                              }
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ],
+                                        source: ImageSource.camera,
+                                        imageQuality: 30,
+                                      );
+                                      if (image != null) {
+                                        setState(() {
+                                          print(image.path);
+                                          selectedImageFilesList
+                                              .add(File(image.path));
+                                        });
+                                      }
+                                    },
                                   ),
-                                ),
+                                  const Divider(
+                                    color: colorDivider,
+                                    height: 1,
+                                  ),
+                                  ListTile(
+                                    title: ThemedText(
+                                      text: 'Gallery',
+                                    ),
+                                    leading: const Icon(
+                                      Icons.photo_rounded,
+                                      color: colorGreen,
+                                    ),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final ImagePicker picker = ImagePicker();
+                                      final List<XFile> image =
+                                          await picker.pickMultiImage(
+                                        imageQuality: 30,
+                                      );
+                                      if (image.isNotEmpty) {
+                                        setState(() {
+                                          for (XFile file in image) {
+                                            selectedImageFilesList
+                                                .add(File(file.path));
+                                            print(file.path);
+                                          }
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -764,26 +848,25 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: noteDocList!.length,
-                  itemBuilder: (context, index) =>
-                      InkWell(
-                        onTap: () {
-                          getNoteImage64(noteDocList![index]);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              ThemedText(text: noteDocList![index].name ?? ""),
-                              IconButton(
-                                icon: const Icon(Icons.close_rounded),
-                                onPressed: () {
-                                  deleteNoteDoc(noteDocList![index].name ?? "");
-                                },
-                              ),
-                            ],
+                  itemBuilder: (context, index) => InkWell(
+                    onTap: () {
+                      getNoteImage64(noteDocList![index]);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          ThemedText(text: noteDocList![index].name ?? ""),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () {
+                              deleteNoteDoc(noteDocList![index].name ?? "");
+                            },
                           ),
-                        ),
+                        ],
                       ),
+                    ),
+                  ),
                 ),
               if (noteDocImage != null)
                 SizedBox(
@@ -803,11 +886,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: selectedImageFilesList.length,
-                  itemBuilder: (context, index) =>
-                      AspectRatio(
-                        aspectRatio: 1 / 1,
-                        child: Image.file(selectedImageFilesList[index]),
-                      ),
+                  itemBuilder: (context, index) => AspectRatio(
+                    aspectRatio: 1 / 1,
+                    child: Image.file(selectedImageFilesList[index]),
+                  ),
                 ),
             ],
           ),
@@ -830,16 +912,16 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
             "AssessmentScale": _assesmentScale.toString(),
             "AssessmentComment":
-            _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
+                _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
             "Description":
-            _disscription.text.isNotEmpty ? _disscription.text : "",
+                _disscription.text.isNotEmpty ? _disscription.text : "",
             "Subject": _subject.text,
             "img": 0,
             "userID": widget.userId,
             "clientID": widget.clientId,
             "ServiceScheduleClientID": widget.serviceShceduleClientID,
             "bit64Signature":
-            signature != null ? "${base64.encode(signature)}" : " ",
+                signature != null ? "${base64.encode(signature)}" : " ",
             "ClientRating": clientRating.toString(),
             "ssClientIds": "",
             "GroupNote": 0,
@@ -868,7 +950,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   color: colorGreen);
               if (selectedImageFilesList.isEmpty) {
                 Navigator.pop(context, true);
-              } else {
+              }
+              else{
                 for (File file in selectedImageFilesList) {
                   await saveNoteDoc(file);
                 }
@@ -909,8 +992,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               "NoteDate": DateFormat("dd/MM/yy").format(serviceTypeDateTime),
               "clientName": "${widget.clientName}",
               "noteimageurl":
-              "data:image/png;base64, ${base64.encode(
-                  await image.readAsBytes())}",
+                  "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
             }),
           );
           print("responseImageUpload ${response.body}");
@@ -919,14 +1001,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jrs = json.decode(jResponse["d"]);
             if (jrs["status"] == 1) {
               print("UPLOADED : ${image.path} Success");
-
+              showSnackBarWithText(_keyScaffold.currentState, "Upload Success",
+                  color: colorGreen);
               if (selectedImageFilesList.indexOf(image) ==
                   selectedImageFilesList.length - 1) {
-                showSnackBarWithText(
-                    _keyScaffold.currentState, "Upload Success",
-                    color: colorGreen);
-                await Future.delayed(
-                    const Duration(seconds: 4));
                 Navigator.pop(context, true);
               }
             }
@@ -957,8 +1035,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           try {
             getOverlay(context);
             Response response = await http.get(Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endDeleteNotePicture?fileName=$imageName&clientId=${widget
-                    .clientId.toString()}"));
+                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
             print("responseDELETERESPONSE ${response.body}");
             if (response.statusCode == 200 || response.statusCode == 201) {
               var jResponse = json.decode(
