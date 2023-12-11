@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         getOverlay(context);
         try {
           String response = await HttpService().init(request, keyScaffold);
-          removeOverlay();
+
           if (response != null && response != "") {
             // print('res ${response}');
 
@@ -190,6 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
             tempList.clear();
             tempList.addAll(mainList);
+            removeOverlay();
             setState(() {});
           } else {
             showSnackBarWithText(

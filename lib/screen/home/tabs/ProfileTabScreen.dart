@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rcare_2/Network/GlobalMethods.dart';
 import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/home/models/ProfileModel.dart';
 import 'package:rcare_2/screen/login/ChangePassword.dart';
@@ -465,7 +466,34 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 fontWeight: FontWeight.w500,
                                 padding: EdgeInsets.zero,
                                 onTap: () {
-                                  _saveProfileApiCall();
+
+                                  if(_controllerFirstName.text.isEmpty){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState, "First name can not be blank!");
+
+                                  }else if(_controllerLastName.text.isEmpty){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState, "Last name can not be blank!");
+                                  }
+                                  else if(_controllerAddress.text.isEmpty){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState, "Address can not be blank!");
+                                  }
+                                  else if(_controllerSuburb.text.isEmpty){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState, "Suburb filed can not be blank!");
+                                  }else if(_controllerEmail.text.isEmpty){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState, "EmilId  can not be blank!");
+                                  }else if(!isValidateEmail(_controllerEmail.text)){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState, "Please enter valid email ID");
+                                  }
+                                  else{
+                                    _saveProfileApiCall();
+                                  }
+
+
                                 },
                               ),
                             ),
