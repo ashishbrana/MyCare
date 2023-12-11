@@ -1,8 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:rcare_2/Network/GlobalMethods.dart';
 import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/home/models/ProfileModel.dart';
@@ -162,36 +167,51 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 children: [
                                   Expanded(
                                     flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AspectRatio(
-                                          aspectRatio: 1 / 1,
-                                          child: profileImage != null
-                                              ? Image.memory(
-                                                  profileImage!,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Container(
-                                                        color: colorGrey33);
-                                                  },
-                                                )
-                                              : const Center(
-                                                  child: Icon(Icons.person),
-                                                ),
-                                        ),
-                                        ThemedText(
-                                          text: "Upload",
-                                          color: colorBlue,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        ThemedText(
-                                          text: "Picture",
-                                          color: colorBlue,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ],
+                                    child: InkWell(
+                                      onTap: () async {
+                                        final ImagePicker picker = ImagePicker();
+                                        final XFile? image =
+                                        await picker.pickImage(
+                                          source: ImageSource.gallery,
+                                          imageQuality: 30,
+                                        );
+                                        if (image  != null){
+                                          setState(() {
+                                            _saveProfileImage(File(image.path));
+                                          });
+                                        }
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AspectRatio(
+                                            aspectRatio: 1 / 1,
+                                            child: profileImage != null
+                                                ? Image.memory(
+                                                    profileImage!,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Container(
+                                                          color: colorGrey33);
+                                                    },
+                                                  )
+                                                : const Center(
+                                                    child: Icon(Icons.person),
+                                                  ),
+                                          ),
+                                          ThemedText(
+                                            text: "Upload",
+                                            color: colorBlue,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          ThemedText(
+                                            text: "Picture",
+                                            color: colorBlue,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: spaceHorizontal),
@@ -218,16 +238,17 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                         ),
                                         const SizedBox(height: spaceBetween),
                                         SizedBox(
-                                          height: textFiledHeight,
-                                          child: ThemedTextField(
-                                            isAcceptCharOnly: true,
-                                            borderColor: colorGreyBorderD3,
-                                            controller: _controllerFirstName,
-                                            backgroundColor: colorWhite,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: spaceHorizontal),
-                                          )
-                                        ),
+                                            height: textFiledHeight,
+                                            child: ThemedTextField(
+                                              isAcceptCharOnly: true,
+                                              borderColor: colorGreyBorderD3,
+                                              controller: _controllerFirstName,
+                                              backgroundColor: colorWhite,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          spaceHorizontal),
+                                            )),
                                         const SizedBox(height: space),
                                         ThemedRichText(
                                           spanList: [
@@ -466,34 +487,44 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 fontWeight: FontWeight.w500,
                                 padding: EdgeInsets.zero,
                                 onTap: () {
-
-                                  if(_controllerFirstName.text.trim().isEmpty){
+                                  if (_controllerFirstName.text
+                                      .trim()
+                                      .isEmpty) {
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "First name can not be blank!");
-
-                                  }else if(_controllerLastName.text.trim().isEmpty){
+                                        _keyScaffold.currentState,
+                                        "First name can not be blank!");
+                                  } else if (_controllerLastName.text
+                                      .trim()
+                                      .isEmpty) {
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "Last name can not be blank!");
-                                  }
-                                  else if(_controllerAddress.text.trim().isEmpty){
+                                        _keyScaffold.currentState,
+                                        "Last name can not be blank!");
+                                  } else if (_controllerAddress.text
+                                      .trim()
+                                      .isEmpty) {
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "Address can not be blank!");
-                                  }
-                                  else if(_controllerSuburb.text.trim().isEmpty){
+                                        _keyScaffold.currentState,
+                                        "Address can not be blank!");
+                                  } else if (_controllerSuburb.text
+                                      .trim()
+                                      .isEmpty) {
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "Suburb filed can not be blank!");
-                                  }else if(_controllerEmail.text.trim().isEmpty){
+                                        _keyScaffold.currentState,
+                                        "Suburb filed can not be blank!");
+                                  } else if (_controllerEmail.text
+                                      .trim()
+                                      .isEmpty) {
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "EmilId can not be blank!");
-                                  }else if(!isValidateEmail(_controllerEmail.text)){
+                                        _keyScaffold.currentState,
+                                        "EmilId can not be blank!");
+                                  } else if (!isValidateEmail(
+                                      _controllerEmail.text)) {
                                     showSnackBarWithText(
-                                        _keyScaffold.currentState, "Please enter valid email ID");
-                                  }
-                                  else{
+                                        _keyScaffold.currentState,
+                                        "Please enter valid email ID");
+                                  } else {
                                     _saveProfileApiCall();
                                   }
-
-
                                 },
                               ),
                             ),
@@ -531,8 +562,14 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         "Languages": _profileModel!.languages,
         "EmrgcyContactName": _profileModel!.emrgcyContactName,
         "EmrgcyContactPhone": _profileModel!.emrgcyContactPhone,
-        "PrivateEmail": _profileModel!.privateEmail != null && _profileModel!.contractorName!.isNotEmpty ?_profileModel!.privateEmail : "null" ,
-        "ContractorName": _profileModel!.contractorName != null && _profileModel!.contractorName!.isNotEmpty ? _profileModel!.contractorName :"null",
+        "PrivateEmail": _profileModel!.privateEmail != null &&
+                _profileModel!.contractorName!.isNotEmpty
+            ? _profileModel!.privateEmail
+            : "null",
+        "ContractorName": _profileModel!.contractorName != null &&
+                _profileModel!.contractorName!.isNotEmpty
+            ? _profileModel!.contractorName
+            : "null",
       };
 
       print(params);
@@ -546,7 +583,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               authMethod: '',
               body: '',
               headerType: '',
-              params: "",//params.toString(),
+              params: "",
+              //params.toString(),
               method: 'POST');
 
           try {
@@ -573,5 +611,54 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         }
       });
     }
+  }
+
+  _saveProfileImage(File image) async {
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        try {
+          getOverlay(context);
+          Response response = await http.post(
+            Uri.parse(
+                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/SaveProfilePic"),
+            headers: {"Content-Type": "application/json"},
+            body: json.encode({
+              "EmployeeClientId": (_profileModel!.employeeID ?? 0).toString(),
+              "tableName": 'user',
+              "ProfilePic":
+                  "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
+            }),
+          );
+          print("responseImageUpload ${json.encode({
+            "EmployeeClientId": (_profileModel!.employeeID ?? 0).toString(),
+            "tableName": 'user',
+            "ProfilePic":
+            "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
+          })}");
+          print("responseImageUpload ${response.body}");
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            var jResponse = json.decode(response.body.toString());
+            var jrs = json.decode(jResponse["d"]);
+            if (jrs["status"] == 1) {
+              print("UPLOADED : ${jrs} Success");
+              _getProfileApiCall();
+            }
+          } else {
+            // print("UPLOADED : ${image.path} failed");
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          log("SignUp$e");
+          removeOverlay();
+          // throw e;
+        } finally {
+          removeOverlay();
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
   }
 }
