@@ -15,6 +15,8 @@ class ThemedTextField extends StatefulWidget {
   void Function()? onTap;
   bool isReadOnly = false;
   bool isAcceptNumbersOnly = false;
+  bool isAcceptDecimalOnly = false;
+  bool isAcceptCharOnly = false;
   bool isPasswordTextField = false;
   Widget? preFix;
   Widget? sufFix;
@@ -55,6 +57,8 @@ class ThemedTextField extends StatefulWidget {
     this.isReadOnly = false,
     this.isPasswordTextField = false,
     this.isAcceptNumbersOnly = false,
+    this.isAcceptDecimalOnly = false,
+    this.isAcceptCharOnly = false,
     this.preFix,
     this.preFixIconColor = colorPrimary,
     this.sufFix,
@@ -100,6 +104,10 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
       inputFormatters: [
         if (widget.isAcceptNumbersOnly)
           FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+        if (widget.isAcceptCharOnly)
+          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
+        if (widget.isAcceptDecimalOnly)
+          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
       ],
       style: TextStyle(
           fontWeight: widget.fontWeight,

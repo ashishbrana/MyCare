@@ -219,6 +219,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                         SizedBox(
                                           height: textFiledHeight,
                                           child: ThemedTextField(
+                                            isAcceptCharOnly: true,
                                             borderColor: colorGreyBorderD3,
                                             controller: _controllerFirstName,
                                             backgroundColor: colorWhite,
@@ -245,6 +246,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                         SizedBox(
                                           height: 45,
                                           child: ThemedTextField(
+                                            isAcceptCharOnly: true,
                                             borderColor: colorGreyBorderD3,
                                             controller: _controllerLastName,
                                             backgroundColor: colorWhite,

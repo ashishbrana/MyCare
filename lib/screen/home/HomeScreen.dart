@@ -204,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getAvailableShiftsData() async {
+    print("availableDataList getAvailableShiftsData");
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
@@ -213,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
     };
-    print("params : ${params}");
+    print("getAvailableShiftsData : ${params}");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -226,6 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
         getOverlay(context);
         try {
           String response = await HttpService().init(request, keyScaffold);
+          print("availableDataList $endAvailableShifts $response");
           removeOverlay();
           if (response != null && response != "") {
             // print('res ${response}');
@@ -236,12 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
             availableDataList = jResponse
                 .map((e) => TimeShiteResponseModel.fromJson(e))
                 .toList();
-            print("models.length : ${availableDataList.length}");
+            print("availableDataList : ${availableDataList.length}");
 
             if (bottomCurrentIndex == 3) {
               mainList.addAll(availableDataList);
               tempList.clear();
               tempList.addAll(mainList);
+              print("availableDataList ${availableDataList.length}");
             }
             setState(() {});
           } else {
@@ -1628,6 +1631,7 @@ class _HomeScreenState extends State<HomeScreen> {
               bottomCurrentIndex = index;
               break;
             case 3:
+              print(availableDataList.length);
               mainList = availableDataList;
               bottomCurrentIndex = index;
               break;
@@ -1644,7 +1648,9 @@ class _HomeScreenState extends State<HomeScreen> {
               break;
           }
           _controllerSearch.text = "";
+          print(availableDataList.length);
           tempList.clear();
+          print(availableDataList.length);
           tempList.addAll(mainList);
           setState(() {});
           /*if (index < 4) {
