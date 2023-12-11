@@ -1405,12 +1405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             2),
                                                   if (model.noteID != 0)
                                                     InkWell(
-                                                      onTap: () async {
-                                                        String fullName =
-                                                            await Preferences()
-                                                                .getPrefString(
-                                                                    Preferences
-                                                                        .prefUserFullName);
+                                                      onTap: () {
                                                         Navigator.push(
                                                           keyScaffold
                                                               .currentContext!,
@@ -1437,8 +1432,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   "",
                                                               clientName:
                                                                   "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
-                                                              noteWriter:
-                                                                  fullName,
+                                                              noteWriter: "",
                                                             ),
                                                           ),
                                                         );
