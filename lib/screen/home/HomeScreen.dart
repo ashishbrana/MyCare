@@ -663,14 +663,15 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: boxBorderRadius),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radius * 2)),
           insetPadding: const EdgeInsets.symmetric(
               horizontal: spaceHorizontal, vertical: spaceVertical * 2),
           child: Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: spaceHorizontal, vertical: spaceVertical * 1.5),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 30),
