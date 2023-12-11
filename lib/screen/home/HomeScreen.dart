@@ -467,6 +467,17 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               const SizedBox(height: 30),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () {
+                    if (keyScaffold.currentState != null) {
+                      keyScaffold.currentState!.closeEndDrawer();
+                    }
+                  },
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: colorWhite,
