@@ -235,7 +235,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              TimeSheetForm(model: widget.model),
+                              TimeSheetForm(model: widget.model,indexSelectedFrom: widget.indexSelectedFrom),
                         ),
                       ).then((value) => value != null && value ? Navigator.pop(context, true) : () {});
                     }

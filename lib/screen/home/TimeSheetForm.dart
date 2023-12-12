@@ -18,11 +18,13 @@ import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
 import 'models/ConfirmedResponseModel.dart';
+import 'notes/NotesDetails.dart';
 
 class TimeSheetForm extends StatefulWidget {
   final TimeShiteResponseModel model;
+  final int indexSelectedFrom;
 
-  const TimeSheetForm({super.key, required this.model});
+  const TimeSheetForm({super.key, required this.model, required this.indexSelectedFrom});
 
   @override
   State<TimeSheetForm> createState() => _TimeSheetFormState();
@@ -327,6 +329,39 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   saveTimeSheet();
                                 }
 
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: spaceHorizontal),
+                          if (widget.indexSelectedFrom != 3 &&
+                              widget.indexSelectedFrom != 1) Expanded(
+                            // height: textFiledHeight,
+                            child: ThemedButton(
+                              padding: EdgeInsets.zero,
+                              title: "Notes",
+                              fontSize: 14,
+                              onTap: () async {
+                                String fullName =  await Preferences().getPrefString(Preferences.prefUserFullName);
+                                Navigator.push(
+                                    _keyScaffold.currentContext!,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProgressNoteDetails(
+                                        userId: widget.model.empID ?? 0,
+                                        noteId: widget.model.noteID ?? 0,
+                                        clientId: widget.model.rESID ?? 0,
+                                        servicescheduleemployeeID:
+                                        widget.model.servicescheduleemployeeID ?? 0,
+                                        serviceShceduleClientID:
+                                        widget.model.serviceShceduleClientID ?? 0,
+                                        serviceName: widget.model.serviceName ?? "",
+                                        clientName:
+                                        "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                        noteWriter: fullName,
+                                      ),
+                                    )).then((value) => value != null &&
+                                    value
+                                    ? Navigator.pop(context, true)
+                                    : () {});
                               },
                             ),
                           ),

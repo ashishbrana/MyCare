@@ -10,7 +10,6 @@ const String endConfirmShift = 'confirmshift';
 const String endAvailableShifts = 'availableshifts';
 const String endSaveLocationTime = 'SaveLocationTime';
 const String changePass = 'ChangeEmployeePassword';
-
 const String endEmployeeProfile = 'EmployeeProfile';
 const String endSaveEmployeeProfile = 'saveEmployeeProfile';
 const String endClientProfile = 'ClientProfile';

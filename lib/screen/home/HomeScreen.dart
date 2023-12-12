@@ -1538,7 +1538,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 bottomCurrentIndex,
                                                           )
                                                         : TimeSheetForm(
-                                                            model: model),
+                                                            model: model,indexSelectedFrom: bottomCurrentIndex),
                                               ),
                                             ).then((value) {
                                               if (value != null && value) {
