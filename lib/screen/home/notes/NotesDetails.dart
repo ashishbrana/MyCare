@@ -439,12 +439,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                 color: colorRed);
                             return;
                           }
-                          if (_assesment_comment.text.isEmpty) {
-                            showSnackBarWithText(_keyScaffold.currentState,
-                                "Assessment Comments can not be blank",
-                                color: colorRed);
-                            return;
-                          }
                           await saveNoteApiCall();
                           /* for (File file in selectedImageFilesList) {
                             saveNoteDoc(file);
@@ -577,7 +571,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               ),
               const SizedBox(height: 10),
               ThemedText(
-                text: "Assessment Comments*",
+                text: "Assessment Comments",
                 color: colorFontColor,
                 fontSize: 18,
               ),
