@@ -176,7 +176,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                               ),
                                             ),
                                           ),
-                                          if (widget.model.noteID != 0)
+                                          // if (widget.model.noteID != 0)
                                             InkWell(
                                               onTap: () {
                                                 Navigator.push(
