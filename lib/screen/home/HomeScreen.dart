@@ -1111,12 +1111,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           MaterialPageRoute(
                                                             builder: (context) =>
                                                                 CareWorkerList(
-                                                                    userId:
-                                                                        model.empID ??
-                                                                            0,
-                                                                    rosterID:
-                                                                        model.rosterID ??
-                                                                            0),
+                                                              userId:
+                                                                  model.empID ??
+                                                                      0,
+                                                              rosterID: model
+                                                                      .rosterID ??
+                                                                  0,
+                                                              model: model,
+                                                            ),
                                                           ),
                                                         );
                                                       },
@@ -1455,8 +1457,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         );
                                                       },
                                                       child: const FaIcon(
-                                                        FontAwesomeIcons
-                                                            .notesMedical,
+                                                        // FontAwesomeIcons.notesMedical,
+                                                        Icons.note_alt_outlined,
                                                         size: 22,
                                                       ),
                                                     ),

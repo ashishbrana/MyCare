@@ -16,13 +16,19 @@ import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/methods.dart';
 import 'models/CareWorkerModel.dart';
+import 'models/ConfirmedResponseModel.dart';
+import 'notes/NotesDetails.dart';
 
 class CareWorkerList extends StatefulWidget {
   final int userId;
   final int rosterID;
+  final TimeShiteResponseModel model;
 
   const CareWorkerList(
-      {super.key, required this.userId, required this.rosterID});
+      {super.key,
+      required this.userId,
+      required this.rosterID,
+      required this.model});
 
   @override
   State<CareWorkerList> createState() => _CareWorkerListState();
@@ -100,7 +106,6 @@ class _CareWorkerListState extends State<CareWorkerList> {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
-
             decoration: BoxDecoration(
               color: colorGreen,
               borderRadius: boxBorderRadius,
@@ -117,7 +122,6 @@ class _CareWorkerListState extends State<CareWorkerList> {
           Expanded(
             child: ListView.builder(
               itemCount: dataList.length,
-
               primary: true,
               itemBuilder: (context, index) {
                 CareWorkerModel model = dataList[index];
@@ -130,7 +134,6 @@ class _CareWorkerListState extends State<CareWorkerList> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
@@ -173,6 +176,50 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                               ),
                                             ),
                                           ),
+                                          if (widget.model.noteID != 0)
+                                            InkWell(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  keyScaffold.currentContext!,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProgressNoteDetails(
+                                                      userId:
+                                                          widget.model.empID ??
+                                                              0,
+                                                      noteId:
+                                                          widget.model.noteID ??
+                                                              0,
+                                                      clientId:
+                                                          widget.model.rESID ??
+                                                              0,
+                                                      servicescheduleemployeeID:
+                                                          widget.model
+                                                                  .servicescheduleemployeeID ??
+                                                              0,
+                                                      serviceShceduleClientID:
+                                                          widget.model
+                                                                  .serviceShceduleClientID ??
+                                                              0,
+                                                      serviceName: widget.model
+                                                              .serviceName ??
+                                                          "",
+                                                      clientName:
+                                                          "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                                      noteWriter: "",
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const FaIcon(
+                                                // FontAwesomeIcons.notesMedical,
+                                                Icons.note_alt_outlined,
+                                                size: 22,
+                                              ),
+                                            ),
+                                          if (model.noteID != 0)
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
                                           if (model.noteID != 0)
                                             const FaIcon(
                                               FontAwesomeIcons.calendarDays,
