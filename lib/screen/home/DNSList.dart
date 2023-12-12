@@ -137,7 +137,6 @@ class _DNSListState extends State<DNSList> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
@@ -161,9 +160,12 @@ class _DNSListState extends State<DNSList> {
                                                     text: TextSpan(
                                                       children: [
                                                         TextSpan(
-                                                          text: "${model.sscname} ",
-                                                          style: const TextStyle(
-                                                            color: colorGreyText,
+                                                          text:
+                                                              "${model.sscname} ",
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                colorGreyText,
                                                             fontWeight:
                                                                 FontWeight.w400,
                                                             fontSize: 14,
@@ -172,8 +174,10 @@ class _DNSListState extends State<DNSList> {
                                                         TextSpan(
                                                           text:
                                                               "Note Writer: ${model.notewriter}",
-                                                          style: const TextStyle(
-                                                            color: colorGreyLiteText,
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                colorGreyLiteText,
                                                             fontWeight:
                                                                 FontWeight.w400,
                                                             fontSize: 14,
@@ -187,8 +191,9 @@ class _DNSListState extends State<DNSList> {
                                             ),
                                             const SizedBox(height: 8),
                                             Container(
-                                              width:
-                                                  MediaQuery.of(context).size.width,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
                                               height: 1,
                                               color: colorGreyBorderD3,
                                             ),
@@ -202,9 +207,11 @@ class _DNSListState extends State<DNSList> {
                                                     setState(() {
                                                       if (selectedExpandedIndex !=
                                                           index) {
-                                                        selectedExpandedIndex = index;
+                                                        selectedExpandedIndex =
+                                                            index;
                                                       } else {
-                                                        selectedExpandedIndex = -1;
+                                                        selectedExpandedIndex =
+                                                            -1;
                                                       }
                                                     });
                                                   },
@@ -212,68 +219,48 @@ class _DNSListState extends State<DNSList> {
                                                     width: 30,
                                                     height: 30,
                                                     child: Icon(
-                                                      Icons.arrow_downward_rounded,
+                                                      Icons
+                                                          .arrow_downward_rounded,
                                                       color: colorGreen,
                                                     ),
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: RichText(
-                                                    textAlign: TextAlign.left,
-                                                    text: TextSpan(
-                                                      children: [
-                                                        WidgetSpan(
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize.min,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              const SizedBox(
-                                                                  width: 5),
-                                                              const FaIcon(
-                                                                FontAwesomeIcons
-                                                                    .calendarDays,
-                                                                color: colorGreen,
-                                                                size: 14,
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 5),
-                                                              Text(
-                                                                "Time: ${model.timefrom ?? ""} - ${model.timeto ?? ""}",
-                                                                style:
-                                                                    const TextStyle(
-                                                                  color:
-                                                                      colorGreyText,
-                                                                  fontSize: 12,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 5),
-                                                              
-                                                              Container(
-                                                                width: 1,
-                                                                height: 25,
-                                                                color:
-                                                                    colorGreyBorderD3,
-
-                                                              ),
-                                                              const SizedBox(width: 10),
-                                                              Text(
-                                                                "${model.taskcompleted == false ? "Not Completed" : "Completed"}",
-                                                                style:
-                                                                const TextStyle(
-                                                                  color:
-                                                                  colorGreyText,
-                                                                  fontSize: 10,
-                                                                ),
-                                                              )
-                                                            ],
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      /* const SizedBox(width: 5),
+                                                      const FaIcon(
+                                                        FontAwesomeIcons
+                                                            .calendarDays,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),*/
+                                                      const SizedBox(width: 5),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "${model.taskname}",
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                colorGreyText,
+                                                            fontSize: 12,
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        "${model.taskcompleted == false ? "Not Completed" : "Completed"}",
+                                                        style: const TextStyle(
+                                                          color:
+                                                              Color(0xFF337ab7),
+                                                          fontSize: 12,
+                                                        ),
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
                                                 const SizedBox(width: 5),
@@ -295,12 +282,12 @@ class _DNSListState extends State<DNSList> {
                                     Navigator.push(
                                       keyScaffold.currentContext!,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            DNSNotesDetails(
-                                                dsnListModel: model,
-                                              userId: widget.userId,
-                                              serviceShceduleClientID: widget.rosterID,
-                                            ),
+                                        builder: (context) => DNSNotesDetails(
+                                          dsnListModel: model,
+                                          userId: widget.userId,
+                                          serviceShceduleClientID:
+                                              widget.rosterID,
+                                        ),
                                       ),
                                     ).then((value) {
                                       if (value != null && value) {
@@ -320,7 +307,7 @@ class _DNSListState extends State<DNSList> {
                             ),
                             ExpandableContainer(
                               expanded: selectedExpandedIndex == index,
-                              expandedHeight: 30,
+                              expandedHeight: 50,
                               child: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,18 +315,84 @@ class _DNSListState extends State<DNSList> {
                                     const SizedBox(height: 5),
                                     ThemedRichText(
                                       spanList: [
-                                        getTextSpan(
-                                          text: "Comments: ",
-                                          fontColor: colorBlack,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                        WidgetSpan(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                              const SizedBox(
+                                                width: 25,
+                                                height: 25,
+                                                child: Center(
+                                                  child: FaIcon(
+                                                    FontAwesomeIcons.clock,
+                                                    color: colorGreen,
+                                                    size: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                              ThemedText(
+                                                text: "Time: ",
+                                                color: colorBlack,
+                                                fontSize: 12,
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                              ThemedText(
+                                                text:
+                                                    "${model.timefrom ?? ""} - ${model.timeto ?? ""}",
+                                                color: colorBlack,
+                                                fontSize: 12,
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                              Container(
+                                                  height: 20,
+                                                  width: 1,
+                                                  color: colorDivider),
+                                            ],
+                                          ),
                                         ),
-                                        getTextSpan(
-                                          text:
-                                              model.taskcompletedcomments ?? "",
-                                          fontColor: colorBlack,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                        WidgetSpan(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                              const SizedBox(
+                                                width: 25,
+                                                height: 25,
+                                                child: Center(
+                                                  child: FaIcon(
+                                                    FontAwesomeIcons.stickyNote,
+                                                    color: colorGreen,
+                                                    size: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                              ThemedText(
+                                                text: "Comments:",
+                                                color: colorBlack,
+                                                fontSize: 12,
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                              ThemedText(
+                                                text: model
+                                                        .taskcompletedcomments ??
+                                                    "",
+                                                color: colorBlack,
+                                                fontSize: 12,
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
