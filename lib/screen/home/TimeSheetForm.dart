@@ -24,7 +24,8 @@ class TimeSheetForm extends StatefulWidget {
   final TimeShiteResponseModel model;
   final int indexSelectedFrom;
 
-  const TimeSheetForm({super.key, required this.model, required this.indexSelectedFrom});
+  const TimeSheetForm(
+      {super.key, required this.model, required this.indexSelectedFrom});
 
   @override
   State<TimeSheetForm> createState() => _TimeSheetFormState();
@@ -45,7 +46,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
   int startBreakMin = 0;
   int endBrakMin = 0;
-  int travelMin =0;
+  int travelMin = 0;
 
   String fromHourService = "00";
   final TextEditingController _controllerFromService = TextEditingController();
@@ -61,7 +62,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   String hourLaunch = "00";
   final TextEditingController _controllerHourLaunch = TextEditingController();
   String minuteLaunch = "00";
-  final TextEditingController _controllerMinuteLaunch = TextEditingController();
+
+  // final TextEditingController _controllerMinuteLaunch = TextEditingController();
 
   String fromHourLaunch = "00";
   final TextEditingController _controllerFromLaunch = TextEditingController();
@@ -192,14 +194,16 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     super.initState();
 
     _controllerServiceType.text = widget.model.serviceName ?? "";
-    if (widget.model.tSConfirm == false && widget.model.timeFrom != null &&
+    if (widget.model.tSConfirm == false &&
+        widget.model.timeFrom != null &&
         widget.model.timeFrom!.split(":").isNotEmpty) {
       _controllerFromService.text = widget.model.timeFrom!;
       var list = widget.model.timeFrom!.split(":");
       fromHour = int.parse(list.first);
       fromMin = int.parse(list.last);
     }
-    if (widget.model.tSConfirm == true && widget.model.tSFrom != null &&
+    if (widget.model.tSConfirm == true &&
+        widget.model.tSFrom != null &&
         widget.model.tSFrom!.split(":").isNotEmpty) {
       _controllerFromService.text = widget.model.tSFrom!;
       var list = widget.model.tSFrom!.split(":");
@@ -207,14 +211,16 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       fromMin = int.parse(list.last);
     }
 
-    if (widget.model.tSConfirm == false && widget.model.timeUntil != null &&
+    if (widget.model.tSConfirm == false &&
+        widget.model.timeUntil != null &&
         widget.model.timeUntil!.split(":").isNotEmpty) {
       _controllerToService.text = widget.model.timeUntil!;
       var list = widget.model.timeUntil!.split(":");
       toHour = int.parse(list.first);
       toMin = int.parse(list.last);
     }
-    if (widget.model.tSConfirm == true && widget.model.tSUntil != null &&
+    if (widget.model.tSConfirm == true &&
+        widget.model.tSUntil != null &&
         widget.model.tSUntil!.split(":").isNotEmpty) {
       _controllerToService.text = widget.model.tSUntil!;
       var list = widget.model.tSUntil!.split(":");
@@ -230,7 +236,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
         widget.model.tSLunchBreak!.split(":").isNotEmpty) {
       _controllerHourLaunch.text = widget.model.tSLunchBreak!;
       if (widget.model.tSLunchBreak!.split(":").length > 1) {
-        _controllerMinuteLaunch.text = widget.model.tSLunchBreak!.split(":")[1];
+        // _controllerMinuteLaunch.text = widget.model.tSLunchBreak!.split(":")[1];
       }
     }
     if (widget.model.tSLunchBreakFrom != null &&
@@ -258,11 +264,13 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       timeSheetValidation = "Timesheet Submitted.Only comments can be updated!";
     }
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
-    _controllerTravelTime.text = getTimeStringFromDouble(double.tryParse(widget.model.tSTravelTime.toString()) ?? 0.0);
+    _controllerTravelTime.text = getTimeStringFromDouble(
+        double.tryParse(widget.model.tSTravelTime.toString()) ?? 0.0);
     _controllerTravelDistance.text = widget.model.tSTravelDistance.toString();
     _controllerTravelDistanceMax.text =
         widget.model.maxTravelDistance.toString();
-    _controllerTravelDistanceMax.text = widget.model.maxTravelDistance.toString();
+    _controllerTravelDistanceMax.text =
+        widget.model.maxTravelDistance.toString();
     _controllerClientTravelDistance.text =
         widget.model.clienttraveldistance.toString();
     isRiskAlert = false;
@@ -300,8 +308,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               title: "Save",
                               fontSize: 14,
                               onTap: () async {
-
-                                if(widget.model.tSConfirm == false) {
+                                if (widget.model.tSConfirm == false) {
                                   if (isIncludeLaunchBrake && endBrakMin == 0) {
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
@@ -311,8 +318,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   }
 
                                   if (isRiskAlert &&
-                                      _controllerTimeSheetComments.text
-                                          .isEmpty) {
+                                      _controllerTimeSheetComments
+                                          .text.isEmpty) {
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
                                         "Please enter Timesheet comment",
@@ -321,8 +328,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   }
                                   if (diffHours != 0.0 &&
                                       widget.model.tSConfirm == false &&
-                                      _controllerTimeSheetComments.text
-                                          .isEmpty) {
+                                      _controllerTimeSheetComments
+                                          .text.isEmpty) {
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
                                         "Comments are required if hours are differemt",
@@ -331,10 +338,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   }
                                 }
 
-                                if(widget.model.tSConfirm == true){
+                                if (widget.model.tSConfirm == true) {
                                   if (isRiskAlert &&
-                                      _controllerTimeSheetComments.text
-                                          .isEmpty) {
+                                      _controllerTimeSheetComments
+                                          .text.isEmpty) {
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
                                         "Please enter Timesheet comment",
@@ -342,47 +349,53 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     return;
                                   }
                                   sendRiskAlert();
-                                }
-                                else{
+                                } else {
                                   saveTimeSheet();
                                 }
-
                               },
                             ),
                           ),
                           const SizedBox(width: spaceHorizontal),
                           if (widget.indexSelectedFrom != 3 &&
-                              widget.indexSelectedFrom != 1) Expanded(
-                            // height: textFiledHeight,
-                            child: ThemedButton(
-                              padding: EdgeInsets.zero,
-                              title: "Notes",
-                              fontSize: 14,
-                              onTap: () async {
-                                String fullName =  await Preferences().getPrefString(Preferences.prefUserFullName);
-                                Navigator.push(
-                                    _keyScaffold.currentContext!,
-                                    MaterialPageRoute(
-                                      builder: (context) => ProgressNoteDetails(
-                                        userId: widget.model.empID ?? 0,
-                                        noteId: widget.model.noteID ?? 0,
-                                        clientId: widget.model.rESID ?? 0,
-                                        servicescheduleemployeeID:
-                                        widget.model.servicescheduleemployeeID ?? 0,
-                                        serviceShceduleClientID:
-                                        widget.model.serviceShceduleClientID ?? 0,
-                                        serviceName: widget.model.serviceName ?? "",
-                                        clientName:
-                                        "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
-                                        noteWriter: fullName,
-                                      ),
-                                    )).then((value) => value != null &&
-                                    value
-                                    ? Navigator.pop(context, true)
-                                    : () {});
-                              },
+                              widget.indexSelectedFrom != 1)
+                            Expanded(
+                              // height: textFiledHeight,
+                              child: ThemedButton(
+                                padding: EdgeInsets.zero,
+                                title: "Notes",
+                                fontSize: 14,
+                                onTap: () async {
+                                  String fullName = await Preferences()
+                                      .getPrefString(
+                                          Preferences.prefUserFullName);
+                                  Navigator.push(
+                                      _keyScaffold.currentContext!,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProgressNoteDetails(
+                                          userId: widget.model.empID ?? 0,
+                                          noteId: widget.model.noteID ?? 0,
+                                          clientId: widget.model.rESID ?? 0,
+                                          servicescheduleemployeeID: widget
+                                                  .model
+                                                  .servicescheduleemployeeID ??
+                                              0,
+                                          serviceShceduleClientID: widget.model
+                                                  .serviceShceduleClientID ??
+                                              0,
+                                          serviceName:
+                                              widget.model.serviceName ?? "",
+                                          clientName:
+                                              "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                          noteWriter: fullName,
+                                        ),
+                                      )).then((value) => value != null &&
+                                          value
+                                      ? Navigator.pop(context, true)
+                                      : () {});
+                                },
+                              ),
                             ),
-                          ),
                           const SizedBox(width: spaceHorizontal),
                           Expanded(
                             // height: textFiledHeight,
@@ -786,7 +799,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: spaceHorizontal / 2),
+                              /* const SizedBox(width: spaceHorizontal / 2),
                               Expanded(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -810,7 +823,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     ),
                                   ],
                                 ),
-                              )
+                              )*/
                             ],
                           ),
                           const SizedBox(height: spaceBetween),
@@ -853,21 +866,28 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                       _controllerFromLaunch
                                                           .text,
                                                   onTimePick: (hours, minutes) {
-                                                    int tempstartBreakMin = (hours * 60)+ minutes ;
-                                                    int startMinTs = (fromHour * 60)+ fromMin ;
-                                                    int endMinTs = (toHour * 60)+ toMin ;
+                                                    int tempstartBreakMin =
+                                                        (hours * 60) + minutes;
+                                                    int startMinTs =
+                                                        (fromHour * 60) +
+                                                            fromMin;
+                                                    int endMinTs =
+                                                        (toHour * 60) + toMin;
 
-                                                    if(tempstartBreakMin < startMinTs || tempstartBreakMin > endMinTs)  {
+                                                    if (tempstartBreakMin <
+                                                            startMinTs ||
+                                                        tempstartBreakMin >
+                                                            endMinTs) {
                                                       showSnackBarWithText(
-                                                          _keyScaffold.currentState,
+                                                          _keyScaffold
+                                                              .currentState,
                                                           "Please enter valid lunch break time",
                                                           color: colorRed);
                                                       return;
+                                                    } else {
+                                                      startBreakMin =
+                                                          tempstartBreakMin;
                                                     }
-                                                    else{
-                                                      startBreakMin = tempstartBreakMin;
-                                                    }
-
 
                                                     _controllerFromLaunch.text =
                                                         "${get2CharString(hours)}:${get2CharString(minutes)}";
@@ -877,7 +897,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                                 .text,
                                                             _controllerToLaunch
                                                                 .text);
-                                                    _controllerHourLaunch.text = diff;
+                                                    _controllerHourLaunch.text =
+                                                        diff;
                                                     setState(() {});
                                                   },
                                                 );
@@ -924,24 +945,31 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                   initialTimeText:
                                                       _controllerToLaunch.text,
                                                   onTimePick: (hours, minutes) {
-                                                    int teampendBrakMin =  (hours * 60)+ minutes ;
-                                                    int startMinTs = (toHour * 60)+ toMin ;
-                                                    if(startBreakMin == 0)  {
+                                                    int teampendBrakMin =
+                                                        (hours * 60) + minutes;
+                                                    int startMinTs =
+                                                        (toHour * 60) + toMin;
+                                                    if (startBreakMin == 0) {
                                                       showSnackBarWithText(
-                                                          _keyScaffold.currentState,
+                                                          _keyScaffold
+                                                              .currentState,
                                                           "Please enter start lunch break time",
                                                           color: colorRed);
                                                       return;
                                                     }
-                                                    if(teampendBrakMin < startBreakMin || teampendBrakMin > startMinTs)  {
+                                                    if (teampendBrakMin <
+                                                            startBreakMin ||
+                                                        teampendBrakMin >
+                                                            startMinTs) {
                                                       showSnackBarWithText(
-                                                          _keyScaffold.currentState,
+                                                          _keyScaffold
+                                                              .currentState,
                                                           "Please enter valid lunch break time",
                                                           color: colorRed);
                                                       return;
-                                                    }
-                                                    else{
-                                                      endBrakMin = teampendBrakMin;
+                                                    } else {
+                                                      endBrakMin =
+                                                          teampendBrakMin;
                                                     }
 
                                                     _controllerToLaunch.text =
@@ -953,7 +981,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                             _controllerToLaunch
                                                                 .text);
                                                     calculateHours();
-                                                    _controllerHourLaunch.text = diff;
+                                                    _controllerHourLaunch.text =
+                                                        diff;
                                                     setState(() {});
                                                   },
                                                 );
@@ -1145,18 +1174,18 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   onTap: widget.model.tSConfirm == true
                                       ? () {}
                                       : () async {
-                                    showTimePickerDialog(
-                                      initialTimeText:
-                                      _controllerTravelTime.text,
-                                      onTimePick: (hours, minutes) {
-                                        travelMin = (hours * 60)+minutes;
-                                        _controllerTravelTime.text =
-                                        "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                        setState(() {});
-                                      },
-                                    );
-                                  },
-
+                                          showTimePickerDialog(
+                                            initialTimeText:
+                                                _controllerTravelTime.text,
+                                            onTimePick: (hours, minutes) {
+                                              travelMin =
+                                                  (hours * 60) + minutes;
+                                              _controllerTravelTime.text =
+                                                  "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                              setState(() {});
+                                            },
+                                          );
+                                        },
                                 ),
                               ),
                             ],
@@ -1495,16 +1524,23 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           }
 
           String body = json.encode({
-            'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
-            'rosterId': widget.model.rosterID != null ? widget.model.rosterID.toString() : "0",
-            'clientId': widget.model.rESID != null ? widget.model.rESID.toString() : "0",
-            'userId': widget.model.empID != null ? widget.model.empID.toString() : 0,
+            'auth_code':
+                (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            'rosterId': widget.model.rosterID != null
+                ? widget.model.rosterID.toString()
+                : "0",
+            'clientId': widget.model.rESID != null
+                ? widget.model.rESID.toString()
+                : "0",
+            'userId':
+                widget.model.empID != null ? widget.model.empID.toString() : 0,
             'shiftComments': _controllerTimeSheetComments.text + " ",
             'riskAlert': isRiskAlert.toString(),
-            'tsId': widget.model.timesheetID != null ? widget.model.timesheetID.toString() : "0",
+            'tsId': widget.model.timesheetID != null
+                ? widget.model.timesheetID.toString()
+                : "0",
           });
           print(body);
-
 
           Response response = await http.post(
               Uri.parse(
@@ -1538,6 +1574,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
   }
+
   saveTimeSheet() async {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
@@ -1550,16 +1587,28 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           }
 
           String body = json.encode({
-            'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
-            'timesheetID': widget.model.timesheetID != null ? widget.model.timesheetID.toString() : "0",
-            'RosterID': widget.model.rosterID != null ? widget.model.rosterID.toString() : "0",
+            'auth_code':
+                (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            'timesheetID': widget.model.timesheetID != null
+                ? widget.model.timesheetID.toString()
+                : "0",
+            'RosterID': widget.model.rosterID != null
+                ? widget.model.rosterID.toString()
+                : "0",
             'TSFrom': "1899-12-30 ${_controllerFromService.text}",
             'TSUntil': "1899-12-30 ${_controllerToService.text}",
             'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
-            'TSLunchBreak': isIncludeLaunchBrake ? "${_controllerHourLaunch.text}" : "00.00",
-            'TSLBFrom': isIncludeLaunchBrake ? "1899-12-30 ${_controllerFromLaunch.text}" : "1899-12-30 00:00",
-            'TSLBTo': isIncludeLaunchBrake ? "1899-12-30 ${_controllerToLaunch.text}" : "1899-12-30 00:00",
-            'TSHours': "${get2CharString((totalWorkMin / 60).toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
+            'TSLunchBreak': isIncludeLaunchBrake
+                ? "${_controllerHourLaunch.text}"
+                : "00.00",
+            'TSLBFrom': isIncludeLaunchBrake
+                ? "1899-12-30 ${_controllerFromLaunch.text}"
+                : "1899-12-30 00:00",
+            'TSLBTo': isIncludeLaunchBrake
+                ? "1899-12-30 ${_controllerToLaunch.text}"
+                : "1899-12-30 00:00",
+            'TSHours':
+                "${get2CharString((totalWorkMin / 60).toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
             'TSTravelDistance': _controllerTravelDistance.text,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
@@ -1567,18 +1616,26 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'TSTravelDistanceDiff': "0.0", //not in use
             'TSTravelTime': timeToDecimal(travelMin),
             'tsHoursDifference': diffHours,
-            'empID': widget.model.empID != null ? widget.model.empID.toString() : 0,
-            'RosterDate': DateFormat("dd/MM/yyyy").format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
+            'empID':
+                widget.model.empID != null ? widget.model.empID.toString() : 0,
+            'RosterDate': DateFormat("dd/MM/yyyy")
+                .format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
             'RiskAlert': isRiskAlert.toString(),
-            'clientID': widget.model.rESID != null ? widget.model.rESID.toString() : "0",
+            'clientID': widget.model.rESID != null
+                ? widget.model.rESID.toString()
+                : "0",
             'TSClientTravelDistance': _controllerClientTravelDistance.text,
-            'ssEmployeeID': widget.model.servicescheduleemployeeID != null ? widget.model.servicescheduleemployeeID.toString() : "0",
-            'servicetypeid': widget.model.tsservicetype != null ? widget.model.tsservicetype.toString() : "0",
+            'ssEmployeeID': widget.model.servicescheduleemployeeID != null
+                ? widget.model.servicescheduleemployeeID.toString()
+                : "0",
+            'servicetypeid': widget.model.tsservicetype != null
+                ? widget.model.tsservicetype.toString()
+                : "0",
             'fundingSourceName': widget.model.fundingsourcename,
           });
           print(body);
 
-          if(body.isNotEmpty){
+          if (body.isEmpty) {
             return;
           }
 
@@ -1614,11 +1671,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
   }
-
 }
 
-String timeToDecimal(int minute){
-  double value = ((minute*100)/60)/100;
+String timeToDecimal(int minute) {
+  double value = ((minute * 100) / 60) / 100;
   return value.toStringAsFixed(2);
 }
 
@@ -1626,7 +1682,7 @@ String getTimeStringFromDouble(double value) {
   if (value < 0) return 'Invalid Value';
   int totalMin = (value * 60).round();
   int hour = (totalMin / 60).toInt();
-  int min =  totalMin  % 60;
+  int min = totalMin % 60;
   String hourValue = getHourString(hour);
   String minuteString = getMinuteString(min);
 

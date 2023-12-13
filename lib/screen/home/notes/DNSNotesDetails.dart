@@ -70,21 +70,19 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
   int? clientRating;
   bool isTaskCompleted = false;
   bool isCompleted = false;
+
   @override
   void initState() {
     super.initState();
     print('task ${widget.dsnListModel.taskcompleted!}');
-    _taskHeader.text =widget.dsnListModel.taskname ?? "";
-    _taskDetails.text =widget.dsnListModel.taskdescription ?? "";
-    _noteWriter.text=widget.dsnListModel.notewriter ?? "";
-    _taskComments.text=widget.dsnListModel.taskcompletedcomments ?? "";
-    isTaskCompleted= widget.dsnListModel.taskcompleted!;
+    _taskHeader.text = widget.dsnListModel.taskname ?? "";
+    _taskDetails.text = widget.dsnListModel.taskdescription ?? "";
+    _noteWriter.text = widget.dsnListModel.notewriter ?? "";
+    _taskComments.text = widget.dsnListModel.taskcompletedcomments ?? "";
+    isTaskCompleted = widget.dsnListModel.taskcompleted!;
     isCompleted = widget.dsnListModel.taskcompleted!;
-    setState(() {
-
-    });
+    setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -118,8 +116,25 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                           //       color: colorRed);
                           //   return;
                           // }
-                          await saveDNSApiCall();
 
+                          print(
+                              "widget.dsnListModel!.timefrom ${widget.dsnListModel!.toJson()}");
+                          print(
+                              "widget.dsnListModel!.timefrom ${widget.dsnListModel!.timeto}");
+                          if (widget.dsnListModel != null &&
+                              widget.dsnListModel!.timefrom != null) {
+                            DateTime date =
+                                getDateTimeFromEpochTime(model!.noteDate!)!;
+                            if (date.isToday) {
+                              await saveDNSApiCall();
+                            } else {
+                              showSnackBarWithText(_keyScaffold.currentState,
+                                  "You are only allowed to submit!");
+                            }
+                          } else {
+                            showSnackBarWithText(_keyScaffold.currentState,
+                                "You are only allowed to submit!");
+                          }
                         },
                       ),
                     ),
@@ -140,23 +155,21 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
               ),
               const SizedBox(height: 20),
               ThemedText(
-                text: "Service Schedule Client ${widget.dsnListModel.sscname ?? ""}",
+                text:
+                    "Service Schedule Client ${widget.dsnListModel.sscname ?? ""}",
                 color: colorFontColor,
                 fontSize: 16,
               ),
               const SizedBox(height: 10),
-
               ThemedText(
                 text: "Task Header*",
                 color: colorFontColor,
                 fontSize: 15,
-
               ),
               SizedBox(
                 child: ThemedTextField(
                   padding:
                       const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   isReadOnly: true,
@@ -173,7 +186,6 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                 color: colorFontColor,
                 fontSize: 15,
               ),
-
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
@@ -200,13 +212,15 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                     value: true,
                     groupValue: isTaskCompleted,
                     activeColor: colorGreen,
-                    onChanged: isCompleted ? null : (bool? value) {
-                      if (value != null) {
-                        setState(() {
-                          isTaskCompleted = value;
-                        });
-                      }
-                    },
+                    onChanged: isCompleted
+                        ? null
+                        : (bool? value) {
+                            if (value != null) {
+                              setState(() {
+                                isTaskCompleted = value;
+                              });
+                            }
+                          },
                   ),
                   InkWell(
                     onTap: () {
@@ -225,13 +239,15 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                     value: false,
                     groupValue: isTaskCompleted,
                     activeColor: colorGreen,
-                    onChanged: isCompleted ? null  : (bool? value) {
-                      if (value != null) {
-                        setState(() {
-                          isTaskCompleted = value;
-                        });
-                      }
-                    },
+                    onChanged: isCompleted
+                        ? null
+                        : (bool? value) {
+                            if (value != null) {
+                              setState(() {
+                                isTaskCompleted = value;
+                              });
+                            }
+                          },
                   ),
                   InkWell(
                     onTap: () {
@@ -266,8 +282,6 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                 controller: _taskComments,
               ),
               const SizedBox(height: 10),
-
-
               ThemedText(
                 text: "Note Writes*",
                 color: colorFontColor,
@@ -281,12 +295,6 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                 fontSized: 15,
                 controller: _noteWriter,
               ),
-
-
-
-
-
-
             ],
           ),
         ),
@@ -301,12 +309,13 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
           getOverlay(context);
           // response = await HttpService().init(request, _keyScaffold);
           String strBody = json.encode({
-            "DSNId": widget.dsnListModel != null ? widget!.dsnListModel.id ?? 0 : 0,
-            "DSNComments": _taskComments.text.isNotEmpty ? _taskComments.text : "" ,
+            "DSNId":
+                widget.dsnListModel != null ? widget!.dsnListModel.id ?? 0 : 0,
+            "DSNComments":
+                _taskComments.text.isNotEmpty ? _taskComments.text : "",
             "isDSNCompleted": isTaskCompleted ? "1" : "0",
             "userID": widget.userId,
-            "ServiceScheduleClientID":widget.serviceShceduleClientID,
-
+            "ServiceScheduleClientID": widget.serviceShceduleClientID,
           });
           log(strBody);
           if (strBody.isEmpty) {
@@ -345,5 +354,18 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
       }
     });
   }
+}
 
+extension DateHelpers on DateTime {
+  bool get isToday {
+    final now = DateTime.now();
+    return now.day == day && now.month == month && now.year == year;
+  }
+
+  bool get isYesterday {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    return yesterday.day == day &&
+        yesterday.month == month &&
+        yesterday.year == year;
+  }
 }

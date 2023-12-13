@@ -169,13 +169,14 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                     flex: 2,
                                     child: InkWell(
                                       onTap: () async {
-                                        final ImagePicker picker = ImagePicker();
+                                        final ImagePicker picker =
+                                            ImagePicker();
                                         final XFile? image =
-                                        await picker.pickImage(
+                                            await picker.pickImage(
                                           source: ImageSource.gallery,
                                           imageQuality: 30,
                                         );
-                                        if (image  != null){
+                                        if (image != null) {
                                           setState(() {
                                             _saveProfileImage(File(image.path));
                                           });
@@ -545,9 +546,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   _saveProfileApiCall() {
     if (_profileModel != null) {
-      Map<String, dynamic> params = <String, dynamic>{
-        'employeeID': (_profileModel!.employeeID ?? 0).toString(),
-        'title': "null",
+      String body = json.encode({
+        'auth_code': (_profileModel!.employeeID ?? 0).toString(),
+        'EmployeeID': (_profileModel!.employeeID ?? 0).toString(),
+        'Title': "null",
         'FirstName': _controllerFirstName.text,
         'LastName': _controllerLastName.text,
         'UnitNo': _profileModel!.unitNo ?? "null",
@@ -570,30 +572,45 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                 _profileModel!.contractorName!.isNotEmpty
             ? _profileModel!.contractorName
             : "null",
-      };
+      });
 
-      print(params);
-      log("URL ${getUrl(endSaveEmployeeProfile, params: params)}");
+      print(body);
+      // log("URL ${getUrl(endSaveEmployeeProfile)}");
       isConnected().then((hasInternet) async {
         if (hasInternet) {
-          var response;
-          HttpRequestModel request = HttpRequestModel(
-              url: getUrl(endSaveEmployeeProfile, params: params).toString(),
-              //endSaveEmployeeProfile,
-              authMethod: '',
-              body: '',
-              headerType: '',
-              params: "",
-              //params.toString(),
-              method: 'GET');
+          // var response;
+          // HttpRequestModel request = HttpRequestModel(
+          //     url: getUrl(endSaveEmployeeProfile, params: params).toString(),
+          //     //endSaveEmployeeProfile,
+          //     authMethod: '',
+          //     body: '',
+          //     headerType: '',
+          //     params: "",
+          //     //params.toString(),
+          //     method: 'GET');
+
+          if (body.isEmpty) {
+            return;
+          }
 
           try {
             getOverlay(context);
-            response = await HttpService().init(request, _keyScaffold);
-            print("saveEmployeeProfile");
-            print("response $response");
+            // response = await HttpService().init(request, _keyScaffold);
+            Response response = await http.post(
+                Uri.parse(
+                    "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveEmployeeProfile"),
+                headers: {"Content-Type": "application/json"},
+                body: body);
+            print(
+                "response $endSaveEmployeeProfile ${response.body} ${response.request!.url.toString()}");
             if (response != null && response != "") {
-              var jResponse = json.decode(response.toString());
+              var jResponse =
+                  json.decode(stripHtmlIfNeeded(response.body.toString()));
+              var dResponse = json.decode(jResponse["d"]);
+              if (dResponse["status"] == 1) {
+                showSnackBarWithText(_keyScaffold.currentState, "Success",
+                    color: colorGreen);
+              }
             } else {
               showSnackBarWithText(
                   _keyScaffold.currentState, stringSomeThingWentWrong);
@@ -615,6 +632,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   _saveProfileImage(File image) async {
+    closeKeyboard();
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         try {
@@ -631,11 +649,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             }),
           );
           print("responseImageUpload ${json.encode({
-            "EmployeeClientId": (_profileModel!.employeeID ?? 0).toString(),
-            "tableName": 'user',
-            "ProfilePic":
-            "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
-          })}");
+                "EmployeeClientId": (_profileModel!.employeeID ?? 0).toString(),
+                "tableName": 'user',
+                "ProfilePic":
+                    "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
+              })}");
           print("responseImageUpload ${response.body}");
           if (response.statusCode == 200 || response.statusCode == 201) {
             var jResponse = json.decode(response.body.toString());
