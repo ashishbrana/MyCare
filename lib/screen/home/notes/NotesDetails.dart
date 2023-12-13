@@ -36,7 +36,7 @@ class ProgressNoteDetails extends StatefulWidget {
   final int servicescheduleemployeeID;
   String? clientName;
   String serviceName;
-  final String noteWriter;
+  String noteWriter;
 
   ProgressNoteDetails({
     super.key,
@@ -93,11 +93,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     } else {
       //Fill model with defalt value and save with noteid = 0
       model = ProgressNoteListByNoteIdModel();
+      clientRating= 0;
       model?.subject = "Progress Note";
       _subject.text = model!.subject ?? "";
       _serviceType.text = DateFormat("dd-MM-yyyy").format(
         serviceTypeDateTime,
       );
+      getServiceDetail();
     }
   }
 
@@ -136,8 +138,24 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               serviceDetail = serivceList.first;
             }
 
-            if (serviceDetail != null) {
-              getData();
+            if (serviceDetail != null && widget.noteId != 0) {
+              if (this.serviceDetail != null) {
+                final serviceDetail = this.serviceDetail;
+                print(serviceDetail?.createdByName);
+                model?.createdByName = serviceDetail?.createdByName;
+                widget.serviceName = serviceDetail!.serviceName!;
+                widget.noteWriter = serviceDetail!.createdByName!;
+              }
+             getData();
+            }
+            else{
+              if (this.serviceDetail != null) {
+                final serviceDetail = this.serviceDetail;
+                print(serviceDetail?.createdByName);
+                model?.createdByName = serviceDetail?.createdByName;
+                widget.serviceName = serviceDetail!.serviceName!;
+                widget.noteWriter = serviceDetail!.createdByName!;
+              }
             }
             setState(() {});
           } else {
@@ -261,7 +279,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-            print("jResponse $jResponse");
+          //  print("jResponse $jResponse");
             signatureModel = jResponse
                 .map((e) => ClientSignatureModel.fromJson(e))
                 .toList()[0];
@@ -320,7 +338,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-            print("jResponseGetNoteDocs $jResponse");
+          //  print("jResponseGetNoteDocs $jResponse");
             noteDocList =
                 jResponse.map((e) => NoteDocModel.fromJson(e)).toList();
 

@@ -585,11 +585,12 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               headerType: '',
               params: "",
               //params.toString(),
-              method: 'POST');
+              method: 'GET');
 
           try {
             getOverlay(context);
             response = await HttpService().init(request, _keyScaffold);
+            print("saveEmployeeProfile");
             print("response $response");
             if (response != null && response != "") {
               var jResponse = json.decode(response.toString());
@@ -623,7 +624,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                 "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/SaveProfilePic"),
             headers: {"Content-Type": "application/json"},
             body: json.encode({
-              "EmployeeClientId": (_profileModel!.employeeID ?? 0).toString(),
+              "EmployeeClientID": (_profileModel!.employeeID ?? 0).toString(),
               "tableName": 'user',
               "ProfilePic":
                   "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",

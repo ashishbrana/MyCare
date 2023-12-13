@@ -1580,7 +1580,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         model.comments!
                                                             .isNotEmpty
                                                     ? model.comments!
-                                                    : "No shift comments provided."),
+                                                    : "No client comments provided."),
                                             const SizedBox(height: 7),
                                             InkWell(
                                               onTap: () {
@@ -1907,13 +1907,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           const SizedBox(width: 5),
                                           ThemedText(
-                                              text: "Progress Note",
+                                              text: model.subject!,
                                               color: colorGreyText,
                                               fontSize: 14)
                                         ],
                                       ),
                                       ThemedText(
-                                          text: "Timesheet",
+                                          text: model.tSid != 0 ? "Timesheet" : "",
                                           color: colorLiteBlue,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16),
@@ -2097,7 +2097,38 @@ class _HomeScreenState extends State<HomeScreen> {
       Position position = await Geolocator.getCurrentPosition();
       List<Placemark> addressList =
           await placemarkFromCoordinates(position.latitude, position.longitude);
-      return addressList[0].toString().replaceAll("\n", "");
+
+      Placemark placeMark  = addressList[0];
+      String address = "";
+      String name = placeMark?.name ?? "";
+      if(name.trim().isNotEmpty){
+        address = "${name}, ";
+      }
+      String subLocality = placeMark?.subLocality ?? "";
+      if(subLocality.trim().isNotEmpty){
+        address = "${address} ${subLocality},";
+      }
+      String locality = placeMark?.locality?? "";
+      if(locality.trim().isNotEmpty){
+        address = "${address}  ${locality}, ";
+      }
+      String administrativeArea = placeMark?.administrativeArea?? "";
+      if(administrativeArea.isNotEmpty){
+        address = "${address}  ${administrativeArea}, ";
+      }
+      String postalCode = placeMark?.postalCode?? "";
+      if(postalCode.trim().isNotEmpty){
+        address = "${address}  ${postalCode}, ";
+      }
+      String country = placeMark?.country?? "";
+      if(country.trim().isNotEmpty){
+        address = "${address}  ${country}, ";
+      }
+      address = address.trim();
+      if (address != null && address.length > 0) {
+        address = address.substring(0, address.length - 1);
+      }
+      return address;
     } catch (e) {
       showSnackBarWithText(keyScaffold.currentState, stringSomeThingWentWrong);
       print(e);
