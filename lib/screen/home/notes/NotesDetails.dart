@@ -517,7 +517,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                             context: context,
                             initialDate: serviceTypeDateTime,
                             firstDate: DateTime(serviceTypeDateTime.year - 23),
-                            lastDate: DateTime(serviceTypeDateTime.year + 23))
+                            lastDate: DateTime.now(),)//DateTime(serviceTypeDateTime.year,serviceTypeDateTime.month,serviceTypeDateTime.day) )
                         .then((value) {
                       if (value != null) {
                         setState(() {
