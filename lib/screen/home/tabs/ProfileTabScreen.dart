@@ -544,10 +544,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     );
   }
 
-  _saveProfileApiCall() {
+  _saveProfileApiCall() async {
     if (_profileModel != null) {
       String body = json.encode({
-        'auth_code': (_profileModel!.employeeID ?? 0).toString(),
+      'auth_code':(await Preferences().getPrefString(Preferences.prefAuthCode)),
         'EmployeeID': (_profileModel!.employeeID ?? 0).toString(),
         'Title': "null",
         'FirstName': _controllerFirstName.text,
@@ -608,7 +608,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   json.decode(stripHtmlIfNeeded(response.body.toString()));
               var dResponse = json.decode(jResponse["d"]);
               if (dResponse["status"] == 1) {
-                showSnackBarWithText(_keyScaffold.currentState, "Success",
+                String message = dResponse["message"];
+                showSnackBarWithText(_keyScaffold.currentState, message,
                     color: colorGreen);
               }
             } else {
@@ -639,21 +640,16 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           getOverlay(context);
           Response response = await http.post(
             Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/SaveProfilePic"),
+                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/SaveProfilePicForm"),
             headers: {"Content-Type": "application/json"},
             body: json.encode({
+              'auth_code':(await Preferences().getPrefString(Preferences.prefAuthCode)),
               "EmployeeClientID": (_profileModel!.employeeID ?? 0).toString(),
               "tableName": 'user',
-              "ProfilePic":
-                  "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
+              "ProfilePic": "${base64.encode(await image.readAsBytes())}",
             }),
           );
-          print("responseImageUpload ${json.encode({
-                "EmployeeClientId": (_profileModel!.employeeID ?? 0).toString(),
-                "tableName": 'user',
-                "ProfilePic":
-                    "data:image/png;base64, ${base64.encode(await image.readAsBytes())}",
-              })}");
+          print(response.body);
           print("responseImageUpload ${response.body}");
           if (response.statusCode == 200 || response.statusCode == 201) {
             var jResponse = json.decode(response.body.toString());

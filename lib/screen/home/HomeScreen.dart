@@ -1311,15 +1311,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   if ((bottomCurrentIndex ==
                                                               0 ||
                                                           bottomCurrentIndex ==
-                                                              2) &&
-                                                      serviceDate != null &&
-                                                      serviceDate.day ==
-                                                          DateTime.now().day &&
-                                                      serviceDate.month ==
-                                                          DateTime.now()
-                                                              .month &&
-                                                      serviceDate.year ==
-                                                          DateTime.now().year)
+                                                              2) && model.tSConfirm == false &&
+                                                      serviceDate != null && serviceDate.isToday
+                                                    )
                                                     InkWell(
                                                       onTap: model.locationName !=
                                                                   null &&
@@ -1411,14 +1405,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               0 ||
                                                           bottomCurrentIndex ==
                                                               2) &&
-                                                      serviceDate != null &&
-                                                      serviceDate.day ==
-                                                          DateTime.now().day &&
-                                                      serviceDate.month ==
-                                                          DateTime.now()
-                                                              .month &&
-                                                      serviceDate.year ==
-                                                          DateTime.now().year)
+                                                      serviceDate != null && serviceDate.isToday
+                                                  )
                                                     const SizedBox(
                                                         width: spaceHorizontal /
                                                             2),

@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -47,7 +49,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   int startBreakMin = 0;
   int endBrakMin = 0;
   int travelMin = 0;
-
+  late DateTime sDate;
   String fromHourService = "00";
   final TextEditingController _controllerFromService = TextEditingController();
   String fromMinuteService = "00";
@@ -192,7 +194,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    sDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget.model.serviceDate!.replaceAll("/Date(", "").replaceAll(")/", "")));
     _controllerServiceType.text = widget.model.serviceName ?? "";
     if (widget.model.tSConfirm == false &&
         widget.model.timeFrom != null &&
@@ -305,7 +307,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                           Expanded(
                             child: ThemedButton(
                               padding: EdgeInsets.zero,
-                              title: "Save",
+                              title: sDate.isToday ? "Save/Logoff" : "Save",
                               fontSize: 14,
                               onTap: () async {
                                 if (widget.model.tSConfirm == false) {
@@ -350,7 +352,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   }
                                   sendRiskAlert();
                                 } else {
-                                  saveTimeSheet();
+
+                                  String? address = await getAddress();
+                                  if (address != null) {
+                                    print("ADDRESS : $address");
+                                    saveTimeSheet(address, (widget.model.servicescheduleemployeeID ?? 0).toString());
+                                  }
                                 }
                               },
                             ),
@@ -1575,7 +1582,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     });
   }
 
-  saveTimeSheet() async {
+  saveTimeSheet(String address, String sSEID)  async {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         try {
@@ -1650,9 +1657,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             var jResponse = json.decode(response.body.toString());
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
-              showSnackBarWithText(_keyScaffold.currentState, "Success",
-                  color: colorGreen);
-              Navigator.pop(context, true);
+
+              saveLocationTime(address,sSEID);
+
             }
           } else {
             showSnackBarWithText(
@@ -1671,6 +1678,134 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
   }
+
+  Future<String?> getAddress() async {
+    try {
+      getOverlay(context);
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // Test if location services are enabled.
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        showSnackBarWithText(
+            _keyScaffold.currentState, "Please Enable the Location!");
+        return Future.error('Location services are disabled.');
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          showSnackBarWithText(
+              _keyScaffold.currentState, "We need Location Permission!");
+          return Future.error('Location permissions are denied');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        showSnackBarWithText(
+            _keyScaffold.currentState, "We need Location Permission!");
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+      List<Placemark> addressList =
+      await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      Placemark placeMark  = addressList[0];
+      String address = "";
+      String name = placeMark?.name ?? "";
+      if(name.trim().isNotEmpty){
+        address = "${name}, ";
+      }
+      String subLocality = placeMark?.subLocality ?? "";
+      if(subLocality.trim().isNotEmpty){
+        address = "${address} ${subLocality},";
+      }
+      String locality = placeMark?.locality?? "";
+      if(locality.trim().isNotEmpty){
+        address = "${address}  ${locality}, ";
+      }
+      String administrativeArea = placeMark?.administrativeArea?? "";
+      if(administrativeArea.isNotEmpty){
+        address = "${address}  ${administrativeArea}, ";
+      }
+      String postalCode = placeMark?.postalCode?? "";
+      if(postalCode.trim().isNotEmpty){
+        address = "${address}  ${postalCode}, ";
+      }
+      String country = placeMark?.country?? "";
+      if(country.trim().isNotEmpty){
+        address = "${address}  ${country}, ";
+      }
+      address = address.trim();
+      if (address != null && address.length > 0) {
+        address = address.substring(0, address.length - 1);
+      }
+      return address;
+    } catch (e) {
+      showSnackBarWithText(_keyScaffold.currentState, stringSomeThingWentWrong);
+      print(e);
+    } finally {
+      removeOverlay();
+      // setState(() {});
+    }
+    // return null;
+  }
+
+  saveLocationTime(String address, String sSEID) async {
+    Map<String, dynamic> params = {
+      'auth_code':
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid':
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      'servicescheduleemployeeID': sSEID,
+      'Location': address,
+      'SaveTimesheet': "true",
+    };
+    print("params : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(endSaveLocationTime, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, _keyScaffold);
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            if (json.decode(response)["status"] == 1) {
+              showSnackBarWithText(_keyScaffold.currentState, "Success",
+                  color: colorGreen);
+              Navigator.pop(context, true);
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
 }
 
 String timeToDecimal(int minute) {

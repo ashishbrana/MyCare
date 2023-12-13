@@ -176,7 +176,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                               ),
                                             ),
                                           ),
-                                          // if (widget.model.noteID != 0)
+                                           if (model.noteID != 0)
                                             InkWell(
                                               onTap: () {
                                                 Navigator.push(
@@ -188,7 +188,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                           widget.model.empID ??
                                                               0,
                                                       noteId:
-                                                          widget.model.noteID ??
+                                                          model.noteID ??
                                                               0,
                                                       clientId:
                                                           widget.model.rESID ??
@@ -216,15 +216,9 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                 Icons.note_alt_outlined,
                                                 size: 22,
                                               ),
-                                            ),
-                                          if (model.noteID != 0)
-                                            const SizedBox(
-                                                width: spaceHorizontal / 2),
-                                          if (model.noteID != 0)
-                                            const FaIcon(
-                                              FontAwesomeIcons.calendarDays,
-                                              size: 16,
-                                            ),
+                                            ) ,
+
+
                                           /*const SizedBox(width: spaceHorizontal / 2),
                                           Container(
                                             decoration: BoxDecoration(
