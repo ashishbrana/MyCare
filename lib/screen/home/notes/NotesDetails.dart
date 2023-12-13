@@ -58,6 +58,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   DateTime serviceTypeDateTime = DateTime.now();
+
   String _assesmentScale = "1";
   final TextEditingController _serviceType = TextEditingController();
   final TextEditingController _subject = TextEditingController();
@@ -84,6 +85,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   @override
   void initState() {
     super.initState();
+
+
     if (widget.noteId != 0) {
       if (widget.noteWriter.isEmpty) {
         getServiceDetail();
@@ -92,6 +95,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       }
     } else {
       //Fill model with defalt value and save with noteid = 0
+      final now = DateTime.now();
+      serviceTypeDateTime = DateTime(now.year, now.month, now.day);
+
       model = ProgressNoteListByNoteIdModel();
       clientRating= 0;
       model?.subject = "Progress Note";
@@ -515,7 +521,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                         .then((value) {
                       if (value != null) {
                         setState(() {
-                          serviceTypeDateTime = value;
+                          serviceTypeDateTime = DateTime(value.year, value.month, value.day);;
                           _serviceType.text = DateFormat("dd-MM-yyyy").format(
                             serviceTypeDateTime,
                           );
@@ -603,7 +609,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
-              signatureImage == null
+            (signatureImage == null && serviceTypeDateTime.isToday)
                   ? Row(children: [
                       ThemedText(
                         text: "Client Signature",
@@ -644,7 +650,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
               ),
               const SizedBox(height: spaceVertical),
-              clientRating == 0
+            (clientRating == 0 && serviceTypeDateTime.isToday)
                   ? Row(
                       children: [
                         InkWell(
@@ -1084,5 +1090,20 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         }
       });
     }
+  }
+}
+
+
+extension DateHelpers on DateTime {
+  bool get isToday {
+    final now = DateTime.now();
+    return now.day == day && now.month == month && now.year == year;
+  }
+
+  bool get isYesterday {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    return yesterday.day == day &&
+        yesterday.month == month &&
+        yesterday.year == year;
   }
 }
