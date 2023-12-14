@@ -279,42 +279,40 @@ class _DNSListState extends State<DNSList> {
                                   ),
                                 ),
                                 if (getDateTimeFromEpochTime(model.ssdate!) !=
-                                    null &&
+                                        null &&
                                     getDateTimeFromEpochTime(model.ssdate!)!
                                         .isBefore(DateTime.now()))
-
-                                InkWell(
-                                  onTap: () {
-
-                                    Navigator.push(
-                                      keyScaffold.currentContext!,
-                                      MaterialPageRoute(
-                                        builder: (context) => DNSNotesDetails(
-                                          dsnListModel: model,
-                                          userId: widget.userId,
-                                          serviceShceduleClientID:
-                                              widget.rosterID,
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        keyScaffold.currentContext!,
+                                        MaterialPageRoute(
+                                          builder: (context) => DNSNotesDetails(
+                                            dsnListModel: model,
+                                            userId: widget.userId,
+                                            serviceShceduleClientID:
+                                                widget.rosterID,
+                                          ),
                                         ),
+                                      ).then((value) {
+                                        if (value != null && value) {
+                                          getData();
+                                        }
+                                      });
+                                    },
+                                    child: const Align(
+                                      child: Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: colorGreen,
+                                        size: 30,
                                       ),
-                                    ).then((value) {
-                                      if (value != null && value) {
-                                        getData();
-                                      }
-                                    });
-                                  },
-                                  child: const Align(
-                                    child: Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: colorGreen,
-                                      size: 30,
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                             ExpandableContainer(
                               expanded: selectedExpandedIndex == index,
-                              expandedHeight: 50,
+                              expandedHeight: 110,
                               child: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,6 +393,48 @@ class _DNSListState extends State<DNSList> {
                                                     "",
                                                 color: colorBlack,
                                                 fontSize: 12,
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                            ],
+                                          ),
+                                        ),
+                                        WidgetSpan(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                              const SizedBox(
+                                                width: 25,
+                                                height: 25,
+                                                child: Center(
+                                                  child: FaIcon(
+                                                    FontAwesomeIcons.stickyNote,
+                                                    color: colorGreen,
+                                                    size: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal / 2),
+                                              ThemedText(
+                                                text: "Description:",
+                                                color: colorBlack,
+                                                fontSize: 12,
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                              Expanded(
+                                                child: ThemedText(
+                                                  text: model.taskdescription ??
+                                                      "",
+                                                  color: colorBlack,
+                                                  maxLine: 3,
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                               const SizedBox(
                                                   width: spaceHorizontal),

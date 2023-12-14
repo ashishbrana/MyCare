@@ -739,12 +739,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   ],
                 ),
               const SizedBox(height: spaceVertical),
-              SizedBox(
+             /* SizedBox(
                 height: textFiledHeight,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    /*Expanded(
+                    *//*Expanded(
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Save",
@@ -756,8 +756,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                           }
                         },
                       ),
-                    ),*/
-                    /* const Spacer(),
+                    ),*//*
+                    *//* const Spacer(),
                     const SizedBox(width: spaceHorizontal),
                     SizedBox(
                       width: 100,
@@ -770,10 +770,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                           _controllerSignature.clear();
                         },
                       ),
-                    ),*/
+                    ),*//*
                   ],
                 ),
-              ),
+              ),*/
               const SizedBox(height: spaceVertical),
               SizedBox(
                 height: textFiledHeight,
