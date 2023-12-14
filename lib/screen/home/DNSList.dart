@@ -128,6 +128,7 @@ class _DNSListState extends State<DNSList> {
               primary: true,
               itemBuilder: (context, index) {
                 DSNListModel model = dataList[index];
+
                 return Container(
                   margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
                   decoration: BoxDecoration(
@@ -277,8 +278,14 @@ class _DNSListState extends State<DNSList> {
                                     ],
                                   ),
                                 ),
+                                if (getDateTimeFromEpochTime(model.ssdate!) !=
+                                    null &&
+                                    getDateTimeFromEpochTime(model.ssdate!)!
+                                        .isBefore(DateTime.now()))
+
                                 InkWell(
                                   onTap: () {
+
                                     Navigator.push(
                                       keyScaffold.currentContext!,
                                       MaterialPageRoute(

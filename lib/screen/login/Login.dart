@@ -271,32 +271,32 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            // _buildForgotPassWordDialog();
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ForgotPassword(),
-                                ));
-                          },
-                          child: const Text(
-                            'FORGOT YOUR PASSWORD ?',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                    // Column(
+                    //   mainAxisSize: MainAxisSize.min,
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   crossAxisAlignment: CrossAxisAlignment.center,
+                    //   children: [
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         // _buildForgotPassWordDialog();
+                    //         Navigator.push(
+                    //             context,
+                    //             MaterialPageRoute(
+                    //               builder: (context) => const ForgotPassword(),
+                    //             ));
+                    //       },
+                    //       child: const Text(
+                    //         'FORGOT YOUR PASSWORD ?',
+                    //         style: TextStyle(
+                    //           fontSize: 16.0,
+                    //           fontWeight: FontWeight.w500,
+                    //           color: Colors.white,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const SizedBox(height: 20),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
