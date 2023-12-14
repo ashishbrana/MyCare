@@ -124,7 +124,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                           if (widget.dsnListModel != null &&
                               widget.dsnListModel!.timefrom != null) {
                             DateTime date =
-                                getDateTimeFromEpochTime(model!.noteDate!)!;
+                                getDateTimeFromEpochTime(model!.ssdate!)!;
                             if (date.isToday) {
                               await saveDNSApiCall();
                             } else {
@@ -324,7 +324,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
 
           Response response = await http.post(
             Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endsaveDSNDetails"),
+                "$mainUrl$endsaveDSNDetails"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );

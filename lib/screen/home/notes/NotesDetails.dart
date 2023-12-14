@@ -954,7 +954,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
           Response response = await http.post(
             Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveNoteDetails"),
+                "$mainUrl$endSaveNoteDetails"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );
@@ -1004,7 +1004,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           getOverlay(context);
           Response response = await http.post(
             Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/saveNotePicture"),
+                "$mainUrl$endSaveNotePicture"),
             headers: {"Content-Type": "application/json"},
             body: json.encode({
               "noteId": widget.noteId.toString(),
@@ -1057,7 +1057,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           try {
             getOverlay(context);
             Response response = await http.get(Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
+                "$mainUrl$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
             print("responseDELETERESPONSE ${response.body}");
             if (response.statusCode == 200 || response.statusCode == 201) {
               var jResponse = json.decode(

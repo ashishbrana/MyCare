@@ -2094,23 +2094,23 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       String subLocality = placeMark?.subLocality ?? "";
       if(subLocality.trim().isNotEmpty){
-        address = "${address} ${subLocality},";
+        address = "${address}${subLocality},";
       }
       String locality = placeMark?.locality?? "";
       if(locality.trim().isNotEmpty){
-        address = "${address}  ${locality}, ";
+        address = "${address}${locality}, ";
       }
       String administrativeArea = placeMark?.administrativeArea?? "";
       if(administrativeArea.isNotEmpty){
-        address = "${address}  ${administrativeArea}, ";
+        address = "${address}${administrativeArea}, ";
       }
       String postalCode = placeMark?.postalCode?? "";
       if(postalCode.trim().isNotEmpty){
-        address = "${address}  ${postalCode}, ";
+        address = "${address}${postalCode}, ";
       }
       String country = placeMark?.country?? "";
       if(country.trim().isNotEmpty){
-        address = "${address}  ${country}, ";
+        address = "${address}${country}, ";
       }
       address = address.trim();
       if (address != null && address.length > 0) {

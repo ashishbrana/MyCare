@@ -153,7 +153,6 @@ class _ChangePasswordState extends State<ChangePassword> {
   }
 
 
-  // https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/ChangeEmployeePassword?UserID=238&UserType=user&NewPassword=Super@123
 
   _changePassword() async {
     var params = {

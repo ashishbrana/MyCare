@@ -7,6 +7,7 @@ class ProgressNoteListByNoteIdModel {
   String? subject;
   String? description;
   String? noteDate;
+  String? ssdate;
   String? clientsignature;
   int? createdBy;
   int? serviceassessment;
@@ -24,6 +25,7 @@ class ProgressNoteListByNoteIdModel {
         this.subject,
         this.description,
         this.noteDate,
+        this.ssdate,
         this.clientsignature,
         this.createdBy,
         this.serviceassessment,
@@ -41,6 +43,7 @@ class ProgressNoteListByNoteIdModel {
     subject = json['Subject'];
     description = json['Description'];
     noteDate = json['NoteDate'];
+    ssdate = json['ssdate'];
     clientsignature = json['clientsignature'];
     createdBy = json['CreatedBy'];
     serviceassessment = json['serviceassessment'];
@@ -60,6 +63,7 @@ class ProgressNoteListByNoteIdModel {
     data['Subject'] = this.subject;
     data['Description'] = this.description;
     data['NoteDate'] = this.noteDate;
+    data['ssdate'] = this.ssdate;
     data['clientsignature'] = this.clientsignature;
     data['CreatedBy'] = this.createdBy;
     data['serviceassessment'] = this.serviceassessment;

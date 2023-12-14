@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -353,11 +354,17 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   sendRiskAlert();
                                 } else {
 
-                                  String? address = await getAddress();
-                                  if (address != null) {
-                                    print("ADDRESS : $address");
-                                    saveTimeSheet(address, (widget.model.servicescheduleemployeeID ?? 0).toString());
+                                  if (sDate.isToday){
+                                    String? address = await getAddress();
+                                    if (address != null) {
+                                      print("ADDRESS : $address");
+                                      saveTimeSheet(address, (widget.model.servicescheduleemployeeID ?? 0).toString(),sDate.isToday);
+                                    }
                                   }
+                                  else{
+                                    saveTimeSheet("", (widget.model.servicescheduleemployeeID ?? 0).toString(),sDate.isToday);
+                                  }
+
                                 }
                               },
                             ),
@@ -1551,7 +1558,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
           Response response = await http.post(
               Uri.parse(
-                  "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$updateShiftCommentsAndSendRiskAlert"),
+                  "$mainUrl$updateShiftCommentsAndSendRiskAlert"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1582,7 +1589,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     });
   }
 
-  saveTimeSheet(String address, String sSEID)  async {
+  saveTimeSheet(String address, String sSEID ,bool isToday)  async {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         try {
@@ -1648,7 +1655,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
           Response response = await http.post(
               Uri.parse(
-                  "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/$endSaveTimesheet"),
+                  "$mainUrl$endSaveTimesheet"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1658,7 +1665,14 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
 
-              saveLocationTime(address,sSEID);
+              if(isToday) {
+                saveLocationTime(address, sSEID);
+              }
+              else{
+                showSnackBarWithText(_keyScaffold.currentState, "Success",
+                    color: colorGreen);
+                Navigator.pop(context, true);
+              }
 
             }
           } else {
@@ -1722,23 +1736,23 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
       String subLocality = placeMark?.subLocality ?? "";
       if(subLocality.trim().isNotEmpty){
-        address = "${address} ${subLocality},";
+        address = "${address}${subLocality},";
       }
       String locality = placeMark?.locality?? "";
       if(locality.trim().isNotEmpty){
-        address = "${address}  ${locality}, ";
+        address = "${address}${locality}, ";
       }
       String administrativeArea = placeMark?.administrativeArea?? "";
       if(administrativeArea.isNotEmpty){
-        address = "${address}  ${administrativeArea}, ";
+        address = "${address}${administrativeArea}, ";
       }
       String postalCode = placeMark?.postalCode?? "";
       if(postalCode.trim().isNotEmpty){
-        address = "${address}  ${postalCode}, ";
+        address = "${address}${postalCode}, ";
       }
       String country = placeMark?.country?? "";
       if(country.trim().isNotEmpty){
-        address = "${address}  ${country}, ";
+        address = "${address}${country}, ";
       }
       address = address.trim();
       if (address != null && address.length > 0) {
