@@ -14,6 +14,7 @@ class ThemedTextField extends StatefulWidget {
   TextEditingController? controller;
   void Function()? onTap;
   bool isReadOnly = false;
+  bool isEnable = false;
   bool isAcceptNumbersOnly = false;
   bool isAcceptDecimalOnly = false;
   bool isAcceptCharOnly = false;
@@ -55,6 +56,7 @@ class ThemedTextField extends StatefulWidget {
     this.onChanged,
     this.onFieldSubmitted,
     this.isReadOnly = false,
+    this.isEnable = true,
     this.isPasswordTextField = false,
     this.isAcceptNumbersOnly = false,
     this.isAcceptDecimalOnly = false,
@@ -136,6 +138,7 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
         }
         setState(() {});
       },
+      enabled: widget.isEnable,
       obscureText: widget.isPasswordTextField ? isShowPassWord : false,
       decoration: InputDecoration(
         hintText: widget.hintText,

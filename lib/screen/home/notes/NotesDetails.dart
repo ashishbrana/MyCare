@@ -82,10 +82,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   List<File> selectedImageFilesList = [];
   int? clientRating;
 
+  bool isPast = false;
+
   @override
   void initState() {
     super.initState();
-
 
     if (widget.noteId != 0) {
       if (widget.noteWriter.isEmpty) {
@@ -99,7 +100,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       serviceTypeDateTime = DateTime(now.year, now.month, now.day);
 
       model = ProgressNoteListByNoteIdModel();
-      clientRating= 0;
+      clientRating = 0;
       model?.subject = "Progress Note";
       _subject.text = model!.subject ?? "";
       _serviceType.text = DateFormat("dd-MM-yyyy").format(
@@ -152,9 +153,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 widget.serviceName = serviceDetail!.serviceName!;
                 widget.noteWriter = serviceDetail!.createdByName!;
               }
-             getData();
-            }
-            else{
+              getData();
+            } else {
               if (this.serviceDetail != null) {
                 final serviceDetail = this.serviceDetail;
                 print(serviceDetail?.createdByName);
@@ -226,6 +226,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 serviceTypeDateTime,
               );
 
+              isPast = serviceTypeDateTime.isPassed;
+              print("isPast : $isPast");
+
               _subject.text = model!.subject ?? "";
 
               _disscription.text = model!.description ?? "";
@@ -238,6 +241,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 model?.createdByName = serviceDetail?.createdByName;
                 widget.serviceName = serviceDetail!.serviceName!;
               }
+
               // print("models.length : ${dataList.length}");
             }
             setState(() {});
@@ -285,7 +289,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-          //  print("jResponse $jResponse");
+            //  print("jResponse $jResponse");
             signatureModel = jResponse
                 .map((e) => ClientSignatureModel.fromJson(e))
                 .toList()[0];
@@ -344,7 +348,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-          //  print("jResponseGetNoteDocs $jResponse");
+            //  print("jResponseGetNoteDocs $jResponse");
             noteDocList =
                 jResponse.map((e) => NoteDocModel.fromJson(e)).toList();
 
@@ -512,16 +516,20 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   isReadOnly: true,
+                  isEnable: !isPast,
                   onTap: () {
                     showDatePicker(
-                            context: context,
-                            initialDate: serviceTypeDateTime,
-                            firstDate: DateTime(serviceTypeDateTime.year - 23),
-                            lastDate: DateTime.now(),)//DateTime(serviceTypeDateTime.year,serviceTypeDateTime.month,serviceTypeDateTime.day) )
+                      context: context,
+                      initialDate: serviceTypeDateTime,
+                      firstDate: DateTime(serviceTypeDateTime.year - 23),
+                      lastDate: DateTime.now(),
+                    ) //DateTime(serviceTypeDateTime.year,serviceTypeDateTime.month,serviceTypeDateTime.day) )
                         .then((value) {
                       if (value != null) {
                         setState(() {
-                          serviceTypeDateTime = DateTime(value.year, value.month, value.day);;
+                          serviceTypeDateTime =
+                              DateTime(value.year, value.month, value.day);
+                          ;
                           _serviceType.text = DateFormat("dd-MM-yyyy").format(
                             serviceTypeDateTime,
                           );
@@ -609,7 +617,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 controller: _assesment_comment,
               ),
               const SizedBox(height: 10),
-            (signatureImage == null && serviceTypeDateTime.isToday)
+              (signatureImage == null && serviceTypeDateTime.isToday)
                   ? Row(children: [
                       ThemedText(
                         text: "Client Signature",
@@ -637,100 +645,99 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
                     ]),
               Container(
+                width: 300,
+                height: 180,
                 decoration: BoxDecoration(
                   border: Border.all(color: colorGreyBorderD3),
                 ),
                 child: signatureImage != null
                     ? Image.memory(signatureImage!)
-                    : Signature(
-                        backgroundColor: Colors.white,
-                        controller: _controllerSignature,
-                        width: 300,
-                        height: 180,
-                      ),
+                    : !isPast
+                        ? Signature(
+                            backgroundColor: Colors.white,
+                            controller: _controllerSignature,
+                            width: 300,
+                            height: 180,
+                          )
+                        : null,
               ),
               const SizedBox(height: spaceVertical),
-            (clientRating == 0 && serviceTypeDateTime.isToday)
-                  ? Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              clientRating = 1;
-                            });
-                          },
-                          child: const FaIcon(
-                            FontAwesomeIcons.solidFaceSmile,
-                            color: Colors.amber,
-                            size: 48,
-                          ),
-                        ),
-                        Radio<int>(
-                            value: 1,
-                            groupValue: clientRating,
-                            activeColor: colorGreen,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  clientRating = value;
-                                });
-                              }
-                            }),
-                        const SizedBox(width: spaceHorizontal),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              clientRating = 2;
-                            });
-                          },
-                          child: const FaIcon(
-                            FontAwesomeIcons.solidFaceMeh,
-                            color: Colors.amber,
-                            size: 48,
-                          ),
-                        ),
-                        Radio<int>(
-                            value: 2,
-                            groupValue: clientRating,
-                            activeColor: colorGreen,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  clientRating = value;
-                                });
-                              }
-                            }),
-                        const SizedBox(width: spaceHorizontal),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              clientRating = 3;
-                            });
-                          },
-                          child: const FaIcon(
-                            FontAwesomeIcons.solidFaceFrown,
-                            color: Colors.amber,
-                            size: 48,
-                          ),
-                        ),
-                        Radio<int>(
-                            value: 3,
-                            groupValue: clientRating,
-                            activeColor: colorGreen,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  clientRating = value;
-                                });
-                              }
-                            }),
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        //you can add more widget in here
-                      ],
+              if (clientRating == 0 && serviceTypeDateTime.isToday && !isPast)
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          clientRating = 1;
+                        });
+                      },
+                      child: const FaIcon(
+                        FontAwesomeIcons.solidFaceSmile,
+                        color: Colors.amber,
+                        size: 48,
+                      ),
                     ),
+                    Radio<int>(
+                        value: 1,
+                        groupValue: clientRating,
+                        activeColor: colorGreen,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              clientRating = value;
+                            });
+                          }
+                        }),
+                    const SizedBox(width: spaceHorizontal),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          clientRating = 2;
+                        });
+                      },
+                      child: const FaIcon(
+                        FontAwesomeIcons.solidFaceMeh,
+                        color: Colors.amber,
+                        size: 48,
+                      ),
+                    ),
+                    Radio<int>(
+                        value: 2,
+                        groupValue: clientRating,
+                        activeColor: colorGreen,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              clientRating = value;
+                            });
+                          }
+                        }),
+                    const SizedBox(width: spaceHorizontal),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          clientRating = 3;
+                        });
+                      },
+                      child: const FaIcon(
+                        FontAwesomeIcons.solidFaceFrown,
+                        color: Colors.amber,
+                        size: 48,
+                      ),
+                    ),
+                    Radio<int>(
+                        value: 3,
+                        groupValue: clientRating,
+                        activeColor: colorGreen,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              clientRating = value;
+                            });
+                          }
+                        }),
+                  ],
+                ),
               const SizedBox(height: spaceVertical),
               SizedBox(
                 height: textFiledHeight,
@@ -920,7 +927,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   saveNoteApiCall() async {
     isConnected().then((hasInternet) async {
-
       if (hasInternet) {
         try {
           getOverlay(context);
@@ -941,20 +947,21 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             "userID": widget.userId,
             "clientID": widget.clientId,
             "ServiceScheduleClientID": widget.serviceShceduleClientID,
-            "bit64Signature":  _controllerSignature.isNotEmpty ? (signature != null ? "${base64.encode(signature)}" : "") : "",
+            "bit64Signature": _controllerSignature.isNotEmpty
+                ? (signature != null ? "${base64.encode(signature)}" : "")
+                : "",
             "ClientRating": clientRating.toString(),
             "ssClientIds": "",
             "GroupNote": 0,
             "ssEmployeeID": widget.servicescheduleemployeeID
           });
           log(strBody);
-        /*  if (strBody.isNotEmpty) {
+          /*  if (strBody.isNotEmpty) {
             return;
           }*/
 
           Response response = await http.post(
-            Uri.parse(
-                "$mainUrl$endSaveNoteDetails"),
+            Uri.parse("$mainUrl$endSaveNoteDetails"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );
@@ -1003,8 +1010,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           getOverlay(context);
           Response response = await http.post(
-            Uri.parse(
-                "$mainUrl$endSaveNotePicture"),
+            Uri.parse("$mainUrl$endSaveNotePicture"),
             headers: {"Content-Type": "application/json"},
             body: json.encode({
               "noteId": widget.noteId.toString(),
@@ -1093,7 +1099,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 }
 
-
 extension DateHelpers on DateTime {
   bool get isToday {
     final now = DateTime.now();
@@ -1105,5 +1110,18 @@ extension DateHelpers on DateTime {
     return yesterday.day == day &&
         yesterday.month == month &&
         yesterday.year == year;
+  }
+
+  bool get isPassed {
+    final now = DateTime.now();
+    if (year < now.year) {
+      return true;
+    } else if (month < now.month) {
+      return true;
+    } else if (day < now.day) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

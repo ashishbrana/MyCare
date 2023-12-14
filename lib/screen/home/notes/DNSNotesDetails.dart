@@ -81,6 +81,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
     _taskComments.text = widget.dsnListModel.taskcompletedcomments ?? "";
     isTaskCompleted = widget.dsnListModel.taskcompleted!;
     isCompleted = widget.dsnListModel.taskcompleted!;
+
     setState(() {});
   }
 
@@ -123,8 +124,8 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                               "widget.dsnListModel!.timefrom ${widget.dsnListModel!.timeto}");
                           if (widget.dsnListModel != null &&
                               widget.dsnListModel!.timefrom != null) {
-                            DateTime date =
-                                getDateTimeFromEpochTime(model!.ssdate!)!;
+                            DateTime date = getDateTimeFromEpochTime(
+                                widget.dsnListModel!.sscname!)!;
                             if (date.isToday) {
                               await saveDNSApiCall();
                             } else {
@@ -153,7 +154,25 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              if (getDateTimeFromEpochTime(widget.dsnListModel.ssdate!) !=
+                      null &&
+                  getDateTimeFromEpochTime(widget.dsnListModel.ssdate!)!
+                      .isAfter(DateTime.now()))
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    color: colorRed,
+                    child: ThemedText(
+                      text: "Future dates can not be completed!",
+                      fontSize: 14,
+                      maxLine: 2,
+                      color: colorWhite,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 10),
               ThemedText(
                 text:
                     "Service Schedule Client ${widget.dsnListModel.sscname ?? ""}",
@@ -323,8 +342,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
           }
 
           Response response = await http.post(
-            Uri.parse(
-                "$mainUrl$endsaveDSNDetails"),
+            Uri.parse("$mainUrl$endsaveDSNDetails"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );

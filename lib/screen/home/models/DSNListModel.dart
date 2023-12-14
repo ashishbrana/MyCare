@@ -13,22 +13,24 @@ class DSNListModel {
   String? timeto;
   int? notewriterid;
   String? sscname;
+  String? ssdate;
 
   DSNListModel(
       {this.id,
-        this.sscid,
-        this.taskcompleted,
-        this.starttime,
-        this.endtime,
-        this.taskname,
-        this.taskcompletedcomments,
-        this.taskdescription,
-        this.ssDetails,
-        this.notewriter,
-        this.timefrom,
-        this.timeto,
-        this.notewriterid,
-        this.sscname});
+      this.sscid,
+      this.taskcompleted,
+      this.starttime,
+      this.endtime,
+      this.taskname,
+      this.taskcompletedcomments,
+      this.taskdescription,
+      this.ssDetails,
+      this.notewriter,
+      this.timefrom,
+      this.timeto,
+      this.notewriterid,
+      this.ssdate,
+      this.sscname});
 
   DSNListModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -37,6 +39,7 @@ class DSNListModel {
     starttime = json['starttime'];
     endtime = json['endtime'];
     taskname = json['taskname'];
+    ssdate = json['ssdate'];
     taskcompletedcomments = json['taskcompletedcomments'];
     taskdescription = json['taskdescription'];
     ssDetails = json['ssDetails'];
@@ -60,6 +63,7 @@ class DSNListModel {
     data['ssDetails'] = this.ssDetails;
     data['notewriter'] = this.notewriter;
     data['timefrom'] = this.timefrom;
+    data['ssdate'] = this.ssdate;
     data['timeto'] = this.timeto;
     data['notewriterid'] = this.notewriterid;
     data['sscname'] = this.sscname;
