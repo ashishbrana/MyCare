@@ -17,7 +17,7 @@ import '../HomeScreen.dart';
 import '../models/ConfirmedResponseModel.dart';
 
 class ConfirmedTabScreen extends StatelessWidget {
-  List<TimeShiteResponseModel> dataList;
+  List<TimeShiteModel> dataList;
 
   ConfirmedTabScreen({super.key, required this.dataList});
 
@@ -64,7 +64,7 @@ class ConfirmedTabScreen extends StatelessWidget {
               itemCount: dataList.length,
               primary: true,
               itemBuilder: (context, index) {
-                TimeShiteResponseModel model = dataList[index];
+                TimeShiteModel model = dataList[index];
                 return Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

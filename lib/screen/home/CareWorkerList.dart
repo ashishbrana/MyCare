@@ -22,7 +22,7 @@ import 'notes/NotesDetails.dart';
 class CareWorkerList extends StatefulWidget {
   final int userId;
   final int rosterID;
-  final TimeShiteResponseModel model;
+  final TimeShiteModel model;
 
   const CareWorkerList(
       {super.key,

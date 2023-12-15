@@ -32,11 +32,18 @@ import 'Tabs/ConfirmedTabScreen.dart';
 import 'TimeSheetDetail.dart';
 import 'TimeSheetForm.dart';
 import 'models/ConfirmedResponseModel.dart';
+import 'models/GroupServiceResponseModel.dart';
 import 'models/ProgressNoteModel.dart';
 
 DateTime fromDate = DateTime.now();
 DateTime toDate = DateTime(
-    DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
+    DateTime
+        .now()
+        .year, DateTime
+    .now()
+    .month, DateTime
+    .now()
+    .day + 15);
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
 GlobalKey<ScaffoldState> keyScaffold = GlobalKey<ScaffoldState>();
@@ -54,15 +61,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final GlobalKey<NavigatorState> _keyNavigator = GlobalKey<NavigatorState>();
   String userName = "";
-  List<TimeShiteResponseModel> dataList = [];
-  List<TimeShiteResponseModel> confirmedDataList = [];
-  List<TimeShiteResponseModel> unConfirmedDataList = [];
-  List<TimeShiteResponseModel> timeSheetDataList = [];
-  List<TimeShiteResponseModel> availableDataList = [];
+  List<TimeShiteModel> dataList = [];
+  List<TimeShiteModel> confirmedDataList = [];
+  List<TimeShiteModel> unConfirmedDataList = [];
+  List<TimeShiteModel> timeSheetDataList = [];
+  List<TimeShiteModel> availableDataList = [];
   List<ProgressNoteModel> notesDataList = [];
   List<ProgressNoteModel> notesTempList = [];
-  List<TimeShiteResponseModel> mainList = [];
-  List<TimeShiteResponseModel> tempList = [];
+  List<TimeShiteModel> mainList = [];
+  List<TimeShiteModel> tempList = [];
+  List<GroupServiceModel> mainListGroupService = [];
+  List<GroupServiceModel> tempListGroupService = [];
+
+  TimeShiteModel? selectedModel;
 
   final TextEditingController _controllerFromDate = TextEditingController();
   final TextEditingController _controllerToDate = TextEditingController();
@@ -71,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FocusScopeNode focusNavigatorNode = FocusScopeNode();
 
   GlobalKey<ProgressNoteState> keyProgressNoteTab =
-      GlobalKey<ProgressNoteState>();
+  GlobalKey<ProgressNoteState>();
 
   @override
   void initState() {
@@ -86,12 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
+      (await Preferences().getPrefInt(Preferences.prefAccountType))
+          .toString(),
       'userid':
-          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
     };
@@ -115,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
             List jResponse = json.decode(response);
             // print("jResponse $jResponse");
             dataList = jResponse
-                .map((e) => TimeShiteResponseModel.fromJson(e))
+                .map((e) => TimeShiteModel.fromJson(e))
                 .toList();
             print("models.length : ${dataList.length}");
             confirmedDataList.clear();
@@ -123,8 +134,8 @@ class _HomeScreenState extends State<HomeScreen> {
             timeSheetDataList.clear();
             // avaliableDataList.clear();
             int accType =
-                await Preferences().getPrefInt(Preferences.prefAccountType);
-            for (TimeShiteResponseModel model in dataList) {
+            await Preferences().getPrefInt(Preferences.prefAccountType);
+            for (TimeShiteModel model in dataList) {
               if (accType == 2 ||
                   accType == 4 ||
                   accType == 5 ||
@@ -135,9 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   // type = "confirmed";
                   confirmedDataList.add(model);
                   DateTime? serviceDate =
-                      getDateTimeFromEpochTime(model.serviceDate!);
+                  getDateTimeFromEpochTime(model.serviceDate!);
                   if (serviceDate!
-                          .compareTo(DateTime.now().add(Duration(days: 1))) <
+                      .compareTo(DateTime.now().add(Duration(days: 1))) <
                       0) {
                     timeSheetDataList.add(model);
                   }
@@ -219,9 +230,9 @@ class _HomeScreenState extends State<HomeScreen> {
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid':
-          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
     };
@@ -247,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // print("jResponse $endAvailableShifts $jResponse");
             availableDataList.clear();
             availableDataList = jResponse
-                .map((e) => TimeShiteResponseModel.fromJson(e))
+                .map((e) => TimeShiteModel.fromJson(e))
                 .toList();
             print("availableDataList : ${availableDataList.length}");
 
@@ -280,12 +291,12 @@ class _HomeScreenState extends State<HomeScreen> {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
+      (await Preferences().getPrefInt(Preferences.prefAccountType))
+          .toString(),
       'userid':
-          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
       'todate': DateFormat("yyyy/MM/dd").format(toDate),
       'isCareworkerSpecific': "1",
@@ -318,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
             print("NOTES : ${notesDataList.length}");
 
             int accType =
-                await Preferences().getPrefInt(Preferences.prefAccountType);
+            await Preferences().getPrefInt(Preferences.prefAccountType);
 
             setState(() {});
           } else {
@@ -337,6 +348,62 @@ class _HomeScreenState extends State<HomeScreen> {
         showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
       }
     });
+  }
+
+  getGroupServices() async {
+    if (selectedModel != null) {
+      Map<String, dynamic> params = {
+        'auth_code':
+        (await Preferences().getPrefString(Preferences.prefAuthCode)),
+        'userid':
+        (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+        'RosterID': selectedModel!.rosterID,
+        'ssEmployeeID': selectedModel!.servicescheduleemployeeID,
+      };
+      print("params : $params");
+      isConnected().then((hasInternet) async {
+        if (hasInternet) {
+          HttpRequestModel request = HttpRequestModel(
+              url: getUrl(endClientGroupList, params: params).toString(),
+              authMethod: '',
+              body: '',
+              headerType: '',
+              params: '',
+              method: 'GET');
+          getOverlay(context);
+          try {
+            String response = await HttpService().init(request, keyScaffold);
+            log("$endClientGroupList : $response");
+            removeOverlay();
+            if (response != null && response != "") {
+              // print('res ${response}');
+
+              List jResponse = json.decode(response);
+              print("jResponse $jResponse");
+              mainListGroupService =
+                  jResponse.map((e) => GroupServiceModel.fromJson(e)).toList();
+              tempListGroupService.clear();
+              tempListGroupService.addAll(mainListGroupService);
+              print("NOTES : ${mainListGroupService.length}");
+
+              setState(() {});
+            } else {
+              showSnackBarWithText(
+                  keyScaffold.currentState, stringSomeThingWentWrong);
+            }
+            removeOverlay();
+          } catch (e) {
+            print("ERROR : $e");
+            removeOverlay();
+          } finally {
+            removeOverlay();
+            setState(() {});
+          }
+        } else {
+          showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
+        }
+      });
+    }
   }
 
   logout() async {
@@ -518,7 +585,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: Container(
                           height: 50,
-                          width: MediaQuery.of(context).size.width,
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
                           alignment: Alignment.center,
                           padding: EdgeInsets.zero,
                           decoration: BoxDecoration(
@@ -566,7 +636,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: Container(
                           height: 50,
-                          width: MediaQuery.of(context).size.width,
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
                           alignment: Alignment.center,
                           padding: EdgeInsets.zero,
                           decoration: BoxDecoration(
@@ -605,54 +678,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  showConfirmationDialog(
-      {required void Function() onYesTap,
-      required void Function() onNoTap,
-      String? extendedText}) {
+  showConfirmationDialog({required void Function() onYesTap,
+    required void Function() onNoTap,
+    String? extendedText}) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: boxBorderRadius,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: spaceVertical),
-            ThemedText(text: "Are you sure ${extendedText ?? ""}? "),
-            const SizedBox(height: spaceVertical),
-            SizedBox(
-              height: 30,
-              child: Row(
-                children: [
-                  const SizedBox(width: spaceHorizontal * 2),
-                  Expanded(
-                    child: ThemedButton(
-                      title: "Yes",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      padding: EdgeInsets.zero,
-                      onTap: onYesTap,
-                    ),
-                  ),
-                  const SizedBox(width: spaceHorizontal),
-                  Expanded(
-                    child: ThemedButton(
-                      title: "No",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      padding: EdgeInsets.zero,
-                      onTap: onNoTap,
-                    ),
-                  ),
-                  const SizedBox(width: spaceHorizontal * 2),
-                ],
-              ),
+      builder: (context) =>
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: boxBorderRadius,
             ),
-            const SizedBox(height: spaceVertical),
-          ],
-        ),
-      ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: spaceVertical),
+                ThemedText(text: "Are you sure ${extendedText ?? ""}? "),
+                const SizedBox(height: spaceVertical),
+                SizedBox(
+                  height: 30,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: spaceHorizontal * 2),
+                      Expanded(
+                        child: ThemedButton(
+                          title: "Yes",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          padding: EdgeInsets.zero,
+                          onTap: onYesTap,
+                        ),
+                      ),
+                      const SizedBox(width: spaceHorizontal),
+                      Expanded(
+                        child: ThemedButton(
+                          title: "No",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          padding: EdgeInsets.zero,
+                          onTap: onNoTap,
+                        ),
+                      ),
+                      const SizedBox(width: spaceHorizontal * 2),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: spaceVertical),
+              ],
+            ),
+          ),
     );
   }
 
@@ -869,9 +942,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   notesTempList = [];
                   for (ProgressNoteModel model in notesDataList) {
                     if ((model.serviceName != null &&
-                            model.serviceName!
-                                .toLowerCase()
-                                .contains(string.toLowerCase())) ||
+                        model.serviceName!
+                            .toLowerCase()
+                            .contains(string.toLowerCase())) ||
                         (model.serviceName != null &&
                             model.serviceName!
                                 .toLowerCase()
@@ -887,11 +960,11 @@ class _HomeScreenState extends State<HomeScreen> {
               } else {
                 if (string.isNotEmpty && string.length > 1) {
                   tempList = [];
-                  for (TimeShiteResponseModel model in mainList) {
+                  for (TimeShiteModel model in mainList) {
                     if ((model.serviceName != null &&
-                            model.serviceName!
-                                .toLowerCase()
-                                .contains(string.toLowerCase())) ||
+                        model.serviceName!
+                            .toLowerCase()
+                            .contains(string.toLowerCase())) ||
                         (model.serviceName != null &&
                             model.resName!
                                 .toLowerCase()
@@ -938,7 +1011,7 @@ class _HomeScreenState extends State<HomeScreen> {
         InkWell(
           onTap: () async {
             userName =
-                await Preferences().getPrefString(Preferences.prefUserFullName);
+            await Preferences().getPrefString(Preferences.prefUserFullName);
             if (keyScaffold.currentState != null) {
               keyScaffold.currentState!.openEndDrawer();
             }
@@ -966,15 +1039,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _buildList({required List<TimeShiteResponseModel> list}) {
+  _buildList({required List<TimeShiteModel> list}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
           onTap: () {
-            /* if (keyScaffold.currentState != null) {
-              keyScaffold.currentState!.openEndDrawer();
-            }*/
             _buildDateDialog();
           },
           child: Container(
@@ -982,7 +1052,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 horizontal: spaceHorizontal, vertical: spaceVertical),
             child: ThemedText(
               text:
-                  "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex == 2 ? "TimeSheet" : bottomCurrentIndex == 3 ? "Available" : bottomCurrentIndex == 4 ? "ProgressNotes" : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+              "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex ==
+                  2 ? "TimeSheet" : bottomCurrentIndex == 3
+                  ? "Available"
+                  : bottomCurrentIndex == 4
+                  ? "ProgressNotes"
+                  : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(
+                  fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
               fontSize: 18,
               fontWeight: FontWeight.w500,
               color: colorGreyText,
@@ -1012,743 +1088,833 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Scaffold(
                     body: bottomCurrentIndex == 4
                         ? _buildProgressNoteList()
+                        : bottomCurrentIndex == 5
+                        ? _buildGroupServiceList()
                         : ListView.builder(
-                            itemCount: list.length,
-                            primary: true,
-                            itemBuilder: (context, index) {
-                              TimeShiteResponseModel model = list[index];
-                              DateTime? serviceDate =
-                                  getDateTimeFromEpochTime(model.serviceDate!);
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                                margin: const EdgeInsets.only(
-                                    top: 8, right: 15, left: 15),
-                                color: colorWhite,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
+                      itemCount: list.length,
+                      primary: true,
+                      itemBuilder: (context, index) {
+                        TimeShiteModel model = list[index];
+                        DateTime? serviceDate =
+                        getDateTimeFromEpochTime(
+                            model.serviceDate!);
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          margin: const EdgeInsets.only(
+                              top: 8, right: 15, left: 15),
+                          color: colorWhite,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 8,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Expanded(
-                                          flex: 8,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text:
-                                                                "${model.resName} ",
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  colorGreyText,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              fontSize: 14,
-                                                            ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text:
+                                                      "${model.resName} ",
+                                                      style:
+                                                      const TextStyle(
+                                                        color:
+                                                        colorGreyText,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .w400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text: model
+                                                          .serviceName,
+                                                      style:
+                                                      const TextStyle(
+                                                        color:
+                                                        colorGreyLiteText,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .w400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            if (model.noteID != 0)
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) =>
+                                                          ProgressNoteListByNoteId(
+                                                            userId: model
+                                                                .empID ??
+                                                                0,
+                                                            noteID: model
+                                                                .noteID ??
+                                                                0,
+                                                            rosterID:
+                                                            model.rosterID ??
+                                                                0,
                                                           ),
-                                                          TextSpan(
-                                                            text: model
-                                                                .serviceName,
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  colorGreyLiteText,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              fontSize: 14,
+                                                    ),
+                                                  );
+                                                },
+                                                child: const FaIcon(
+                                                  FontAwesomeIcons
+                                                      .calendarDays,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            const SizedBox(
+                                                width:
+                                                spaceHorizontal /
+                                                    2),
+                                            if (bottomCurrentIndex !=
+                                                3)
+                                              InkWell(
+                                                onTap: () {
+                                                  print(
+                                                      "CareWorkerList ${model
+                                                          .empID} ${model
+                                                          .rosterID}");
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) =>
+                                                          CareWorkerList(
+                                                            userId: model
+                                                                .empID ??
+                                                                0,
+                                                            rosterID:
+                                                            model.rosterID ??
+                                                                0,
+                                                            model: model,
+                                                          ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  decoration:
+                                                  BoxDecoration(
+                                                    color:
+                                                    Colors.black,
+                                                    borderRadius:
+                                                    BorderRadius
+                                                        .circular(
+                                                        5),
+                                                  ),
+                                                  child: const Icon(
+                                                      CupertinoIcons
+                                                          .person_crop_circle,
+                                                      color: Colors
+                                                          .white,
+                                                      size: 22),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          width:
+                                          MediaQuery
+                                              .of(context)
+                                              .size
+                                              .width,
+                                          height: 1,
+                                          color: colorGreyBorderD3,
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment
+                                              .start,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (selectedExpandedIndex !=
+                                                      index) {
+                                                    selectedExpandedIndex =
+                                                        index;
+                                                  } else {
+                                                    selectedExpandedIndex =
+                                                    -1;
+                                                  }
+                                                });
+                                              },
+                                              child: const SizedBox(
+                                                width: 30,
+                                                height: 30,
+                                                child: Icon(
+                                                  Icons
+                                                      .arrow_downward_rounded,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    WidgetSpan(
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                        MainAxisSize
+                                                            .min,
+                                                        children: [
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          const FaIcon(
+                                                            FontAwesomeIcons
+                                                                .calendarDays,
+                                                            color:
+                                                            colorGreen,
+                                                            size: 14,
+                                                          ),
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          if (getDateTimeFromEpochTime(
+                                                              model
+                                                                  .serviceDate!) !=
+                                                              null)
+                                                            Text(
+                                                              // model.serviceDate!,
+                                                              model
+                                                                  .serviceDate !=
+                                                                  null
+                                                                  ? DateFormat(
+                                                                  "EEE,dd-MM-yyyy")
+                                                                  .format(
+                                                                  getDateTimeFromEpochTime(
+                                                                      model
+                                                                          .serviceDate!)!)
+                                                                  : "",
+                                                              style:
+                                                              const TextStyle(
+                                                                color:
+                                                                colorGreyText,
+                                                                fontSize:
+                                                                14,
+                                                              ),
                                                             ),
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          Container(
+                                                            width: 1,
+                                                            height:
+                                                            25,
+                                                            color:
+                                                            colorGreyBorderD3,
                                                           ),
                                                         ],
                                                       ),
                                                     ),
-                                                  ),
-                                                  if (model.noteID != 0)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ProgressNoteListByNoteId(
-                                                              userId:
-                                                                  model.empID ??
-                                                                      0,
-                                                              noteID: model
-                                                                      .noteID ??
-                                                                  0,
-                                                              rosterID: model
-                                                                      .rosterID ??
-                                                                  0,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: const FaIcon(
-                                                        FontAwesomeIcons
-                                                            .calendarDays,
-                                                        size: 22,
-                                                      ),
-                                                    ),
-                                                  const SizedBox(
-                                                      width:
-                                                          spaceHorizontal / 2),
-                                                  if (bottomCurrentIndex != 3)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        print(
-                                                            "CareWorkerList ${model.empID} ${model.rosterID}");
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                CareWorkerList(
-                                                              userId:
-                                                                  model.empID ??
-                                                                      0,
-                                                              rosterID: model
-                                                                      .rosterID ??
-                                                                  0,
-                                                              model: model,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.black,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(5),
-                                                        ),
-                                                        child: const Icon(
-                                                            CupertinoIcons
-                                                                .person_crop_circle,
-                                                            color: Colors.white,
-                                                            size: 22),
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Container(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                height: 1,
-                                                color: colorGreyBorderD3,
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        if (selectedExpandedIndex !=
-                                                            index) {
-                                                          selectedExpandedIndex =
-                                                              index;
-                                                        } else {
-                                                          selectedExpandedIndex =
-                                                              -1;
-                                                        }
-                                                      });
-                                                    },
-                                                    child: const SizedBox(
-                                                      width: 30,
-                                                      height: 30,
-                                                      child: Icon(
-                                                        Icons
-                                                            .arrow_downward_rounded,
-                                                        color: colorGreen,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: RichText(
-                                                      text: TextSpan(
+                                                    WidgetSpan(
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                        MainAxisSize
+                                                            .min,
                                                         children: [
-                                                          WidgetSpan(
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                const FaIcon(
-                                                                  FontAwesomeIcons
-                                                                      .calendarDays,
-                                                                  color:
-                                                                      colorGreen,
-                                                                  size: 14,
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                if (getDateTimeFromEpochTime(
-                                                                        model
-                                                                            .serviceDate!) !=
-                                                                    null)
-                                                                  Text(
-                                                                    // model.serviceDate!,
-                                                                    model.serviceDate !=
-                                                                            null
-                                                                        ? DateFormat("EEE,dd-MM-yyyy")
-                                                                            .format(getDateTimeFromEpochTime(model.serviceDate!)!)
-                                                                        : "",
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color:
-                                                                          colorGreyText,
-                                                                      fontSize:
-                                                                          14,
-                                                                    ),
-                                                                  ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                Container(
-                                                                  width: 1,
-                                                                  height: 25,
-                                                                  color:
-                                                                      colorGreyBorderD3,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          WidgetSpan(
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                /* const SizedBox(
+                                                          /* const SizedBox(
                                                         width: 30,
                                                         height: 30,
                                                       ),*/
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                const Icon(
-                                                                  CupertinoIcons
-                                                                      .time,
-                                                                  color:
-                                                                      colorGreen,
-                                                                  size: 14,
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                Text(
-                                                                  "${model.totalHours}hrs",
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    color:
-                                                                        colorGreyText,
-                                                                    fontSize:
-                                                                        14,
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                Container(
-                                                                  width: 1,
-                                                                  height: 25,
-                                                                  color:
-                                                                      colorGreyBorderD3,
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                              ],
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          const Icon(
+                                                            CupertinoIcons
+                                                                .time,
+                                                            color:
+                                                            colorGreen,
+                                                            size: 14,
+                                                          ),
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          Text(
+                                                            "${model
+                                                                .totalHours}hrs",
+                                                            style:
+                                                            const TextStyle(
+                                                              color:
+                                                              colorGreyText,
+                                                              fontSize:
+                                                              14,
                                                             ),
                                                           ),
-                                                          WidgetSpan(
-                                                            child: Row(
-                                                              children: [
-                                                                /*   SizedBox(
-                                                      width: 30,
-                                                      height: 30,
-                                                    ),*/
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                const Icon(
-                                                                  Icons.timer,
-                                                                  color:
-                                                                      colorGreen,
-                                                                  size: 14,
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                                Text(
-                                                                  model.shift ??
-                                                                      "",
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    color:
-                                                                        colorGreyText,
-                                                                    fontSize:
-                                                                        14,
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 5),
-                                                              ],
-                                                            ),
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          Container(
+                                                            width: 1,
+                                                            height:
+                                                            25,
+                                                            color:
+                                                            colorGreyBorderD3,
                                                           ),
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
                                                         ],
                                                       ),
                                                     ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  if ((bottomCurrentIndex ==
-                                                              0 ||
-                                                          bottomCurrentIndex ==
-                                                              2) && model.tSConfirm == false &&
-                                                      serviceDate != null && serviceDate.isToday
-                                                    )
-                                                    InkWell(
-                                                      onTap: model.locationName !=
-                                                                  null &&
-                                                              model
-                                                                  .locationName!
-                                                                  .isNotEmpty
-                                                          ? null
-                                                          : () {
-                                                              showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) =>
-                                                                        Dialog(
-                                                                  shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          boxBorderRadius),
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        horizontal:
-                                                                            spaceHorizontal,
-                                                                        vertical:
-                                                                            spaceVertical),
-                                                                    child:
-                                                                        Column(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        ThemedText(
-                                                                            text:
-                                                                                "Are You Sure You Want To Logon The Shift ?"),
-                                                                        const SizedBox(
-                                                                            height:
-                                                                                spaceVertical),
-                                                                        Row(
-                                                                          children: [
-                                                                            Expanded(
-                                                                              child: ThemedButton(
-                                                                                onTap: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                                title: "Cancel",
-                                                                                fontSize: 18,
-                                                                                padding: EdgeInsets.zero,
-                                                                              ),
-                                                                            ),
-                                                                            const SizedBox(
-                                                                              width: spaceHorizontal / 2,
-                                                                            ),
-                                                                            Expanded(
-                                                                              child: ThemedButton(
-                                                                                onTap: () async {
-                                                                                  Navigator.pop(context);
-                                                                                  String? address = await getAddress();
-                                                                                  if (address != null) {
-                                                                                    print("ADDRESS : $address");
-                                                                                    saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
-                                                                                  }
-                                                                                },
-                                                                                title: "Ok",
-                                                                                fontSize: 18,
-                                                                                padding: EdgeInsets.zero,
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                      child: FaIcon(
-                                                        Icons.history,
-                                                        color: model.locationName !=
-                                                                    null &&
-                                                                model
-                                                                    .locationName!
-                                                                    .isNotEmpty
-                                                            ? colorGreen
-                                                            : colorRed,
-                                                        size: 22,
-                                                      ),
-                                                    ),
-                                                  if ((bottomCurrentIndex ==
-                                                              0 ||
-                                                          bottomCurrentIndex ==
-                                                              2) &&
-                                                      serviceDate != null && serviceDate.isToday
-                                                  )
-                                                    const SizedBox(
-                                                        width: spaceHorizontal /
-                                                            2),
-                                                  if (model.noteID != 0)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                          keyScaffold
-                                                              .currentContext!,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ProgressNoteDetails(
-                                                              userId:
-                                                                  model.empID ??
-                                                                      0,
-                                                              noteId: model
-                                                                      .noteID ??
-                                                                  0,
-                                                              clientId:
-                                                                  model.rESID ??
-                                                                      0,
-                                                              servicescheduleemployeeID:
-                                                                  model.servicescheduleemployeeID ??
-                                                                      0,
-                                                              serviceShceduleClientID:
-                                                                  model.serviceShceduleClientID ??
-                                                                      0,
-                                                              serviceName: model
-                                                                      .serviceName ??
-                                                                  "",
-                                                              clientName:
-                                                                  "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
-                                                              noteWriter: "",
+                                                    WidgetSpan(
+                                                      child: Row(
+                                                        children: [
+                                                          /*   SizedBox(
+                                                      width: 30,
+                                                      height: 30,
+                                                    ),*/
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          const Icon(
+                                                            Icons
+                                                                .timer,
+                                                            color:
+                                                            colorGreen,
+                                                            size: 14,
+                                                          ),
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                          Text(
+                                                            model.shift ??
+                                                                "",
+                                                            style:
+                                                            const TextStyle(
+                                                              color:
+                                                              colorGreyText,
+                                                              fontSize:
+                                                              14,
                                                             ),
                                                           ),
-                                                        );
-                                                      },
-                                                      child: const FaIcon(
-                                                        // FontAwesomeIcons.notesMedical,
-                                                        Icons.note_alt_outlined,
-                                                        size: 22,
+                                                          const SizedBox(
+                                                              width:
+                                                              5),
+                                                        ],
                                                       ),
                                                     ),
-                                                  if (model.noteID != 0)
-                                                    const SizedBox(
-                                                        width: spaceHorizontal /
-                                                            2),
-                                                  if (model.dsnId != 0 &&
-                                                      bottomCurrentIndex != 3)
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) => DNSList(
-                                                                userId: model
-                                                                        .empID ??
-                                                                    0,
-                                                                rosterID: model
-                                                                        .serviceShceduleClientID ??
-                                                                    0),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            if ((bottomCurrentIndex == 0 ||
+                                                bottomCurrentIndex ==
+                                                    2) &&
+                                                model.tSConfirm ==
+                                                    false &&
+                                                serviceDate != null &&
+                                                serviceDate.isToday)
+                                              InkWell(
+                                                onTap: model.locationName !=
+                                                    null &&
+                                                    model
+                                                        .locationName!
+                                                        .isNotEmpty
+                                                    ? null
+                                                    : () {
+                                                  showDialog(
+                                                    context:
+                                                    context,
+                                                    builder:
+                                                        (context) =>
+                                                        Dialog(
+                                                          shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                              boxBorderRadius),
+                                                          child:
+                                                          Padding(
+                                                            padding: const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal:
+                                                                spaceHorizontal,
+                                                                vertical:
+                                                                spaceVertical),
+                                                            child:
+                                                            Column(
+                                                              mainAxisSize:
+                                                              MainAxisSize.min,
+                                                              children: [
+                                                                ThemedText(
+                                                                    text: "Are You Sure You Want To Logon The Shift ?"),
+                                                                const SizedBox(
+                                                                    height: spaceVertical),
+                                                                Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child: ThemedButton(
+                                                                        onTap: () {
+                                                                          Navigator
+                                                                              .pop(
+                                                                              context);
+                                                                        },
+                                                                        title: "Cancel",
+                                                                        fontSize: 18,
+                                                                        padding: EdgeInsets
+                                                                            .zero,
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: spaceHorizontal /
+                                                                          2,
+                                                                    ),
+                                                                    Expanded(
+                                                                      child: ThemedButton(
+                                                                        onTap: () async {
+                                                                          Navigator
+                                                                              .pop(
+                                                                              context);
+                                                                          String? address = await getAddress();
+                                                                          if (address !=
+                                                                              null) {
+                                                                            print(
+                                                                                "ADDRESS : $address");
+                                                                            saveLocationTime(
+                                                                                address,
+                                                                                (model
+                                                                                    .servicescheduleemployeeID ??
+                                                                                    0)
+                                                                                    .toString());
+                                                                          }
+                                                                        },
+                                                                        title: "Ok",
+                                                                        fontSize: 18,
+                                                                        padding: EdgeInsets
+                                                                            .zero,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                )
+                                                              ],
+                                                            ),
                                                           ),
-                                                        );
-                                                      },
-                                                      child: const FaIcon(
-                                                        FontAwesomeIcons
-                                                            .lifeRing,
-                                                        size: 22,
-                                                      ),
+                                                        ),
+                                                  );
+                                                },
+                                                child: FaIcon(
+                                                  Icons.history,
+                                                  color: model.locationName !=
+                                                      null &&
+                                                      model
+                                                          .locationName!
+                                                          .isNotEmpty
+                                                      ? colorGreen
+                                                      : colorRed,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            if ((bottomCurrentIndex ==
+                                                0 ||
+                                                bottomCurrentIndex ==
+                                                    2) &&
+                                                serviceDate != null &&
+                                                serviceDate.isToday)
+                                              const SizedBox(
+                                                  width:
+                                                  spaceHorizontal /
+                                                      2),
+                                            if (model.noteID != 0)
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    keyScaffold
+                                                        .currentContext!,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) =>
+                                                          ProgressNoteDetails(
+                                                            userId: model
+                                                                .empID ??
+                                                                0,
+                                                            noteId: model
+                                                                .noteID ??
+                                                                0,
+                                                            clientId:
+                                                            model.rESID ??
+                                                                0,
+                                                            servicescheduleemployeeID:
+                                                            model
+                                                                .servicescheduleemployeeID ??
+                                                                0,
+                                                            serviceShceduleClientID:
+                                                            model
+                                                                .serviceShceduleClientID ??
+                                                                0,
+                                                            serviceName:
+                                                            model.serviceName ??
+                                                                "",
+                                                            clientName:
+                                                            "${model
+                                                                .resName} - ${model
+                                                                .rESID
+                                                                .toString()
+                                                                .padLeft(
+                                                                5, "0")}",
+                                                            noteWriter:
+                                                            "",
+                                                          ),
                                                     ),
-                                                  if (model.dsnId != 0)
-                                                    const SizedBox(
-                                                        width: spaceHorizontal /
-                                                            2),
-                                                  if (bottomCurrentIndex == 2 &&
-                                                      model.tSConfirm == true)
-                                                    Icon(
-                                                      Icons
-                                                          .check_circle_rounded,
-                                                      color: model.locationName ==
-                                                                  "" ||
-                                                              model.logOffLocationName ==
-                                                                  ""
-                                                          ? colorRed
-                                                          : colorGreen,
-                                                      size: 22,
+                                                  );
+                                                },
+                                                child: const FaIcon(
+                                                  // FontAwesomeIcons.notesMedical,
+                                                  Icons
+                                                      .note_alt_outlined,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            if (model.noteID != 0)
+                                              const SizedBox(
+                                                  width:
+                                                  spaceHorizontal /
+                                                      2),
+                                            if (model.dsnId != 0 &&
+                                                bottomCurrentIndex !=
+                                                    3)
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          DNSList(
+                                                              userId:
+                                                              model.empID ??
+                                                                  0,
+                                                              rosterID:
+                                                              model
+                                                                  .serviceShceduleClientID ??
+                                                                  0),
                                                     ),
-                                                  if (bottomCurrentIndex == 2)
-                                                    const SizedBox(
-                                                        width: spaceHorizontal /
-                                                            2),
-                                                  /*const Expanded(
+                                                  );
+                                                },
+                                                child: const FaIcon(
+                                                  FontAwesomeIcons
+                                                      .lifeRing,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            if (model.dsnId != 0)
+                                              const SizedBox(
+                                                  width:
+                                                  spaceHorizontal /
+                                                      2),
+                                            if (bottomCurrentIndex ==
+                                                2 &&
+                                                model.tSConfirm ==
+                                                    true)
+                                              Icon(
+                                                Icons
+                                                    .check_circle_rounded,
+                                                color: model.locationName ==
+                                                    "" ||
+                                                    model.logOffLocationName ==
+                                                        ""
+                                                    ? colorRed
+                                                    : colorGreen,
+                                                size: 22,
+                                              ),
+                                            if (bottomCurrentIndex ==
+                                                2)
+                                              const SizedBox(
+                                                  width:
+                                                  spaceHorizontal /
+                                                      2),
+                                            /*const Expanded(
                                             child: Icon(
                                           Icons.timelapse_rounded,
                                           color: colorGreen,
                                           size: 26,
                                         )),*/
-                                                  // const SizedBox(width: 5),
-                                                  Container(
-                                                    width: 1,
-                                                    height: 30,
-                                                    color: colorGreyBorderD3,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                              keyScaffold.currentContext!,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    model.tSConfirm == false
-                                                        ? TimeSheetDetail(
-                                                            model: model,
-                                                            indexSelectedFrom:
-                                                                bottomCurrentIndex,
-                                                          )
-                                                        : TimeSheetForm(
-                                                            model: model,indexSelectedFrom: bottomCurrentIndex),
-                                              ),
-                                            ).then((value) {
-                                              if (value != null && value) {
-                                                getData();
-                                                getAvailableShiftsData();
-                                                getDataProgressNotes();
-                                              }
-                                            });
-                                          },
-                                          child: const Align(
-                                            child: Icon(
-                                              Icons.arrow_forward_ios_rounded,
-                                              color: colorGreen,
-                                              size: 30,
+                                            // const SizedBox(width: 5),
+                                            Container(
+                                              width: 1,
+                                              height: 30,
+                                              color:
+                                              colorGreyBorderD3,
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                    ExpandableContainer(
-                                      expanded: selectedExpandedIndex == index,
-                                      expandedHeight: 225,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      selectedModel = model;
+                                      Navigator.push(
+                                        keyScaffold.currentContext!,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                          model
+                                              .tSConfirm ==
+                                              false
+                                              ? TimeSheetDetail(
+                                            model: model,
+                                            indexSelectedFrom:
+                                            bottomCurrentIndex,
+                                          )
+                                              : TimeSheetForm(
+                                              model: model,
+                                              indexSelectedFrom:
+                                              bottomCurrentIndex),
+                                        ),
+                                      ).then((value) {
+                                        if (value != null) {
+                                          if (value == 0) {
+                                            getData();
+                                            getAvailableShiftsData();
+                                            getDataProgressNotes();
+                                          } else if (value == 0) {
+                                            bottomCurrentIndex == 5;
+                                            getGroupServices();
+                                          }
+                                        }
+                                      });
+                                    },
+                                    child: const Align(
+                                      child: Icon(
+                                        Icons
+                                            .arrow_forward_ios_rounded,
+                                        color: colorGreen,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              ExpandableContainer(
+                                expanded:
+                                selectedExpandedIndex == index,
+                                expandedHeight: 225,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      ThemedText(
+                                          text: model.shiftComments !=
+                                              null &&
+                                              model.shiftComments!
+                                                  .isNotEmpty
+                                              ? model.shiftComments!
+                                              : "No shift comments provided."),
+                                      ThemedText(
+                                          text: model.comments !=
+                                              null &&
+                                              model.comments!
+                                                  .isNotEmpty
+                                              ? model.comments!
+                                              : "No client comments provided."),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlMethod(
+                                              "http://maps.google.com/?q=${model
+                                                  .resAddress}");
+                                        },
+                                        child: Row(
                                           children: [
-                                            ThemedText(
-                                                text: model.shiftComments !=
-                                                            null &&
-                                                        model.shiftComments!
-                                                            .isNotEmpty
-                                                    ? model.shiftComments!
-                                                    : "No shift comments provided."),
-                                            ThemedText(
-                                                text: model.comments != null &&
-                                                        model.comments!
-                                                            .isNotEmpty
-                                                    ? model.comments!
-                                                    : "No client comments provided."),
-                                            const SizedBox(height: 7),
-                                            InkWell(
-                                              onTap: () {
-                                                launchUrlMethod(
-                                                    "http://maps.google.com/?q=${model.resAddress}");
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  const SizedBox(
-                                                    width: 25,
-                                                    height: 25,
-                                                    child: Center(
-                                                      child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .locationDot,
-                                                        color: colorGreen,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                      width: spaceHorizontal),
-                                                  Expanded(
-                                                    child: ThemedText(
-                                                        text:
-                                                            model.resAddress ??
-                                                                ""),
-                                                  ),
-                                                ],
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons
+                                                      .locationDot,
+                                                  color: colorGreen,
+                                                ),
                                               ),
                                             ),
-                                            const SizedBox(height: 7),
-                                            InkWell(
-                                              onTap: () {
-                                                launchUrlMethod(
-                                                    "tel:${model.resHomePhone}");
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  const SizedBox(
-                                                    width: 25,
-                                                    height: 25,
-                                                    child: Center(
-                                                      child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .phoneVolume,
-                                                        color: colorGreen,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                      width: spaceHorizontal),
-                                                  Expanded(
-                                                    child: ThemedText(
-                                                        text: model
-                                                                .resHomePhone ??
-                                                            ""),
-                                                  ),
-                                                ],
-                                              ),
+                                            const SizedBox(
+                                                width:
+                                                spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text: model
+                                                      .resAddress ??
+                                                      ""),
                                             ),
-                                            const SizedBox(height: 7),
-                                            InkWell(
-                                              onTap: () {
-                                                launchUrlMethod(
-                                                    "tel:${model.resMobilePhone}");
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  const SizedBox(
-                                                    width: 25,
-                                                    height: 25,
-                                                    child: Center(
-                                                      child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .mobileAlt,
-                                                        color: colorGreen,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                      width: spaceHorizontal),
-                                                  Expanded(
-                                                    child: ThemedText(
-                                                        text: model
-                                                                .resMobilePhone ??
-                                                            ""),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 7),
-                                            InkWell(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ClientDocument(
-                                                      id: (model.clientID ?? 0)
-                                                          .toString(),
-                                                      resId: (model.rESID ?? 0)
-                                                          .toString(),
-                                                    ),
-                                                  ),
-                                                );
-                                                // _launchUrl(
-                                                //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  const SizedBox(
-                                                    width: 25,
-                                                    height: 25,
-                                                    child: Center(
-                                                      child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .fileLines,
-                                                        color: colorGreen,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                      width: spaceHorizontal),
-                                                  Expanded(
-                                                    child: ThemedText(
-                                                        text:
-                                                            "View Client Documents"),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 7),
-                                            InkWell(
-                                              onTap: () {
-                                                print(
-                                                    "model.clientID : ${model.rESID}");
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ClientInfo(
-                                                        clientId:
-                                                            (model.rESID ?? 0)
-                                                                .toString(),
-                                                      ),
-                                                    ));
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  const SizedBox(
-                                                    width: 25,
-                                                    height: 25,
-                                                    child: Center(
-                                                      child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .circleInfo,
-                                                        color: colorGreen,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                      width: spaceHorizontal),
-                                                  Expanded(
-                                                    child: ThemedText(
-                                                        text:
-                                                            "View Client Info"),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 7),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlMethod(
+                                              "tel:${model.resHomePhone}");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons
+                                                      .phoneVolume,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width:
+                                                spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text: model
+                                                      .resHomePhone ??
+                                                      ""),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlMethod(
+                                              "tel:${model.resMobilePhone}");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons
+                                                      .mobileAlt,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width:
+                                                spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text: model
+                                                      .resMobilePhone ??
+                                                      ""),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ClientDocument(
+                                                    id: (model.clientID ??
+                                                        0)
+                                                        .toString(),
+                                                    resId:
+                                                    (model.rESID ?? 0)
+                                                        .toString(),
+                                                  ),
+                                            ),
+                                          );
+                                          // _launchUrl(
+                                          //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons
+                                                      .fileLines,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width:
+                                                spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text:
+                                                  "View Client Documents"),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                      InkWell(
+                                        onTap: () {
+                                          print(
+                                              "model.clientID : ${model
+                                                  .rESID}");
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ClientInfo(
+                                                      clientId:
+                                                      (model.rESID ??
+                                                          0)
+                                                          .toString(),
+                                                    ),
+                                              ));
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons
+                                                      .circleInfo,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width:
+                                                spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                  text:
+                                                  "View Client Info"),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 7),
+                                    ],
+                                  ),
                                 ),
-                              );
-                            },
+                              ),
+                            ],
                           ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -1789,12 +1955,6 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /*const Divider(
-                  thickness: 1,
-                  height: 1,
-                  color: colorGreyBorderD3,
-                ),
-                const SizedBox(height: 10),*/
                 Expanded(
                   child: ListView.builder(
                     itemCount: notesTempList.length,
@@ -1805,7 +1965,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
                         margin:
-                            const EdgeInsets.only(top: 8, right: 15, left: 15),
+                        const EdgeInsets.only(top: 8, right: 15, left: 15),
                         color: colorWhite,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -1817,7 +1977,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       ThemedText(
                                           text: "${model.serviceName}",
@@ -1826,14 +1986,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                           fontSize: 16),
                                       ThemedText(
                                           text:
-                                              "Note Writer: ${model.createdByName}",
+                                          "Note Writer: ${model.createdByName}",
                                           color: colorGreyLiteText,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16),
                                       const SizedBox(height: 8),
                                       Container(
                                         width:
-                                            MediaQuery.of(context).size.width,
+                                        MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width,
                                         height: 1,
                                         color: colorGreyBorderD3,
                                       ),
@@ -1865,22 +2028,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                             // model.serviceDate!,
                                             model.noteDate != null
                                                 ? DateFormat("EEE,dd-MM-yyyy")
-                                                    .format(
-                                                    DateTime.fromMillisecondsSinceEpoch(
-                                                            int.parse(model
-                                                                .noteDate!
-                                                                .replaceAll(
-                                                                    "/Date(",
-                                                                    "")
-                                                                .replaceAll(
-                                                                    ")/", "")),
-                                                            isUtc: false)
-                                                        .add(
-                                                      Duration(
-                                                          hours: 5,
-                                                          minutes: 30),
-                                                    ),
-                                                  )
+                                                .format(
+                                              DateTime
+                                                  .fromMillisecondsSinceEpoch(
+                                                  int.parse(model
+                                                      .noteDate!
+                                                      .replaceAll(
+                                                      "/Date(",
+                                                      "")
+                                                      .replaceAll(
+                                                      ")/", "")),
+                                                  isUtc: false)
+                                                  .add(
+                                                Duration(
+                                                    hours: 5,
+                                                    minutes: 30),
+                                              ),
+                                            )
                                                 : "",
                                             style: TextStyle(
                                               color: colorGreyText,
@@ -1901,7 +2065,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ],
                                       ),
                                       ThemedText(
-                                          text: model.tSid != 0 ? "Timesheet" : "",
+                                          text: model.tSid != 0
+                                              ? "Timesheet"
+                                              : "",
                                           color: colorLiteBlue,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16),
@@ -1916,21 +2082,313 @@ class _HomeScreenState extends State<HomeScreen> {
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               ProgressNoteDetails(
-                                            userId:
+                                                userId:
                                                 model.serviceScheduleEmpID ?? 0,
-                                            clientId: model.clientID ?? 0,
-                                            noteId: model.noteID ?? 0,
-                                            serviceShceduleClientID:
+                                                clientId: model.clientID ?? 0,
+                                                noteId: model.noteID ?? 0,
+                                                serviceShceduleClientID:
                                                 model.servicescheduleCLientID ??
                                                     0,
-                                            servicescheduleemployeeID:
+                                                servicescheduleemployeeID:
                                                 model.serviceScheduleEmpID ?? 0,
-                                            serviceName:
+                                                serviceName:
                                                 model.serviceName ?? "",
-                                            clientName: model.clientName,
-                                            noteWriter:
+                                                clientName: model.clientName,
+                                                noteWriter:
                                                 model.createdByName ?? "",
+                                              ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Align(
+                                    child: Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: colorGreen,
+                                      size: 30,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ExpandableContainer(
+                              expanded: selectedExpandedIndex == index,
+                              expandedHeight: 60,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 7),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Center(
+                                                  child: FaIcon(
+                                                    Icons.access_time_rounded,
+                                                    color: colorGreen,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                              Expanded(
+                                                child: ThemedText(
+                                                  text: "Time " +
+                                                      (model.timeFrom ?? "") +
+                                                      " - " +
+                                                      (model.timeTo ?? ""),
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Center(
+                                                  child: FaIcon(
+                                                    Icons.access_time,
+                                                    color: colorGreen,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                  width: spaceHorizontal),
+                                              Expanded(
+                                                child: ThemedText(
+                                                  text: "Total Hours " +
+                                                      (model.totalHours ?? "") +
+                                                      "hrs",
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 7),
+                                    Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: Center(
+                                            child: FaIcon(
+                                              Icons.note_alt_sharp,
+                                              color: colorGreen,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                            text: "Created By " +
+                                                (model.createdByName ?? ""),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildGroupServiceList() {
+    return Column(
+      children: [
+        /*  InkWell(
+          onTap: () {
+            _buildDateDialog();
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: spaceHorizontal, vertical: spaceVertical),
+            child: ThemedText(
+              text:
+                  "ProgressNotes : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: colorGreyText,
+            ),
+          ),
+        ),
+        const Divider(
+          thickness: 1,
+          height: 1,
+          color: colorGreyBorderD3,
+        ),*/
+        Expanded(
+          child: Container(
+            color: colorLiteBlueBackGround,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: tempListGroupService.length,
+                    primary: true,
+                    itemBuilder: (context, index) {
+                      GroupServiceModel model = tempListGroupService[index];
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        margin:
+                        const EdgeInsets.only(top: 8, right: 15, left: 15),
+                        color: colorWhite,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 8,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      ThemedText(
+                                          text: "${model.}",
+                                          color: colorBlack,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 16),
+                                      ThemedText(
+                                          text:
+                                          "Note Writer: ${model.createdByName}",
+                                          color: colorGreyLiteText,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        width:
+                                        MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width,
+                                        height: 1,
+                                        color: colorGreyBorderD3,
+                                      ),
+                                      Row(
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                selectedExpandedIndex = index;
+                                              });
+                                            },
+                                            child: SizedBox(
+                                              width: 30,
+                                              height: 30,
+                                              child: Icon(
+                                                Icons.arrow_downward_rounded,
+                                                color: colorGreen,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          FaIcon(
+                                            FontAwesomeIcons.calendarDays,
+                                            color: colorGreen,
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            // model.serviceDate!,
+                                            model.noteDate != null
+                                                ? DateFormat("EEE,dd-MM-yyyy")
+                                                .format(
+                                              DateTime
+                                                  .fromMillisecondsSinceEpoch(
+                                                  int.parse(model
+                                                      .noteDate!
+                                                      .replaceAll(
+                                                      "/Date(",
+                                                      "")
+                                                      .replaceAll(
+                                                      ")/", "")),
+                                                  isUtc: false)
+                                                  .add(
+                                                Duration(
+                                                    hours: 5,
+                                                    minutes: 30),
+                                              ),
+                                            )
+                                                : "",
+                                            style: TextStyle(
+                                              color: colorGreyText,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Container(
+                                            width: 1,
+                                            height: 25,
+                                            color: colorGreyBorderD3,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          ThemedText(
+                                              text: model.subject!,
+                                              color: colorGreyText,
+                                              fontSize: 14)
+                                        ],
+                                      ),
+                                      ThemedText(
+                                          text: model.tSid != 0
+                                              ? "Timesheet"
+                                              : "",
+                                          color: colorLiteBlue,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16),
+                                    ],
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    if (keyScaffold.currentContext != null) {
+                                      Navigator.of(keyScaffold.currentContext!)
+                                          .push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProgressNoteDetails(
+                                                userId:
+                                                model.serviceScheduleEmpID ?? 0,
+                                                clientId: model.clientID ?? 0,
+                                                noteId: model.noteID ?? 0,
+                                                serviceShceduleClientID:
+                                                model.servicescheduleCLientID ??
+                                                    0,
+                                                servicescheduleemployeeID:
+                                                model.serviceScheduleEmpID ?? 0,
+                                                serviceName:
+                                                model.serviceName ?? "",
+                                                clientName: model.clientName,
+                                                noteWriter:
+                                                model.createdByName ?? "",
+                                              ),
                                         ),
                                       );
                                     }
@@ -2084,32 +2542,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
       Position position = await Geolocator.getCurrentPosition();
       List<Placemark> addressList =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
+      await placemarkFromCoordinates(position.latitude, position.longitude);
 
-      Placemark placeMark  = addressList[0];
+      Placemark placeMark = addressList[0];
       String address = "";
       String name = placeMark?.name ?? "";
-      if(name.trim().isNotEmpty){
+      if (name
+          .trim()
+          .isNotEmpty) {
         address = "${name}, ";
       }
       String subLocality = placeMark?.subLocality ?? "";
-      if(subLocality.trim().isNotEmpty){
+      if (subLocality
+          .trim()
+          .isNotEmpty) {
         address = "${address}${subLocality},";
       }
-      String locality = placeMark?.locality?? "";
-      if(locality.trim().isNotEmpty){
+      String locality = placeMark?.locality ?? "";
+      if (locality
+          .trim()
+          .isNotEmpty) {
         address = "${address}${locality}, ";
       }
-      String administrativeArea = placeMark?.administrativeArea?? "";
-      if(administrativeArea.isNotEmpty){
+      String administrativeArea = placeMark?.administrativeArea ?? "";
+      if (administrativeArea.isNotEmpty) {
         address = "${address}${administrativeArea}, ";
       }
-      String postalCode = placeMark?.postalCode?? "";
-      if(postalCode.trim().isNotEmpty){
+      String postalCode = placeMark?.postalCode ?? "";
+      if (postalCode
+          .trim()
+          .isNotEmpty) {
         address = "${address}${postalCode}, ";
       }
-      String country = placeMark?.country?? "";
-      if(country.trim().isNotEmpty){
+      String country = placeMark?.country ?? "";
+      if (country
+          .trim()
+          .isNotEmpty) {
         address = "${address}${country}, ";
       }
       address = address.trim();
@@ -2131,9 +2599,9 @@ class _HomeScreenState extends State<HomeScreen> {
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid':
-          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'servicescheduleemployeeID': sSEID,
       'Location': address,
       'SaveTimesheet': "false",
@@ -2217,7 +2685,7 @@ class _HomeScreenState extends State<HomeScreen> {
               bottomCurrentIndex = index;
               break;
             case 4:
-              /*  Navigator.push(
+            /*  Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ProfileTabScreen(),
@@ -2319,7 +2787,10 @@ class ExpandableContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
     return AnimatedContainer(
       duration: Duration(milliseconds: 500),
       curve: Curves.easeInOut,

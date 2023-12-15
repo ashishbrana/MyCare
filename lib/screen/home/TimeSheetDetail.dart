@@ -20,7 +20,7 @@ import 'models/ConfirmedResponseModel.dart';
 import 'notes/NotesDetails.dart';
 
 class TimeSheetDetail extends StatefulWidget {
-  final TimeShiteResponseModel model;
+  final TimeShiteModel model;
   final int indexSelectedFrom;
 
   const TimeSheetDetail(
@@ -214,7 +214,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                                 null &&
                             getDateTimeFromEpochTime(
                                     widget.model.serviceDate ?? "")!
-                                .isAfter(DateTime.now().add(const Duration(days: 1)))
+                                .isAfter(
+                                    DateTime.now().add(const Duration(days: 1)))
                         ? "Time Sheet can not be completed for Future Dates"
                         : "Complete TimeSheet"
                     : widget.indexSelectedFrom == 3
@@ -230,14 +231,18 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                             null &&
                         getDateTimeFromEpochTime(
                                 widget.model.serviceDate ?? "")!
-                            .isBefore(DateTime.now().add(const Duration(days: 1)))) {
+                            .isBefore(
+                                DateTime.now().add(const Duration(days: 1)))) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              TimeSheetForm(model: widget.model,indexSelectedFrom: widget.indexSelectedFrom),
+                          builder: (context) => TimeSheetForm(
+                              model: widget.model,
+                              indexSelectedFrom: widget.indexSelectedFrom),
                         ),
-                      ).then((value) => value != null && value ? Navigator.pop(context, true) : () {});
+                      ).then((value) => value != null && value
+                          ? Navigator.pop(context, 0)
+                          : () {});
                     }
                   } else {
                     showConfirmationDialog(
@@ -273,29 +278,35 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     padding: EdgeInsets.zero,
                     fontSize: 16,
                     onTap: () async {
-                     String fullName =  await Preferences().getPrefString(Preferences.prefUserFullName);
-                     print(fullName);
-                      if (keyScaffold.currentContext != null) {
-                        Navigator.push(
-                            keyScaffold.currentContext!,
-                            MaterialPageRoute(
-                              builder: (context) => ProgressNoteDetails(
-                                userId: widget.model.empID ?? 0,
-                                noteId: widget.model.noteID ?? 0,
-                                clientId: widget.model.rESID ?? 0,
-                                servicescheduleemployeeID:
-                                    widget.model.servicescheduleemployeeID ?? 0,
-                                serviceShceduleClientID:
-                                    widget.model.serviceShceduleClientID ?? 0,
-                                serviceName: widget.model.serviceName ?? "",
-                                clientName:
-                                    "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
-                                noteWriter: fullName,
-                              ),
-                            )).then((value) => value != null &&
-                                value
-                            ? Navigator.pop(context, true)
-                            : () {});
+                      if (widget.model.resName != "Group Service") {
+                        String fullName = await Preferences()
+                            .getPrefString(Preferences.prefUserFullName);
+                        print(fullName);
+                        if (keyScaffold.currentContext != null) {
+                          Navigator.push(
+                              keyScaffold.currentContext!,
+                              MaterialPageRoute(
+                                builder: (context) => ProgressNoteDetails(
+                                  userId: widget.model.empID ?? 0,
+                                  noteId: widget.model.noteID ?? 0,
+                                  clientId: widget.model.rESID ?? 0,
+                                  servicescheduleemployeeID:
+                                      widget.model.servicescheduleemployeeID ??
+                                          0,
+                                  serviceShceduleClientID:
+                                      widget.model.serviceShceduleClientID ?? 0,
+                                  serviceName: widget.model.serviceName ?? "",
+                                  clientName:
+                                      "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                  noteWriter: fullName,
+                                ),
+                              )).then((value) => value != null &&
+                                  value
+                              ? Navigator.pop(context, 0)
+                              : () {});
+                        }
+                      } else {
+                        Navigator.pop(context, 1);
                       }
                     },
                   ),
@@ -378,7 +389,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
 
   confirmApiCall() async {
     Map<String, dynamic> params = {
-      'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'auth_code':
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': (widget.model.empID ?? 0).toString(),
       'rosterid': (widget.model.rosterID ?? 0).toString(),
       'ssEmployeeID': (widget.model.servicescheduleemployeeID ?? 0).toString(),
@@ -402,7 +414,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
             var jsonResponse = json.decode(response);
             if (jsonResponse["status"] == 1) {
               Navigator.pop(context);
-              Navigator.pop(context, true);
+              Navigator.pop(context, 0);
             }
             setState(() {});
           } else {
@@ -427,7 +439,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'userid':  (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      'userid':
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'rosterid': (widget.model.rosterID ?? 0).toString(),
       'totalhours': (widget.model.totalHours ?? 0).toString(),
       'serviceDate': DateFormat("EEE MMM dd yyyy ").format(
@@ -440,7 +453,6 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
         const Duration(hours: 5, minutes: 30),
       ))
     };
-
 
     print("params : ${params}");
     isConnected().then((hasInternet) async {

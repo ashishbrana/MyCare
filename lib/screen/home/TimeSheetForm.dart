@@ -24,7 +24,7 @@ import 'models/ConfirmedResponseModel.dart';
 import 'notes/NotesDetails.dart';
 
 class TimeSheetForm extends StatefulWidget {
-  final TimeShiteResponseModel model;
+  final TimeShiteModel model;
   final int indexSelectedFrom;
 
   const TimeSheetForm(
@@ -405,7 +405,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                         ),
                                       )).then((value) => value != null &&
                                           value
-                                      ? Navigator.pop(context, true)
+                                      ? Navigator.pop(context, 0)
                                       : () {});
                                 },
                               ),
@@ -1569,7 +1569,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             if (jres["status"] == 1) {
               showSnackBarWithText(_keyScaffold.currentState, "Success",
                   color: colorGreen);
-              Navigator.pop(context, true);
+              Navigator.pop(context, 0);
             }
           } else {
             showSnackBarWithText(
@@ -1671,7 +1671,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
               else{
                 showSnackBarWithText(_keyScaffold.currentState, "Success",
                     color: colorGreen);
-                Navigator.pop(context, true);
+                Navigator.pop(context, 0);
               }
 
             }
@@ -1799,7 +1799,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             if (json.decode(response)["status"] == 1) {
               showSnackBarWithText(_keyScaffold.currentState, "Success",
                   color: colorGreen);
-              Navigator.pop(context, true);
+              Navigator.pop(context, 0);
             }
             setState(() {});
           } else {

@@ -16,6 +16,7 @@ const String endSaveEmployeeProfile = 'saveEmployeeProfileForm';
 const String endClientProfile = 'ClientProfile';
 const String endGetDocs = 'getdocs';
 const String progressNotesList = 'ProgressNotesList';
+const String endClientGroupList = 'ClientGroupList';
 const String endCareWorkersList = 'CareWorkersList';
 const String endDNSList = 'DSNList';
 const String ServiceDetaileByID = 'ServiceDetaileByID';

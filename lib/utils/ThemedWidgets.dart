@@ -45,6 +45,7 @@ class ThemedTextField extends StatefulWidget {
   EdgeInsetsGeometry? padding;
   int minLine = 1;
   int maxLine = 1;
+  Iterable<String>? autofillHints;
 
   ThemedTextField({
     super.key,
@@ -84,6 +85,7 @@ class ThemedTextField extends StatefulWidget {
     this.validator,
     this.minLine = 1,
     this.maxLine = 1,
+    this.autofillHints,
   });
 
   @override
@@ -102,6 +104,7 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
       focusNode: widget.currentFocusNode,
       minLines: widget.minLine,
       maxLines: widget.maxLine,
+      autofillHints: widget.autofillHints,
       textCapitalization: widget.textCapitalization ?? TextCapitalization.none,
       inputFormatters: [
         if (widget.isAcceptNumbersOnly)
