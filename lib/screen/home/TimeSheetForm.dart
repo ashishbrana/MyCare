@@ -1456,7 +1456,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     double diffMin = ((((diff - breakMin) - origionalMins) * 100) / 60) / 100;
     String stdiffMin = diffMin.toStringAsFixed(2);
     diffHours = double.parse(stdiffMin);
-    _controllerHoursDifference.text = "$diffMin";
+    _controllerHoursDifference.text = "$diffHours";
   }
 
   showTimePickerDialog(

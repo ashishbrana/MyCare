@@ -79,8 +79,8 @@ class _LoginState extends State<Login> {
                   Preferences.prefUserID, responseModel.userid ?? 0);
               Preferences().setPrefString(
                   Preferences.prefUserFullName, responseModel.fullName ?? "");
-              Preferences().setPrefString(
-                  Preferences.prefComepanyCode, comapanyCode ?? "");
+              Preferences()
+                  .setPrefString(Preferences.prefComepanyCode, comapanyCode ?? "");
               sendToHome();
             } else {
               showSnackBarWithText(
@@ -152,91 +152,75 @@ class _LoginState extends State<Login> {
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     color: Colors.grey.shade50,
-                                    child: AutofillGroup(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ThemedTextField(
-                                            borderColor: colorGreyBorderD3,
-                                            controller: _controllerUsername,
-                                            // hintText: "Username",
-                                            labelText: "Username",
-                                            labelFontWeight: FontWeight.w500,
-                                            preFix: const FaIcon(
-                                                FontAwesomeIcons
-                                                    .solidCircleUser,
-                                                color: colorPrimary),
-                                            autofillHints: const [
-                                              AutofillHints.username
-                                            ],
-                                            keyBoardType: TextInputType.name,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty ||
-                                                  value.trim().isEmpty) {
-                                                return "Please enter Username!";
-                                              }
-                                            },
-                                            backgroundColor:
-                                                colorGreyExtraLightBackGround,
-                                          ),
-                                          const SizedBox(height: spaceVertical),
-                                          ThemedTextField(
-                                            borderColor: colorGreyBorderD3,
-                                            controller: _controllerPassword,
-                                            // hintText: "Password",
-                                            labelText: "Password",
-                                            autofillHints: const [
-                                              AutofillHints.password
-                                            ],
-                                            keyBoardType:
-                                                TextInputType.visiblePassword,
-                                            labelFontWeight: FontWeight.w500,
-                                            preFix: const FaIcon(
-                                                FontAwesomeIcons.lock,
-                                                color: colorPrimary),
-                                            isPasswordTextField: true,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty ||
-                                                  value.trim().isEmpty) {
-                                                return "Please enter password!";
-                                              }
-                                              if (value.length < 8 ||
-                                                  value.length > 15) {
-                                                return "Please enter valid length(between 8 to 15) password!";
-                                              }
-                                            },
-                                            backgroundColor:
-                                                colorGreyExtraLightBackGround,
-                                          ),
-                                          const SizedBox(height: spaceVertical),
-                                          ThemedTextField(
-                                            borderColor: colorGreyBorderD3,
-                                            controller: _controllerCompanyCode,
-                                            autofillHints: const [
-                                              AutofillHints.organizationName
-                                            ],
-                                            keyBoardType: TextInputType.text,
-                                            // hintText: "Company Code",
-                                            labelText: "Company Code",
-                                            labelFontWeight: FontWeight.w500,
-                                            preFix: const FaIcon(
-                                                FontAwesomeIcons.key,
-                                                color: colorPrimary),
-                                            isPasswordTextField: false,
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty ||
-                                                  value.trim().isEmpty) {
-                                                return "Please enter company code!";
-                                              }
-                                            },
-                                            backgroundColor:
-                                                colorGreyExtraLightBackGround,
-                                          ),
-                                        ],
-                                      ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ThemedTextField(
+                                          borderColor: colorGreyBorderD3,
+                                          controller: _controllerUsername,
+                                          // hintText: "Username",
+                                          labelText: "Username",
+                                          labelFontWeight: FontWeight.w500,
+                                          preFix: const FaIcon(
+                                              FontAwesomeIcons.solidCircleUser,
+                                              color: colorPrimary),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.trim().isEmpty) {
+                                              return "Please enter Username!";
+                                            }
+                                          },
+                                          backgroundColor:
+                                              colorGreyExtraLightBackGround,
+                                        ),
+                                        const SizedBox(height: spaceVertical),
+                                        ThemedTextField(
+                                          borderColor: colorGreyBorderD3,
+                                          controller: _controllerPassword,
+                                          // hintText: "Password",
+                                          labelText: "Password",
+                                          labelFontWeight: FontWeight.w500,
+                                          preFix: const FaIcon(
+                                              FontAwesomeIcons.lock,
+                                              color: colorPrimary),
+                                          isPasswordTextField: true,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.trim().isEmpty) {
+                                              return "Please enter password!";
+                                            }
+                                            if (value.length < 8 ||
+                                                value.length > 15) {
+                                              return "Please enter valid length(between 8 to 15) password!";
+                                            }
+                                          },
+                                          backgroundColor:
+                                              colorGreyExtraLightBackGround,
+                                        ),
+                                        const SizedBox(height: spaceVertical),
+                                        ThemedTextField(
+                                          borderColor: colorGreyBorderD3,
+                                          controller: _controllerCompanyCode,
+                                          // hintText: "Company Code",
+                                          labelText: "Company Code",
+                                          labelFontWeight: FontWeight.w500,
+                                          preFix: const FaIcon(
+                                              FontAwesomeIcons.key,
+                                              color: colorPrimary),
+                                          isPasswordTextField: false,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.trim().isEmpty) {
+                                              return "Please enter company code!";
+                                            }
+                                          },
+                                          backgroundColor:
+                                              colorGreyExtraLightBackGround,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
