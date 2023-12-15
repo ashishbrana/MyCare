@@ -35,7 +35,7 @@ class _DNSListState extends State<DNSList> {
   List<DSNListModel> dataList = [];
 
   int selectedExpandedIndex = -1;
-
+  final userid = Preferences().getPrefInt(Preferences.prefUserID);
   @override
   void initState() {
     super.initState();
@@ -174,7 +174,7 @@ class _DNSListState extends State<DNSList> {
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              "Note Writer: ${model.notewriter}",
+                                                              "\nNote Writer: ${model.notewriter}",
                                                           style:
                                                               const TextStyle(
                                                             color:
@@ -278,10 +278,10 @@ class _DNSListState extends State<DNSList> {
                                     ],
                                   ),
                                 ),
-                                if (getDateTimeFromEpochTime(model.ssdate!) !=
+                                if (userid == model.notewriterid || (getDateTimeFromEpochTime(model.ssdate!) !=
                                         null &&
                                     getDateTimeFromEpochTime(model.ssdate!)!
-                                        .isBefore(DateTime.now()))
+                                        .isBefore(DateTime.now())))
                                   InkWell(
                                     onTap: () {
                                       Navigator.push(

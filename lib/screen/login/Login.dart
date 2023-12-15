@@ -43,6 +43,8 @@ class _LoginState extends State<Login> {
   final TextEditingController _controllerCompanyCode = TextEditingController();
   final TextEditingController forgotEmailController = TextEditingController();
 
+
+
   _loginApiCall(String username, String password, String comapanyCode) {
     closeKeyboard();
     var params = {
@@ -210,6 +212,12 @@ class _LoginState extends State<Login> {
                                               FontAwesomeIcons.key,
                                               color: colorPrimary),
                                           isPasswordTextField: false,
+                                            onChanged: (value) {
+                                              _controllerCompanyCode.value = TextEditingValue(
+                                                  text: value.toLowerCase(),
+                                                  selection: _controllerCompanyCode.selection
+                                              );
+                                            },
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty ||
