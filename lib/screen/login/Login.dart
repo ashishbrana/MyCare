@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rcare_2/screen/login/ForgotPassword.dart';
@@ -43,6 +44,22 @@ class _LoginState extends State<Login> {
   final TextEditingController _controllerCompanyCode = TextEditingController();
   final TextEditingController forgotEmailController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    getData();
+  }
+
+  getData() async {
+    _controllerUsername.text =
+        (await FlutterKeychain.get(key: "username") ?? "");
+    _controllerPassword.text =
+        (await FlutterKeychain.get(key: "password") ?? "");
+    _controllerCompanyCode.text =
+        (await FlutterKeychain.get(key: "companycode") ?? "");
+  }
+
   _loginApiCall(String username, String password, String comapanyCode) {
     closeKeyboard();
     var params = {
@@ -79,8 +96,11 @@ class _LoginState extends State<Login> {
                   Preferences.prefUserID, responseModel.userid ?? 0);
               Preferences().setPrefString(
                   Preferences.prefUserFullName, responseModel.fullName ?? "");
-              Preferences()
-                  .setPrefString(Preferences.prefComepanyCode, comapanyCode ?? "");
+              Preferences().setPrefString(
+                  Preferences.prefComepanyCode, comapanyCode ?? "");
+              await FlutterKeychain.put(key: "username", value: username);
+              await FlutterKeychain.put(key: "password", value: password);
+              await FlutterKeychain.put(key: "companycode", value: comapanyCode);
               sendToHome();
             } else {
               showSnackBarWithText(
@@ -211,10 +231,12 @@ class _LoginState extends State<Login> {
                                               color: colorPrimary),
                                           isPasswordTextField: false,
                                           onChanged: (value) {
-                                            _controllerCompanyCode.value = TextEditingValue(
-                                                text: value.toLowerCase(),
-                                                selection: _controllerCompanyCode.selection
-                                            );
+                                            _controllerCompanyCode.value =
+                                                TextEditingValue(
+                                                    text: value.toLowerCase(),
+                                                    selection:
+                                                        _controllerCompanyCode
+                                                            .selection);
                                           },
                                           validator: (value) {
                                             if (value == null ||
