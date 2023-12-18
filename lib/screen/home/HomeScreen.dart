@@ -429,6 +429,11 @@ class _HomeScreenState extends State<HomeScreen> {
         key: keyScaffold,
         appBar: _buildAppBar(),
         endDrawer: _buildEndDrawer(),
+        onEndDrawerChanged: (opened) async {
+          userName =
+              await Preferences().getPrefString(Preferences.prefUserFullName);
+          setState(() {});
+        },
         bottomNavigationBar: _buildBottomNavigation(),
         body: Column(
           children: [
@@ -556,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const SizedBox(height: 30),
                     ThemedText(
-                      text: 'Kate Clark',
+                      text: userName,
                       color: colorBlack,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
