@@ -6,7 +6,7 @@ class GroupServiceModel {
   String? startTime;
   String? endTime;
   String? serviceDate;
-  int? totalhours;
+  double? totalhours;
   String? serviceType;
   String? notewriter;
   String? groupname;
@@ -44,7 +44,8 @@ class GroupServiceModel {
     startTime = json['StartTime'];
     endTime = json['EndTime'];
     serviceDate = json['ServiceDate'];
-    totalhours = json['totalhours'];
+    totalhours =
+        json['totalhours'] != null ? json['totalhours'].toDouble() : 0.0;
     serviceType = json['ServiceType'];
     notewriter = json['notewriter'];
     groupname = json['groupname'];

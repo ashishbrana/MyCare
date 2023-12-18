@@ -364,26 +364,28 @@ class _HomeScreenState extends State<HomeScreen> {
               params: '',
               method: 'GET');
           getOverlay(context);
+
+          String response = await HttpService().init(request, keyScaffold);
+          log("RESPONSE : $endClientGroupList : $response");
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            log("jResponse $jResponse");
+            mainListGroupService.clear();
+            mainListGroupService.addAll(
+                jResponse.map((e) => GroupServiceModel.fromJson(e)).toList());
+            tempListGroupService.clear();
+            tempListGroupService.addAll(mainListGroupService);
+            print("NOTES : ${mainListGroupService.length}");
+
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                keyScaffold.currentState, stringSomeThingWentWrong);
+          }
           try {
-            String response = await HttpService().init(request, keyScaffold);
-            log("$endClientGroupList : $response");
-            removeOverlay();
-            if (response != null && response != "") {
-              // print('res ${response}');
-
-              List jResponse = json.decode(response);
-              print("jResponse $jResponse");
-              mainListGroupService =
-                  jResponse.map((e) => GroupServiceModel.fromJson(e)).toList();
-              tempListGroupService.clear();
-              tempListGroupService.addAll(mainListGroupService);
-              print("NOTES : ${mainListGroupService.length}");
-
-              setState(() {});
-            } else {
-              showSnackBarWithText(
-                  keyScaffold.currentState, stringSomeThingWentWrong);
-            }
             removeOverlay();
           } catch (e) {
             print("ERROR : $e");
@@ -1159,10 +1161,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             size: 22,
                                                           ),
                                                         ),
-                                                      const SizedBox(
-                                                          width:
-                                                              spaceHorizontal /
-                                                                  2),
+                                                      if (model.noteID != 0)
+                                                        const SizedBox(
+                                                            width:
+                                                                spaceHorizontal /
+                                                                    2),
+                                                      if (model.resName ==
+                                                          "Group Service")
+                                                        InkWell(
+                                                          onTap: () {
+                                                            selectedModel =
+                                                                model;
+                                                            getGroupServices();
+
+                                                            setState(() {
+                                                              bottomCurrentIndex =
+                                                                  5;
+                                                            });
+                                                          },
+                                                          child: const FaIcon(
+                                                            FontAwesomeIcons
+                                                                .userGroup,
+                                                            size: 18,
+                                                          ),
+                                                        ),
+                                                      if (model.resName ==
+                                                          "Group Service")
+                                                        const SizedBox(
+                                                            width:
+                                                                spaceHorizontal /
+                                                                    2),
                                                       if (bottomCurrentIndex !=
                                                           3)
                                                         InkWell(
@@ -1629,6 +1657,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       getAvailableShiftsData();
                                                       getDataProgressNotes();
                                                     } else if (value == 1) {
+                                                      mainListGroupService
+                                                          .clear();
+                                                      tempListGroupService
+                                                          .clear();
                                                       bottomCurrentIndex = 5;
                                                       setState(() {});
                                                       getGroupServices();
@@ -2205,6 +2237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           )
                               .then((value) {
                             if (value != null && value) {
+                              mainListGroupService.clear();
+                              tempListGroupService.clear();
                               getGroupServices();
                             }
                           });
@@ -2388,14 +2422,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 : RoundedRectangleBorder(
                                                     borderRadius:
                                                         boxBorderRadius),
-                                            onChanged: (value) {
-                                              if (!model.isCompleted) {
-                                                if (value != null) {
-                                                  model.isSelected = value;
-                                                  setState(() {});
-                                                }
-                                              }
-                                            },
+                                            onChanged: model.isCompleted
+                                                ? null
+                                                : (value) {
+                                                    if (value != null) {
+                                                      model.isSelected = value;
+                                                      setState(() {});
+                                                    }
+                                                  },
                                           )
                                         ],
                                       ),

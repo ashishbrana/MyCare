@@ -909,16 +909,30 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 
   saveNoteApiCall() async {
+    closeKeyboard();
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         String noteIds = "";
+        String clientId = "";
+        String serviceScheduleClientId = "";
+        String ssEmployeeId = "";
         if (widget.selectedGroupServiceList != null &&
             widget.selectedGroupServiceList!.isNotEmpty) {
+          noteIds = "0";
           for (GroupServiceModel model in widget.selectedGroupServiceList!) {
             if (model.noteID != null) {
-              noteIds += "${noteIds.isNotEmpty ? "," : ""}${model.noteID!}";
+              clientId +=
+                  "${clientId.isNotEmpty ? "," : ""}${model.rESID ?? "0"}";
+              serviceScheduleClientId +=
+                  "${serviceScheduleClientId.isNotEmpty ? "," : ""}${model.servicescheduleCLientID ?? "0"}";
             }
           }
+          ssEmployeeId = "0";
+        } else {
+          noteIds = (model!.noteID ?? 0).toString();
+          serviceScheduleClientId = widget.serviceShceduleClientID.toString();
+          clientId = widget.clientId.toString();
+          ssEmployeeId = widget.servicescheduleemployeeID.toString();
         }
 
         try {
@@ -928,11 +942,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           String stri =
               "iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAABGdBTUEAALGPC/xhBQAAAPNJREFUeF7t1MEJgDAQRNHtvylLsYQcPYianETCBvQk6HvwOxgmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgC84pEv7g7abrV3LoNI1t6YWnLLR6r9lxzQqO6cshwUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADviKj9UU7A+mOSSQAAAABJRU5ErkJggg==";
           String strBody = json.encode({
-            "NoteID": noteIds.isNotEmpty
-                ? noteIds
-                : model != null
-                    ? model!.noteID ?? 0
-                    : 0,
+            "NoteID": noteIds,
             "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
             "AssessmentScale": _assesmentScale.toString(),
             "AssessmentComment":
@@ -942,20 +952,20 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             "Subject": _subject.text,
             "img": 0,
             "userID": widget.userId,
-            "clientID": widget.clientId,
-            "ServiceScheduleClientID": widget.serviceShceduleClientID,
+            "clientID": clientId,
+            "ServiceScheduleClientID": serviceScheduleClientId,
             "bit64Signature": _controllerSignature.isNotEmpty
                 ? (signature != null ? "${base64.encode(signature)}" : "")
                 : "",
             "ClientRating": clientRating.toString(),
             "ssClientIds": "",
             "GroupNote": 0,
-            "ssEmployeeID": widget.servicescheduleemployeeID
+            "ssEmployeeID": ssEmployeeId,
           });
           log(strBody);
-          /*  if (strBody.isNotEmpty) {
+          if (strBody.isEmpty) {
             return;
-          }*/
+          }
 
           Response response = await http.post(
             Uri.parse("$mainUrl$endSaveNoteDetails"),
