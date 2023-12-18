@@ -349,8 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
             (await Preferences().getPrefString(Preferences.prefAuthCode)),
         'userid':
             (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
-        'RosterID': selectedModel!.rosterID,
-        'ssEmployeeID': selectedModel!.servicescheduleemployeeID,
+        'RosterID': (selectedModel!.rosterID ?? "0").toString(),
+        'ssEmployeeID':
+            (selectedModel!.servicescheduleemployeeID ?? "0").toString(),
       };
       print("params : $params");
       isConnected().then((hasInternet) async {
@@ -1627,8 +1628,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       getData();
                                                       getAvailableShiftsData();
                                                       getDataProgressNotes();
-                                                    } else if (value == 0) {
-                                                      bottomCurrentIndex == 5;
+                                                    } else if (value == 1) {
+                                                      bottomCurrentIndex = 5;
+                                                      setState(() {});
                                                       getGroupServices();
                                                     }
                                                   }
@@ -1942,9 +1944,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         children: [
                                           InkWell(
                                             onTap: () {
-                                              setState(() {
+                                              if (selectedExpandedIndex != -1) {
+                                                selectedExpandedIndex = -1;
+                                              } else {
                                                 selectedExpandedIndex = index;
-                                              });
+                                              }
+                                              setState(() {});
                                             },
                                             child: SizedBox(
                                               width: 30,
@@ -2154,33 +2159,64 @@ class _HomeScreenState extends State<HomeScreen> {
   _buildGroupServiceList() {
     return Column(
       children: [
-        /*  InkWell(
-          onTap: () {
-            _buildDateDialog();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: spaceHorizontal, vertical: spaceVertical),
-            child: ThemedText(
-              text:
-                  "ProgressNotes : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: colorGreyText,
-            ),
-          ),
-        ),
-        const Divider(
-          thickness: 1,
-          height: 1,
-          color: colorGreyBorderD3,
-        ),*/
         Expanded(
           child: Container(
             color: colorLiteBlueBackGround,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+                  height: 40,
+                  margin: const EdgeInsets.only(
+                    top: spaceVertical,
+                    right: spaceHorizontal * 1.5,
+                    left: spaceHorizontal * 1.5,
+                  ),
+                  child: ThemedButton(
+                    title: "Add Group Note",
+                    padding: EdgeInsets.zero,
+                    onTap: () {
+                      if (keyScaffold.currentContext != null) {
+                        List<GroupServiceModel> temp = [];
+                        for (GroupServiceModel model in tempListGroupService) {
+                          if (model.isSelected) {
+                            temp.add(model);
+                          }
+                        }
+                        if (temp.isNotEmpty) {
+                          Navigator.of(keyScaffold.currentContext!)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) => ProgressNoteDetails(
+                                userId: temp.first.serviceScheduleEmpID ?? 0,
+                                clientId:
+                                    temp.first.servicescheduleCLientID ?? 0,
+                                noteId: temp.first.noteID ?? 0,
+                                serviceShceduleClientID:
+                                    temp.first.servicescheduleCLientID ?? 0,
+                                servicescheduleemployeeID:
+                                    temp.first.serviceScheduleEmpID ?? 0,
+                                serviceName: temp.first.groupname ?? "",
+                                clientName: temp.first.clientName,
+                                noteWriter: temp.first.notewriter ?? "",
+                                selectedGroupServiceList: temp,
+                              ),
+                            ),
+                          )
+                              .then((value) {
+                            if (value != null && value) {
+                              getGroupServices();
+                            }
+                          });
+                        } else {
+                          showSnackBarWithText(keyScaffold.currentState,
+                              "Please select at list a note!");
+                        }
+                      }
+                    },
+                    fontSize: 16,
+                  ),
+                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: tempListGroupService.length,
@@ -2205,6 +2241,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      ThemedText(
+                                          text:
+                                              "${model.clientName} - ${model.serviceType}",
+                                          color: colorBlack,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 16),
+                                      const SizedBox(height: 8),
                                       Container(
                                         width:
                                             MediaQuery.of(context).size.width,
@@ -2215,9 +2258,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         children: [
                                           InkWell(
                                             onTap: () {
-                                              setState(() {
+                                              if (selectedExpandedIndex != -1) {
+                                                selectedExpandedIndex = -1;
+                                              } else {
                                                 selectedExpandedIndex = index;
-                                              });
+                                              }
+                                              setState(() {});
                                             },
                                             child: const SizedBox(
                                               width: 30,
@@ -2228,50 +2274,129 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 5),
-                                          const FaIcon(
-                                            FontAwesomeIcons.calendarDays,
-                                            color: colorGreen,
-                                            size: 16,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            // model.serviceDate!,
-                                            model.serviceDate != null
-                                                ? DateFormat("EEE,dd-MM-yyyy")
-                                                    .format(
-                                                    DateTime.fromMillisecondsSinceEpoch(
-                                                            int.parse(model
-                                                                .serviceDate!
-                                                                .replaceAll(
-                                                                    "/Date(",
-                                                                    "")
-                                                                .replaceAll(
-                                                                    ")/", "")),
-                                                            isUtc: false)
-                                                        .add(
-                                                      Duration(
-                                                          hours: 5,
-                                                          minutes: 30),
-                                                    ),
-                                                  )
-                                                : "",
-                                            style: TextStyle(
-                                              color: colorGreyText,
-                                              fontSize: 14,
+                                          Expanded(
+                                            child: ThemedRichText(
+                                              spanList: [
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const FaIcon(
+                                                        FontAwesomeIcons
+                                                            .calendarDays,
+                                                        color: colorGreen,
+                                                        size: 14,
+                                                      ),
+                                                      const SizedBox(
+                                                          width:
+                                                              spaceHorizontal /
+                                                                  2),
+                                                      ThemedText(
+                                                        text: DateFormat(
+                                                                "EEE,dd-MM-yyyy")
+                                                            .format(getDateTimeFromEpochTime(
+                                                                model
+                                                                    .serviceDate!)!),
+                                                        color: colorGreyText,
+                                                        fontSize: 12,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 20,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const FaIcon(
+                                                        Icons
+                                                            .access_time_rounded,
+                                                        color: colorGreen,
+                                                        size: 16,
+                                                      ),
+                                                      const SizedBox(
+                                                          width:
+                                                              spaceHorizontal /
+                                                                  2),
+                                                      ThemedText(
+                                                        text:
+                                                            "${model.startTime} - ${model.endTime}",
+                                                        color: colorGreyText,
+                                                        fontSize: 12,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 20,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const FaIcon(
+                                                        Icons.history,
+                                                        color: colorGreen,
+                                                        size: 16,
+                                                      ),
+                                                      const SizedBox(
+                                                          width:
+                                                              spaceHorizontal /
+                                                                  2),
+                                                      ThemedText(
+                                                        text:
+                                                            "${model.totalhours} hrs",
+                                                        color: colorGreyText,
+                                                        fontSize: 12,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 20,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          const SizedBox(width: 5),
-                                          Container(
-                                            width: 1,
-                                            height: 25,
-                                            color: colorGreyBorderD3,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          /*ThemedText(
-                                              text: model.subject!,
-                                              color: colorGreyText,
-                                              fontSize: 14)*/
+                                          Checkbox(
+                                            value: model.isCompleted
+                                                ? model.isCompleted
+                                                : model.isSelected,
+                                            activeColor: colorGreen,
+                                            shape: model.isCompleted
+                                                ? const CircleBorder()
+                                                : RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        boxBorderRadius),
+                                            onChanged: (value) {
+                                              if (!model.isCompleted) {
+                                                if (value != null) {
+                                                  model.isSelected = value;
+                                                  setState(() {});
+                                                }
+                                              }
+                                            },
+                                          )
                                         ],
                                       ),
                                       /*ThemedText(
@@ -2323,89 +2448,97 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             ExpandableContainer(
                               expanded: selectedExpandedIndex == index,
-                              expandedHeight: 60,
+                              expandedHeight: 110,
                               child: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 7),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    Icons.access_time_rounded,
-                                                    color: colorGreen,
-                                                  ),
-                                                ),
+                                    InkWell(
+                                      onTap: () {
+                                        launchUrlMethod(
+                                            "http://maps.google.com/?q=${model.resAddress}");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 25,
+                                            height: 25,
+                                            child: Center(
+                                              child: FaIcon(
+                                                FontAwesomeIcons.locationDot,
+                                                color: colorGreen,
+                                                size: 18,
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              Expanded(
-                                                child: ThemedText(
-                                                  text:
-                                                      "Time ${model.startTime ?? ""} - ${model.endTime ?? ""}",
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    Icons.access_time,
-                                                    color: colorGreen,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              Expanded(
-                                                child: ThemedText(
-                                                  text:
-                                                      "Total Hours ${model.totalhours ?? 0}hrs",
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 7),
-                                    Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: Center(
-                                            child: FaIcon(
-                                              Icons.note_alt_sharp,
-                                              color: colorGreen,
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                            text:
-                                                "Created By ${model.clientName ?? ""}",
-                                            fontSize: 12,
+                                          const SizedBox(
+                                              width: spaceHorizontal),
+                                          Expanded(
+                                            child: ThemedText(
+                                                text: model.resAddress ?? ""),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
+                                    const SizedBox(height: 7),
+                                    InkWell(
+                                      onTap: () {
+                                        launchUrlMethod(
+                                            "tel:${model.resHomePhone}");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 25,
+                                            height: 25,
+                                            child: Center(
+                                              child: FaIcon(
+                                                FontAwesomeIcons.phoneVolume,
+                                                color: colorGreen,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                              width: spaceHorizontal),
+                                          Expanded(
+                                            child: ThemedText(
+                                                text: model.resHomePhone ?? ""),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 7),
+                                    InkWell(
+                                      onTap: () {
+                                        launchUrlMethod(
+                                            "tel:${model.resMobilePhone}");
+                                      },
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 25,
+                                            height: 25,
+                                            child: Center(
+                                              child: FaIcon(
+                                                FontAwesomeIcons.mobileAlt,
+                                                color: colorGreen,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                              width: spaceHorizontal),
+                                          Expanded(
+                                            child: ThemedText(
+                                                text:
+                                                    model.resMobilePhone ?? ""),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 7),
                                   ],
                                 ),
                               ),

@@ -15,24 +15,26 @@ class GroupServiceModel {
   String? resHomePhone;
   String? resMobilePhone;
   String? resAddress;
+  bool isCompleted = false;
+  bool isSelected = false;
 
   GroupServiceModel(
       {this.servicescheduleCLientID,
-        this.noteID,
-        this.clientName,
-        this.serviceScheduleID,
-        this.startTime,
-        this.endTime,
-        this.serviceDate,
-        this.totalhours,
-        this.serviceType,
-        this.notewriter,
-        this.groupname,
-        this.serviceScheduleEmpID,
-        this.rESID,
-        this.resHomePhone,
-        this.resMobilePhone,
-        this.resAddress});
+      this.noteID,
+      this.clientName,
+      this.serviceScheduleID,
+      this.startTime,
+      this.endTime,
+      this.serviceDate,
+      this.totalhours,
+      this.serviceType,
+      this.notewriter,
+      this.groupname,
+      this.serviceScheduleEmpID,
+      this.rESID,
+      this.resHomePhone,
+      this.resMobilePhone,
+      this.resAddress});
 
   GroupServiceModel.fromJson(Map<String, dynamic> json) {
     servicescheduleCLientID = json['servicescheduleCLientID'];
@@ -51,6 +53,7 @@ class GroupServiceModel {
     resHomePhone = json['ResHomePhone'];
     resMobilePhone = json['ResMobilePhone'];
     resAddress = json['ResAddress'];
+    isCompleted = (noteID != null && noteID != 0);
   }
 
   Map<String, dynamic> toJson() {

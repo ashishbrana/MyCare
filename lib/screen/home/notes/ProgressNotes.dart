@@ -189,9 +189,12 @@ class ProgressNoteState extends State<ProgressNote> {
                                 children: [
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
+                                      if (selectedExpandedIndex != -1) {
+                                        selectedExpandedIndex = -1;
+                                      } else {
                                         selectedExpandedIndex = index;
-                                      });
+                                      }
+                                      setState(() {});
                                     },
                                     child: SizedBox(
                                       width: 30,

@@ -23,6 +23,7 @@ import '../../../utils/Preferences.dart';
 import '../../../utils/ThemedWidgets.dart';
 import '../../../utils/WidgetMethods.dart';
 import '../../../utils/methods.dart';
+import '../models/GroupServiceResponseModel.dart';
 import '../models/ProgressNoteListByNoteIdModel.dart';
 import '../models/ProgressNoteModel.dart';
 import 'model/NoteDocModel.dart';
@@ -37,15 +38,17 @@ class ProgressNoteDetails extends StatefulWidget {
   String? clientName;
   String serviceName;
   String noteWriter;
+  List<GroupServiceModel>? selectedGroupServiceList = [];
 
   ProgressNoteDetails({
     super.key,
-    /* required this.model,*/ required this.userId,
+    this.clientName,
+    this.selectedGroupServiceList,
     required this.noteId,
+    required this.userId,
     required this.clientId,
     required this.serviceShceduleClientID,
     required this.servicescheduleemployeeID,
-    this.clientName,
     required this.serviceName,
     required this.noteWriter,
   });
@@ -435,7 +438,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   @override
   Widget build(BuildContext context) {
-    // print("noteDocModel: ${noteDocModel!.length}");
     return Scaffold(
       key: _keyScaffold,
       backgroundColor: colorLiteBlueBackGround,
@@ -523,8 +525,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       initialDate: serviceTypeDateTime,
                       firstDate: DateTime(serviceTypeDateTime.year - 23),
                       lastDate: DateTime.now(),
-                    ) //DateTime(serviceTypeDateTime.year,serviceTypeDateTime.month,serviceTypeDateTime.day) )
-                        .then((value) {
+                    ).then((value) {
                       if (value != null) {
                         setState(() {
                           serviceTypeDateTime =
@@ -550,7 +551,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               SizedBox(
                 height: textFiledHeight,
                 child: ThemedTextField(
-                  padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   isReadOnly: false,
@@ -565,7 +567,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 fontSize: 18,
               ),
               ThemedTextField(
-                padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                 minLine: 4,
                 maxLine: 4,
                 borderColor: colorGreyBorderD3,
@@ -608,7 +611,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 fontSize: 18,
               ),
               ThemedTextField(
-                padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                 borderColor: colorGreyBorderD3,
                 backgroundColor: colorWhite,
                 isReadOnly: false,
@@ -616,248 +620,227 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 maxLine: 3,
                 controller: _assesment_comment,
               ),
-              const SizedBox(height: 10),
-              (signatureImage == null && serviceTypeDateTime.isToday)
-                  ? Row(children: [
-                      ThemedText(
-                        text: "Client Signature",
-                        color: colorFontColor,
-                        fontSize: 18,
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 100,
-                        child: ThemedButton(
-                          padding: EdgeInsets.zero,
-                          title: "Clear",
-                          fontSize: 14,
-                          onTap: () {
-                            _controllerSignature.clear();
-                          },
-                        ),
-                      ),
-                    ])
-                  : Row(children: [
-                      ThemedText(
-                        text: "Client Signature",
-                        color: colorFontColor,
-                        fontSize: 18,
-                      ),
-                    ]),
-              Container(
-                width: 300,
-                height: 180,
-                decoration: BoxDecoration(
-                  border: Border.all(color: colorGreyBorderD3),
-                ),
-                child: signatureImage != null
-                    ? Image.memory(signatureImage!)
-                    : !isPast
-                        ? Signature(
-                            backgroundColor: Colors.white,
-                            controller: _controllerSignature,
-                            width: 300,
-                            height: 180,
-                          )
-                        : null,
-              ),
-              const SizedBox(height: spaceVertical),
-              if (clientRating == 0 && serviceTypeDateTime.isToday && !isPast)
-                Row(
+              if (widget.selectedGroupServiceList == null ||
+                  widget.selectedGroupServiceList!.isEmpty)
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          clientRating = 1;
-                        });
-                      },
-                      child: const FaIcon(
-                        FontAwesomeIcons.solidFaceSmile,
-                        color: Colors.amber,
-                        size: 48,
+                    const SizedBox(height: spaceVertical),
+                    (signatureImage == null && serviceTypeDateTime.isToday)
+                        ? Row(children: [
+                            ThemedText(
+                              text: "Client Signature",
+                              color: colorFontColor,
+                              fontSize: 18,
+                            ),
+                            Spacer(),
+                            SizedBox(
+                              width: 100,
+                              child: ThemedButton(
+                                padding: EdgeInsets.zero,
+                                title: "Clear",
+                                fontSize: 14,
+                                onTap: () {
+                                  _controllerSignature.clear();
+                                },
+                              ),
+                            ),
+                          ])
+                        : Row(children: [
+                            ThemedText(
+                              text: "Client Signature",
+                              color: colorFontColor,
+                              fontSize: 18,
+                            ),
+                          ]),
+                    Container(
+                      width: 300,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: colorGreyBorderD3),
                       ),
+                      child: signatureImage != null
+                          ? Image.memory(signatureImage!)
+                          : !isPast
+                              ? Signature(
+                                  backgroundColor: Colors.white,
+                                  controller: _controllerSignature,
+                                  width: 300,
+                                  height: 180,
+                                )
+                              : null,
                     ),
-                    Radio<int>(
-                        value: 1,
-                        groupValue: clientRating,
-                        activeColor: colorGreen,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              clientRating = value;
-                            });
-                          }
-                        }),
-                    const SizedBox(width: spaceHorizontal),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          clientRating = 2;
-                        });
-                      },
-                      child: const FaIcon(
-                        FontAwesomeIcons.solidFaceMeh,
-                        color: Colors.amber,
-                        size: 48,
+                    const SizedBox(height: spaceVertical),
+                    if (clientRating == 0 &&
+                        serviceTypeDateTime.isToday &&
+                        !isPast)
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                clientRating = 1;
+                              });
+                            },
+                            child: const FaIcon(
+                              FontAwesomeIcons.solidFaceSmile,
+                              color: Colors.amber,
+                              size: 48,
+                            ),
+                          ),
+                          Radio<int>(
+                              value: 1,
+                              groupValue: clientRating,
+                              activeColor: colorGreen,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    clientRating = value;
+                                  });
+                                }
+                              }),
+                          const SizedBox(width: spaceHorizontal),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                clientRating = 2;
+                              });
+                            },
+                            child: const FaIcon(
+                              FontAwesomeIcons.solidFaceMeh,
+                              color: Colors.amber,
+                              size: 48,
+                            ),
+                          ),
+                          Radio<int>(
+                              value: 2,
+                              groupValue: clientRating,
+                              activeColor: colorGreen,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    clientRating = value;
+                                  });
+                                }
+                              }),
+                          const SizedBox(width: spaceHorizontal),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                clientRating = 3;
+                              });
+                            },
+                            child: const FaIcon(
+                              FontAwesomeIcons.solidFaceFrown,
+                              color: Colors.amber,
+                              size: 48,
+                            ),
+                          ),
+                          Radio<int>(
+                              value: 3,
+                              groupValue: clientRating,
+                              activeColor: colorGreen,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    clientRating = value;
+                                  });
+                                }
+                              }),
+                        ],
                       ),
-                    ),
-                    Radio<int>(
-                        value: 2,
-                        groupValue: clientRating,
-                        activeColor: colorGreen,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              clientRating = value;
-                            });
-                          }
-                        }),
-                    const SizedBox(width: spaceHorizontal),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          clientRating = 3;
-                        });
-                      },
-                      child: const FaIcon(
-                        FontAwesomeIcons.solidFaceFrown,
-                        color: Colors.amber,
-                        size: 48,
-                      ),
-                    ),
-                    Radio<int>(
-                        value: 3,
-                        groupValue: clientRating,
-                        activeColor: colorGreen,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              clientRating = value;
-                            });
-                          }
-                        }),
                   ],
                 ),
-              const SizedBox(height: spaceVertical),
-             /* SizedBox(
-                height: textFiledHeight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    *//*Expanded(
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Save",
-                        fontSize: 14,
-                        onTap: () async {
-                          await saveNoteApiCall();
-                          for (File file in selectedImageFilesList) {
-                            saveNoteDoc(file);
-                          }
-                        },
-                      ),
-                    ),*//*
-                    *//* const Spacer(),
-                    const SizedBox(width: spaceHorizontal),
-                    SizedBox(
-                      width: 100,
-                      height: textFiledHeight,
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Clear",
-                        fontSize: 14,
-                        onTap: () {
-                          _controllerSignature.clear();
-                        },
-                      ),
-                    ),*//*
-                  ],
-                ),
-              ),*/
               const SizedBox(height: spaceVertical),
               SizedBox(
                 height: textFiledHeight,
                 child: Row(
                   children: [
-                    Expanded(
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Add Image",
-                        fontSize: 14,
-                        onTap: () async {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) => Container(
-                              /*insetPadding: EdgeInsets.zero,
+                    if (widget.selectedGroupServiceList == null ||
+                        widget.selectedGroupServiceList!.isEmpty)
+                      Expanded(
+                        child: ThemedButton(
+                          padding: EdgeInsets.zero,
+                          title: "Add Image",
+                          fontSize: 14,
+                          onTap: () async {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) => Container(
+                                /*insetPadding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: boxBorderRadius,
                                     ),*/
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ListTile(
-                                    title: ThemedText(
-                                      text: 'Camera',
-                                    ),
-                                    leading: const Icon(
-                                      Icons.camera_alt_rounded,
-                                      color: colorGreen,
-                                    ),
-                                    onTap: () async {
-                                      Navigator.pop(context);
-                                      final ImagePicker picker = ImagePicker();
-                                      final XFile? image =
-                                          await picker.pickImage(
-                                        source: ImageSource.camera,
-                                        imageQuality: 30,
-                                      );
-                                      if (image != null) {
-                                        setState(() {
-                                          print(image.path);
-                                          selectedImageFilesList
-                                              .add(File(image.path));
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  const Divider(
-                                    color: colorDivider,
-                                    height: 1,
-                                  ),
-                                  ListTile(
-                                    title: ThemedText(
-                                      text: 'Gallery',
-                                    ),
-                                    leading: const Icon(
-                                      Icons.photo_rounded,
-                                      color: colorGreen,
-                                    ),
-                                    onTap: () async {
-                                      Navigator.pop(context);
-                                      final ImagePicker picker = ImagePicker();
-                                      final List<XFile> image =
-                                          await picker.pickMultiImage(
-                                        imageQuality: 30,
-                                      );
-                                      if (image.isNotEmpty) {
-                                        setState(() {
-                                          for (XFile file in image) {
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      title: ThemedText(
+                                        text: 'Camera',
+                                      ),
+                                      leading: const Icon(
+                                        Icons.camera_alt_rounded,
+                                        color: colorGreen,
+                                      ),
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        final ImagePicker picker =
+                                            ImagePicker();
+                                        final XFile? image =
+                                            await picker.pickImage(
+                                          source: ImageSource.camera,
+                                          imageQuality: 30,
+                                        );
+                                        if (image != null) {
+                                          setState(() {
+                                            print(image.path);
                                             selectedImageFilesList
-                                                .add(File(file.path));
-                                            print(file.path);
-                                          }
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ],
+                                                .add(File(image.path));
+                                          });
+                                        }
+                                      },
+                                    ),
+                                    const Divider(
+                                      color: colorDivider,
+                                      height: 1,
+                                    ),
+                                    ListTile(
+                                      title: ThemedText(
+                                        text: 'Gallery',
+                                      ),
+                                      leading: const Icon(
+                                        Icons.photo_rounded,
+                                        color: colorGreen,
+                                      ),
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        final ImagePicker picker =
+                                            ImagePicker();
+                                        final List<XFile> image =
+                                            await picker.pickMultiImage(
+                                          imageQuality: 30,
+                                        );
+                                        if (image.isNotEmpty) {
+                                          setState(() {
+                                            for (XFile file in image) {
+                                              selectedImageFilesList
+                                                  .add(File(file.path));
+                                              print(file.path);
+                                            }
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: spaceHorizontal),
+                    if (widget.selectedGroupServiceList == null ||
+                        widget.selectedGroupServiceList!.isEmpty)
+                      const SizedBox(width: spaceHorizontal),
                     SizedBox(
                       width: 100,
                       child: ThemedButton(
@@ -928,6 +911,16 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   saveNoteApiCall() async {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
+        String noteIds = "";
+        if (widget.selectedGroupServiceList != null &&
+            widget.selectedGroupServiceList!.isNotEmpty) {
+          for (GroupServiceModel model in widget.selectedGroupServiceList!) {
+            if (model.noteID != null) {
+              noteIds += "${noteIds.isNotEmpty ? "," : ""}${model.noteID!}";
+            }
+          }
+        }
+
         try {
           getOverlay(context);
           // response = await HttpService().init(request, _keyScaffold);
@@ -935,7 +928,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           String stri =
               "iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAABGdBTUEAALGPC/xhBQAAAPNJREFUeF7t1MEJgDAQRNHtvylLsYQcPYianETCBvQk6HvwOxgmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgC84pEv7g7abrV3LoNI1t6YWnLLR6r9lxzQqO6cshwUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADviKj9UU7A+mOSSQAAAABJRU5ErkJggg==";
           String strBody = json.encode({
-            "NoteID": model != null ? model!.noteID ?? 0 : 0,
+            "NoteID": noteIds.isNotEmpty
+                ? noteIds
+                : model != null
+                    ? model!.noteID ?? 0
+                    : 0,
             "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
             "AssessmentScale": _assesmentScale.toString(),
             "AssessmentComment":
