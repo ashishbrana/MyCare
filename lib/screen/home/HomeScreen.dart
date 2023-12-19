@@ -17,18 +17,15 @@ import 'package:rcare_2/screen/home/ProgressNoteListByNoteId.dart';
 import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/screen/home/notes/ProgressNotes.dart';
 import 'package:rcare_2/screen/home/tabs/ProfileTabScreen.dart';
-import 'package:rcare_2/screen/home/tabs/UnConfirmedTabScreen.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../Network/API.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/GlobalMethods.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/methods.dart';
-import 'Tabs/ConfirmedTabScreen.dart';
 import 'TimeSheetDetail.dart';
 import 'TimeSheetForm.dart';
 import 'models/ConfirmedResponseModel.dart';
@@ -1138,59 +1135,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ),
                                                         ),
                                                       ),
-
-
-                                                     if(bottomCurrentIndex !=
-                                                         3)
-                                                     model.resName == "Group Service" && model.noteID == 0 ?
+                                                      if (bottomCurrentIndex != 3 && model.noteID != 0)
                                                         InkWell(
                                                           onTap: () {
-                                                            selectedModel =
-                                                                model;
-                                                            getGroupServices();
-
-                                                            setState(() {
-                                                              bottomCurrentIndex =
-                                                                  5;
-                                                            });
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        ProgressNoteListByNoteId(
+                                                                  userId: model
+                                                                          .empID ??
+                                                                      0,
+                                                                  noteID: model
+                                                                          .noteID ??
+                                                                      0,
+                                                                  rosterID:
+                                                                      model.rosterID ??
+                                                                          0,
+                                                                ),
+                                                              ),
+                                                            );
                                                           },
                                                           child: const FaIcon(
                                                             FontAwesomeIcons
-                                                                .userGroup,
-                                                            size: 18,
+                                                                .calendarDays,
+                                                            size: 22,
                                                           ),
-                                                        ) : InkWell(
-                                                       onTap: () {
-                                                         Navigator.push(
-                                                           context,
-                                                           MaterialPageRoute(
-                                                             builder:
-                                                                 (context) =>
-                                                                 ProgressNoteListByNoteId(
-                                                                   userId: model
-                                                                       .empID ??
-                                                                       0,
-                                                                   noteID: model
-                                                                       .noteID ??
-                                                                       0,
-                                                                   rosterID:
-                                                                   model.rosterID ??
-                                                                       0,
-                                                                 ),
-                                                           ),
-                                                         );
-                                                       },
-                                                       child: const FaIcon(
-                                                         FontAwesomeIcons
-                                                             .calendarDays,
-                                                         size: 22,
-                                                       ),
-                                                     ),
-
-                                                        const SizedBox(
-                                                            width:
-                                                                spaceHorizontal /
-                                                                    2),
+                                                        ),
+                                                      const SizedBox(
+                                                          width:
+                                                              spaceHorizontal /
+                                                                  2),
                                                       if (bottomCurrentIndex !=
                                                           3)
                                                         InkWell(
@@ -1442,8 +1418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               boxBorderRadius),
                                                                       child:
                                                                           Padding(
-                                                                        padding: const EdgeInsets
-                                                                            .symmetric(
+                                                                        padding: const EdgeInsets.symmetric(
                                                                             horizontal:
                                                                                 spaceHorizontal,
                                                                             vertical:
@@ -1515,52 +1490,73 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             width:
                                                                 spaceHorizontal /
                                                                     2),
-                                                      if (model.noteID != 0 && bottomCurrentIndex !=
-                                                          3)
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Navigator.push(
-                                                              keyScaffold
-                                                                  .currentContext!,
-                                                              MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        ProgressNoteDetails(
-                                                                  userId: model
-                                                                          .empID ??
-                                                                      0,
-                                                                  noteId: model
-                                                                          .noteID ??
-                                                                      0,
-                                                                  clientId:
-                                                                      model.rESID ??
-                                                                          0,
-                                                                  servicescheduleemployeeID:
-                                                                      model.servicescheduleemployeeID ??
-                                                                          0,
-                                                                  serviceShceduleClientID:
-                                                                      model.serviceShceduleClientID ??
-                                                                          0,
-                                                                  serviceName:
-                                                                      model.serviceName ??
-                                                                          "",
-                                                                  clientName:
-                                                                      "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
-                                                                  noteWriter:
-                                                                      "",
+                                                      if (bottomCurrentIndex != 3 && model.noteID != 0)
+                                                        model.resName ==
+                                                                    "Group Service" &&
+                                                                model.noteID ==
+                                                                    0
+                                                            ? InkWell(
+                                                                onTap: () {
+                                                                  selectedModel =
+                                                                      model;
+                                                                  getGroupServices();
+
+                                                                  setState(() {
+                                                                    bottomCurrentIndex =
+                                                                        5;
+                                                                  });
+                                                                },
+                                                                child:
+                                                                    const FaIcon(
+                                                                  FontAwesomeIcons
+                                                                      .userGroup,
+                                                                  size: 18,
+                                                                ),
+                                                              )
+                                                            : InkWell(
+                                                                onTap: () {
+                                                                  Navigator
+                                                                      .push(
+                                                                    keyScaffold
+                                                                        .currentContext!,
+                                                                    MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              ProgressNoteDetails(
+                                                                        userId:
+                                                                            model.empID ??
+                                                                                0,
+                                                                        noteId:
+                                                                            model.noteID ??
+                                                                                0,
+                                                                        clientId:
+                                                                            model.rESID ??
+                                                                                0,
+                                                                        servicescheduleemployeeID:
+                                                                            model.servicescheduleemployeeID ??
+                                                                                0,
+                                                                        serviceShceduleClientID:
+                                                                            model.serviceShceduleClientID ??
+                                                                                0,
+                                                                        serviceName:
+                                                                            model.serviceName ??
+                                                                                "",
+                                                                        clientName:
+                                                                            "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
+                                                                        noteWriter:
+                                                                            "",
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                                child:
+                                                                    const FaIcon(
+                                                                  // FontAwesomeIcons.notesMedical,
+                                                                  Icons
+                                                                      .note_alt_outlined,
+                                                                  size: 22,
                                                                 ),
                                                               ),
-                                                            );
-                                                          },
-                                                          child: const FaIcon(
-                                                            // FontAwesomeIcons.notesMedical,
-                                                            Icons
-                                                                .note_alt_outlined,
-                                                            size: 22,
-                                                          ),
-                                                        ),
-                                                      if (model.noteID != 0 && bottomCurrentIndex !=
-                                                          3)
                                                         const SizedBox(
                                                             width:
                                                                 spaceHorizontal /
@@ -1595,7 +1591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 spaceHorizontal /
                                                                     2),
                                                       if (bottomCurrentIndex ==
-                                                              2  &&
+                                                              2 &&
                                                           model.tSConfirm ==
                                                               true)
                                                         Icon(
@@ -2229,7 +2225,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 serviceShceduleClientID:
                                     temp.first.servicescheduleCLientID ?? 0,
                                 servicescheduleemployeeID:
-                                    selectedModel?.servicescheduleemployeeID ?? 0,
+                                    selectedModel?.servicescheduleemployeeID ??
+                                        0,
                                 serviceName: temp.first.groupname ?? "",
                                 clientName: temp.first.clientName,
                                 noteWriter: temp.first.notewriter ?? "",
