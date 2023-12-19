@@ -1491,12 +1491,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 spaceHorizontal /
                                                                     2),
                                                       if (bottomCurrentIndex == 0 || bottomCurrentIndex == 2)
-                                                        model.resName == "Group Service" && model.noteID !=
+                                                        model.resName == "Group Service" && model.noteID ==
                                                                     0
                                                             ? InkWell(
                                                                 onTap: () {
-                                                                  selectedModel =
-                                                                      model;
+                                                                  selectedModel = model;
                                                                   getGroupServices();
 
                                                                   setState(() {
@@ -1564,6 +1563,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                   // FontAwesomeIcons.notesMedical,
                                                                   Icons
                                                                       .note_alt_outlined,
+                                                                  color: Colors.green,
                                                                   size: 22,
                                                                 ),
                                                               ),
