@@ -1051,7 +1051,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jResponse = json.decode(response.body.toString());
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
-              widget.noteId = int.parse(jres["message"]);
+            //  widget.noteId = int.parse(jres["message"]);
 
            //   print("Response : savedetail with =  ${widget.noteId}");
               showSnackBarWithText(_keyScaffold.currentState, "Note created successfully",
