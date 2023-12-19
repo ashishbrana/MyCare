@@ -1490,7 +1490,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             width:
                                                                 spaceHorizontal /
                                                                     2),
-                                                      if (bottomCurrentIndex == 0)
+                                                      if (bottomCurrentIndex == 0 || bottomCurrentIndex == 2)
                                                         model.resName == "Group Service" && model.noteID !=
                                                                     0
                                                             ? InkWell(
