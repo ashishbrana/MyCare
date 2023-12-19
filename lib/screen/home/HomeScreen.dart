@@ -1140,6 +1140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
 
 
+                                                     if(bottomCurrentIndex !=
+                                                         3)
                                                      model.resName == "Group Service" && model.noteID == 0 ?
                                                         InkWell(
                                                           onTap: () {
@@ -1513,7 +1515,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             width:
                                                                 spaceHorizontal /
                                                                     2),
-                                                      if (model.noteID != 0)
+                                                      if (model.noteID != 0 && bottomCurrentIndex !=
+                                                          3)
                                                         InkWell(
                                                           onTap: () {
                                                             Navigator.push(
@@ -1556,7 +1559,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             size: 22,
                                                           ),
                                                         ),
-                                                      if (model.noteID != 0)
+                                                      if (model.noteID != 0 && bottomCurrentIndex !=
+                                                          3)
                                                         const SizedBox(
                                                             width:
                                                                 spaceHorizontal /
@@ -1591,7 +1595,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 spaceHorizontal /
                                                                     2),
                                                       if (bottomCurrentIndex ==
-                                                              2 &&
+                                                              2  &&
                                                           model.tSConfirm ==
                                                               true)
                                                         Icon(
