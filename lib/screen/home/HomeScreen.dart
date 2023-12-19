@@ -1490,10 +1490,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             width:
                                                                 spaceHorizontal /
                                                                     2),
-                                                      if (bottomCurrentIndex != 3 && model.noteID != 0)
-                                                        model.resName ==
-                                                                    "Group Service" &&
-                                                                model.noteID ==
+                                                      if (bottomCurrentIndex == 0)
+                                                        model.resName == "Group Service" && model.noteID !=
                                                                     0
                                                             ? InkWell(
                                                                 onTap: () {
@@ -1515,6 +1513,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               )
                                                             : InkWell(
                                                                 onTap: () {
+                                                                 if(model.resName != "Group Service" ){
                                                                   Navigator
                                                                       .push(
                                                                     keyScaffold
@@ -1547,7 +1546,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             "",
                                                                       ),
                                                                     ),
-                                                                  );
+                                                                  ); }else{
+                                                                   selectedModel =
+                                                                       model;
+                                                                   getGroupServices();
+
+                                                                   setState(() {
+                                                                     bottomCurrentIndex =
+                                                                     5;
+                                                                   });
+
+                                                                 }
+
                                                                 },
                                                                 child:
                                                                     const FaIcon(
