@@ -469,10 +469,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                 color: colorRed);
                             return;
                           }
-                          await saveNoteApiCall();
-                          /* for (File file in selectedImageFilesList) {
-                            saveNoteDoc(file);
-                          }*/
+                          if(isGroupNote()){
+                            await saveNoteGroupApiCall();
+                          }
+                          else{
+                            await saveNoteApiCall();
+                          }
                         },
                       ),
                     ),
@@ -756,8 +758,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 height: textFiledHeight,
                 child: Row(
                   children: [
-                    if (widget.selectedGroupServiceList == null ||
-                        widget.selectedGroupServiceList!.isEmpty)
+                    if (!isGroupNote())
                       Expanded(
                         child: ThemedButton(
                           padding: EdgeInsets.zero,
@@ -838,17 +839,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                           },
                         ),
                       ),
-                    if (widget.selectedGroupServiceList == null ||
-                        widget.selectedGroupServiceList!.isEmpty)
+                    if (isGroupNote() == false)
                       const SizedBox(width: spaceHorizontal),
-                    SizedBox(
-                      width: 100,
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Refresh",
-                        fontSize: 14,
-                      ),
-                    ),
+
                   ],
                 ),
               ),
@@ -908,6 +901,10 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     );
   }
 
+  bool isGroupNote() {
+    return widget.selectedGroupServiceList != null &&  widget.selectedGroupServiceList!.isNotEmpty;
+  }
+
   saveNoteApiCall() async {
     closeKeyboard();
     isConnected().then((hasInternet) async {
@@ -916,8 +913,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         String clientId = "";
         String serviceScheduleClientId = "";
         String ssEmployeeId = "";
-        if (widget.selectedGroupServiceList != null &&
-            widget.selectedGroupServiceList!.isNotEmpty) {
+        if (isGroupNote()) {
           noteIds = "0";
           for (GroupServiceModel model in widget.selectedGroupServiceList!) {
             if (model.noteID != null) {
@@ -1007,6 +1003,79 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       }
     });
   }
+
+  saveNoteGroupApiCall() async {
+    closeKeyboard();
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        String noteIds = "";
+        String clientId = "";
+        String serviceScheduleClientId = "";
+          noteIds = "0";
+          for (GroupServiceModel model in widget.selectedGroupServiceList!) {
+            if (model.noteID != null) {
+              clientId +=
+              "${clientId.isNotEmpty ? "," : ""}${model.rESID ?? "0"}";
+              serviceScheduleClientId +=
+              "${serviceScheduleClientId.isNotEmpty ? "," : ""}${model.servicescheduleCLientID ?? "0"}";
+            }
+          }
+        try {
+          getOverlay(context);
+          // response = await HttpService().init(request, _keyScaffold);
+
+          String strBody = json.encode({
+            'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            "NoteID": 0,
+            "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
+            "AssessmentScale": _assesmentScale.toString(),
+            "AssessmentComment": _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
+            "Description": _disscription.text.isNotEmpty ? _disscription.text : "",
+            "Subject": _subject.text,
+            "userID":  (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+            "ssClientIds": serviceScheduleClientId,
+            "ssEmployeeID": widget.servicescheduleemployeeID.toString(),
+          });
+          log(strBody);
+          if (strBody.isEmpty) {
+            return;
+          }
+
+          Response response = await http.post(
+            Uri.parse("$mainUrl$saveNoteDetailsForGroup"),
+            headers: {"Content-Type": "application/json"},
+            body: strBody,
+          );
+          log("response ${response.body} ${response.request}}");
+          if (response != "") {
+            var jResponse = json.decode(response.body.toString());
+            var jres = json.decode(jResponse["d"]);
+            if (jres["status"] == 1) {
+              widget.noteId = int.parse(jres["message"]);
+
+           //   print("Response : savedetail with =  ${widget.noteId}");
+              showSnackBarWithText(_keyScaffold.currentState, "Note created successfully",
+                  color: colorGreen);
+              Navigator.pop(context, true);
+            }
+          } else {
+            showSnackBarWithText(
+                _keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          log("SignUp$e");
+          removeOverlay();
+          // throw e;
+        } finally {
+          removeOverlay();
+        }
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
 
   saveNoteDoc(File image) async {
     print("API : saveNoteDoc with =  ${widget.noteId}");

@@ -2225,7 +2225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 serviceShceduleClientID:
                                     temp.first.servicescheduleCLientID ?? 0,
                                 servicescheduleemployeeID:
-                                    temp.first.serviceScheduleEmpID ?? 0,
+                                    selectedModel?.servicescheduleemployeeID ?? 0,
                                 serviceName: temp.first.groupname ?? "",
                                 clientName: temp.first.clientName,
                                 noteWriter: temp.first.notewriter ?? "",

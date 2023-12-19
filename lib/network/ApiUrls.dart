@@ -22,6 +22,7 @@ const String endDNSList = 'DSNList';
 const String ServiceDetaileByID = 'ServiceDetaileByID';
 const String endNoteDetailsByID = 'NoteDetailsByID';
 const String endSaveNoteDetails = 'saveNoteDetails';
+const String saveNoteDetailsForGroup = 'saveNoteDetailsForGroup';
 const String endSaveNotePicture = 'saveNotePicture';
 const String endGetNoteDocs = 'getNotedocs';
 const String endDeleteNotePicture = 'DeleteNotePicture';
