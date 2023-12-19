@@ -1138,41 +1138,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ),
                                                         ),
                                                       ),
-                                                      if (model.noteID != 0)
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        ProgressNoteListByNoteId(
-                                                                  userId: model
-                                                                          .empID ??
-                                                                      0,
-                                                                  noteID: model
-                                                                          .noteID ??
-                                                                      0,
-                                                                  rosterID:
-                                                                      model.rosterID ??
-                                                                          0,
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                          child: const FaIcon(
-                                                            FontAwesomeIcons
-                                                                .calendarDays,
-                                                            size: 22,
-                                                          ),
-                                                        ),
-                                                      if (model.noteID != 0)
-                                                        const SizedBox(
-                                                            width:
-                                                                spaceHorizontal /
-                                                                    2),
-                                                      if (model.resName ==
-                                                          "Group Service")
+
+
+                                                     model.resName == "Group Service" && model.noteID == 0 ?
                                                         InkWell(
                                                           onTap: () {
                                                             selectedModel =
@@ -1189,9 +1157,34 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 .userGroup,
                                                             size: 18,
                                                           ),
-                                                        ),
-                                                      if (model.resName ==
-                                                          "Group Service")
+                                                        ) : InkWell(
+                                                       onTap: () {
+                                                         Navigator.push(
+                                                           context,
+                                                           MaterialPageRoute(
+                                                             builder:
+                                                                 (context) =>
+                                                                 ProgressNoteListByNoteId(
+                                                                   userId: model
+                                                                       .empID ??
+                                                                       0,
+                                                                   noteID: model
+                                                                       .noteID ??
+                                                                       0,
+                                                                   rosterID:
+                                                                   model.rosterID ??
+                                                                       0,
+                                                                 ),
+                                                           ),
+                                                         );
+                                                       },
+                                                       child: const FaIcon(
+                                                         FontAwesomeIcons
+                                                             .calendarDays,
+                                                         size: 22,
+                                                       ),
+                                                     ),
+
                                                         const SizedBox(
                                                             width:
                                                                 spaceHorizontal /
