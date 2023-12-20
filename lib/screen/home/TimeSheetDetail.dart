@@ -240,7 +240,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                               model: widget.model,
                               indexSelectedFrom: widget.indexSelectedFrom),
                         ),
-                      ).then((value) => value != null && value
+                      ).then((value) => value != null && value == 0
                           ? Navigator.pop(context, 0)
                           : () {});
                     }
