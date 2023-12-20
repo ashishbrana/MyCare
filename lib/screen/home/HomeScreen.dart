@@ -1493,14 +1493,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             width:
                                                                 spaceHorizontal /
                                                                     2),
-                                                      if (bottomCurrentIndex ==
-                                                              0 ||
-                                                          bottomCurrentIndex ==
-                                                              2)
+                                                      if ((bottomCurrentIndex ==
+                                                                  0 ||
+                                                              bottomCurrentIndex ==
+                                                                  2) &&
+                                                          (model.resName ==
+                                                                  "Group Service" ||
+                                                              model.noteID !=
+                                                                  0))
                                                         model.resName ==
-                                                                    "Group Service" &&
-                                                                model.noteID ==
-                                                                    0
+                                                                "Group Service"
                                                             ? InkWell(
                                                                 onTap: () {
                                                                   selectedModel =
@@ -1512,12 +1514,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         5;
                                                                   });
                                                                 },
-                                                                child:
-                                                                    const FaIcon(
-                                                                  FontAwesomeIcons
-                                                                      .userGroup,
-                                                                  size: 18,
-                                                                ),
+                                                                child: model.noteID ==
+                                                                        0
+                                                                    ? const FaIcon(
+                                                                        FontAwesomeIcons
+                                                                            .userGroup,
+                                                                        size:
+                                                                            18,
+                                                                      )
+                                                                    : const FaIcon(
+                                                                        // FontAwesomeIcons.notesMedical,
+                                                                        Icons
+                                                                            .note_alt_outlined,
+                                                                        color: Colors
+                                                                            .green,
+                                                                        size:
+                                                                            22,
+                                                                      ),
                                                               )
                                                             : InkWell(
                                                                 onTap: () {
