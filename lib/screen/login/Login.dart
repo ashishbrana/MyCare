@@ -100,7 +100,7 @@ class _LoginState extends State<Login> {
                   Preferences.prefComepanyCode, comapanyCode ?? "");
               await FlutterKeychain.put(key: "username", value: username);
               await FlutterKeychain.put(key: "password", value: password);
-              await FlutterKeychain.put(key: "companycode", value: comapanyCode);
+              // await FlutterKeychain.put(key: "companycode", value: comapanyCode);
               sendToHome();
             } else {
               showSnackBarWithText(
