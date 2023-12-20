@@ -56,8 +56,8 @@ class _LoginState extends State<Login> {
         (await FlutterKeychain.get(key: "username") ?? "");
     _controllerPassword.text =
         (await FlutterKeychain.get(key: "password") ?? "");
-    // _controllerCompanyCode.text =
-    //     (await FlutterKeychain.get(key: "companycode") ?? "");
+    _controllerCompanyCode.text =
+        (await FlutterKeychain.get(key: "companycode") ?? "");
   }
 
   _loginApiCall(String username, String password, String comapanyCode) {
@@ -100,7 +100,7 @@ class _LoginState extends State<Login> {
                   Preferences.prefComepanyCode, comapanyCode ?? "");
               await FlutterKeychain.put(key: "username", value: username);
               await FlutterKeychain.put(key: "password", value: password);
-              // await FlutterKeychain.put(key: "companycode", value: comapanyCode);
+              await FlutterKeychain.put(key: "companycode", value: comapanyCode);
               sendToHome();
             } else {
               showSnackBarWithText(
@@ -164,8 +164,10 @@ class _LoginState extends State<Login> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 40, horizontal: spaceHorizontal),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                            child: AutofillGroup(
+
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
                               children: [
                                 Form(
                                   key: _keyFormField,
@@ -179,6 +181,7 @@ class _LoginState extends State<Login> {
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerUsername,
                                           // hintText: "Username",
+                                          autofillHints: [AutofillHints.username],
                                           labelText: "Username",
                                           labelFontWeight: FontWeight.w500,
                                           preFix: const FaIcon(
@@ -199,6 +202,7 @@ class _LoginState extends State<Login> {
                                           borderColor: colorGreyBorderD3,
                                           controller: _controllerPassword,
                                           // hintText: "Password",
+                                          autofillHints: [AutofillHints.password],
                                           labelText: "Password",
                                           labelFontWeight: FontWeight.w500,
                                           preFix: const FaIcon(
@@ -293,6 +297,7 @@ class _LoginState extends State<Login> {
                                   ),
                                 )
                               ],
+                            ),
                             ),
                           ),
                         ),

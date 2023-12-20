@@ -331,12 +331,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       'clientName': clientName,
       'noteid': noteid.toString(),
     };
+    var uri =  "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat("dd/MM/yy").format(noteDate)}&clientName=$clientName&noteid=${noteid.toString()}";
+    var encoded = Uri.encodeFull(uri);
     print("paramsendGetNoteDocs : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url:
-                "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat("dd/MM/yy").format(noteDate)}&clientName=$clientName&noteid=${noteid.toString()}",
+            url:encoded,
             //getUrl(endGetNoteDocs, params: params).toString(),
             authMethod: '',
             body: '',
@@ -372,15 +373,19 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     });
   }
 
+  /*
+  'imagePath': model.path != null && model.path!.isNotEmpty
+          ? model.path!.toString()
+          : "${widget.clientId}/notespic/",
+   */
+
   getNoteImage64(NoteDocModel model) async {
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'userid': widget.userId.toString(),
+      'userid': (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'imageName': model.name, //"957-Bump96-161023-1.jpg",
-      'imagePath': model.path != null && model.path!.isNotEmpty
-          ? model.path!.toString()
-          : "${widget.clientId}/notespic/",
+      'imagePath': "${widget.clientId}/notespic/",
     };
     print("params : $params");
     isConnected().then((hasInternet) async {

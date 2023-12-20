@@ -2482,7 +2482,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             userId:
                                                 model.serviceScheduleEmpID ?? 0,
                                             clientId:
-                                                model.servicescheduleCLientID ??
+                                                model.rESID ??
                                                     0,
                                             noteId: model.noteID ?? 0,
                                             serviceShceduleClientID:
