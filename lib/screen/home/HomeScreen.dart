@@ -1135,7 +1135,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ),
                                                         ),
                                                       ),
-                                                      if (bottomCurrentIndex != 3 && model.noteID != 0)
+                                                      if (bottomCurrentIndex !=
+                                                              3 &&
+                                                          model.noteID != 0)
                                                         InkWell(
                                                           onTap: () {
                                                             Navigator.push(
@@ -1418,7 +1420,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               boxBorderRadius),
                                                                       child:
                                                                           Padding(
-                                                                        padding: const EdgeInsets.symmetric(
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
                                                                             horizontal:
                                                                                 spaceHorizontal,
                                                                             vertical:
@@ -1490,12 +1493,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             width:
                                                                 spaceHorizontal /
                                                                     2),
-                                                      if (bottomCurrentIndex == 0 || bottomCurrentIndex == 2)
-                                                        model.resName == "Group Service" && model.noteID ==
+                                                      if (bottomCurrentIndex ==
+                                                              0 ||
+                                                          bottomCurrentIndex ==
+                                                              2)
+                                                        model.resName ==
+                                                                    "Group Service" &&
+                                                                model.noteID ==
                                                                     0
                                                             ? InkWell(
                                                                 onTap: () {
-                                                                  selectedModel = model;
+                                                                  selectedModel =
+                                                                      model;
                                                                   getGroupServices();
 
                                                                   setState(() {
@@ -1512,65 +1521,62 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               )
                                                             : InkWell(
                                                                 onTap: () {
-                                                                 if(model.resName != "Group Service" ){
-                                                                  Navigator
-                                                                      .push(
-                                                                    keyScaffold
-                                                                        .currentContext!,
-                                                                    MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) =>
-                                                                              ProgressNoteDetails(
-                                                                        userId:
-                                                                            model.empID ??
-                                                                                0,
-                                                                        noteId:
-                                                                            model.noteID ??
-                                                                                0,
-                                                                        clientId:
-                                                                            model.rESID ??
-                                                                                0,
-                                                                        servicescheduleemployeeID:
-                                                                            model.servicescheduleemployeeID ??
-                                                                                0,
-                                                                        serviceShceduleClientID:
-                                                                            model.serviceShceduleClientID ??
-                                                                                0,
-                                                                        serviceName:
-                                                                            model.serviceName ??
-                                                                                "",
-                                                                        clientName:
-                                                                            "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
-                                                                        noteWriter:
-                                                                            "",
+                                                                  if (model
+                                                                          .resName !=
+                                                                      "Group Service") {
+                                                                    Navigator
+                                                                        .push(
+                                                                      keyScaffold
+                                                                          .currentContext!,
+                                                                      MaterialPageRoute(
+                                                                        builder:
+                                                                            (context) =>
+                                                                                ProgressNoteDetails(
+                                                                          userId:
+                                                                              model.empID ?? 0,
+                                                                          noteId:
+                                                                              model.noteID ?? 0,
+                                                                          clientId:
+                                                                              model.rESID ?? 0,
+                                                                          servicescheduleemployeeID:
+                                                                              model.servicescheduleemployeeID ?? 0,
+                                                                          serviceShceduleClientID:
+                                                                              model.serviceShceduleClientID ?? 0,
+                                                                          serviceName:
+                                                                              model.serviceName ?? "",
+                                                                          clientName:
+                                                                              "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
+                                                                          noteWriter:
+                                                                              "",
+                                                                        ),
                                                                       ),
-                                                                    ),
-                                                                  ); }else{
-                                                                   selectedModel =
-                                                                       model;
-                                                                   getGroupServices();
+                                                                    );
+                                                                  } else {
+                                                                    selectedModel =
+                                                                        model;
+                                                                    getGroupServices();
 
-                                                                   setState(() {
-                                                                     bottomCurrentIndex =
-                                                                     5;
-                                                                   });
-
-                                                                 }
-
+                                                                    setState(
+                                                                        () {
+                                                                      bottomCurrentIndex =
+                                                                          5;
+                                                                    });
+                                                                  }
                                                                 },
                                                                 child:
                                                                     const FaIcon(
                                                                   // FontAwesomeIcons.notesMedical,
                                                                   Icons
                                                                       .note_alt_outlined,
-                                                                  color: Colors.green,
+                                                                  color: Colors
+                                                                      .green,
                                                                   size: 22,
                                                                 ),
                                                               ),
-                                                        const SizedBox(
-                                                            width:
-                                                                spaceHorizontal /
-                                                                    2),
+                                                      const SizedBox(
+                                                          width:
+                                                              spaceHorizontal /
+                                                                  2),
                                                       if (model.dsnId != 0 &&
                                                           bottomCurrentIndex !=
                                                               3)
@@ -2476,7 +2482,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                             noteWriter: model.notewriter ?? "",
                                           ),
                                         ),
-                                      );
+                                      )
+                                          .then((value) {
+                                        if (value != null && value) {
+                                          mainListGroupService.clear();
+                                          tempListGroupService.clear();
+                                          getGroupServices();
+                                        }
+                                      });
                                     }
                                   },
                                   child: const Align(

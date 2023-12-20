@@ -56,8 +56,8 @@ class _LoginState extends State<Login> {
         (await FlutterKeychain.get(key: "username") ?? "");
     _controllerPassword.text =
         (await FlutterKeychain.get(key: "password") ?? "");
-    _controllerCompanyCode.text =
-        (await FlutterKeychain.get(key: "companycode") ?? "");
+    // _controllerCompanyCode.text =
+    //     (await FlutterKeychain.get(key: "companycode") ?? "");
   }
 
   _loginApiCall(String username, String password, String comapanyCode) {

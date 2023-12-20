@@ -476,7 +476,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               showSnackBarWithText(keyScaffold.currentState, "Success",
                   color: colorGreen);
               Navigator.pop(context);
-              Navigator.pop(context, true);
+              Navigator.pop(context, 0);
             }
             setState(() {});
           } else {
