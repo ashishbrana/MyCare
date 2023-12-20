@@ -125,16 +125,16 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                           if (widget.dsnListModel != null &&
                               widget.dsnListModel!.timefrom != null) {
                             DateTime date = getDateTimeFromEpochTime(
-                                widget.dsnListModel!.sscname!)!;
-                            if (date.isToday) {
+                                widget.dsnListModel!.ssdate!)!;
+                            if (date.isBefore(DateTime.now()) || date.isToday) {
                               await saveDNSApiCall();
                             } else {
                               showSnackBarWithText(_keyScaffold.currentState,
-                                  "You are only allowed to submit!");
+                                  "You are only allowed to submit11!");
                             }
                           } else {
                             showSnackBarWithText(_keyScaffold.currentState,
-                                "You are only allowed to submit!");
+                                "You are only allowed to submit22!");
                           }
                         },
                       ),
