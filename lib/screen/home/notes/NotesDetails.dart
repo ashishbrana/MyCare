@@ -798,7 +798,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                         final XFile? image =
                                             await picker.pickImage(
                                           source: ImageSource.camera,
-                                          imageQuality: 30,
+                                          imageQuality: 10,
                                         );
                                         if (image != null) {
                                           setState(() {
@@ -827,7 +827,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                             ImagePicker();
                                         final List<XFile> image =
                                             await picker.pickMultiImage(
-                                          imageQuality: 30,
+                                          imageQuality: 10,
                                         );
                                         if (image.isNotEmpty) {
                                           setState(() {
