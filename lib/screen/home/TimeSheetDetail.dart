@@ -212,10 +212,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     ? getDateTimeFromEpochTime(
                                     widget.model.serviceDate ?? "") !=
                                 null &&
-                            getDateTimeFromEpochTime(
-                                    widget.model.serviceDate ?? "")!
-                                .isAfter(
-                                    DateTime.now())
+                    (getDateTimeFromEpochTime(
+                                    widget.model.serviceDate ?? ""))!.isFutureDate
                         ? "Time Sheet can not be completed for Future Dates"
                         : "Complete TimeSheet"
                     : widget.indexSelectedFrom == 3
@@ -229,10 +227,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     if (getDateTimeFromEpochTime(
                                 widget.model.serviceDate ?? "") !=
                             null &&
-                        getDateTimeFromEpochTime(
-                                widget.model.serviceDate ?? "")!
-                            .isBefore(
-                                DateTime.now())) {
+                        (getDateTimeFromEpochTime(
+                            widget.model.serviceDate ?? ""))!.isFutureDate == false) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -266,8 +262,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     widget.indexSelectedFrom == 2) &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
                     null &&
-                getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
-                    .isBefore(DateTime.now()))
+          (getDateTimeFromEpochTime(
+              widget.model.serviceDate ?? ""))!.isFutureDate == false)
               if (widget.indexSelectedFrom != 3 &&
                   widget.indexSelectedFrom != 1)
                 SizedBox(
@@ -299,6 +295,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                                   clientName:
                                       "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                                   noteWriter: fullName,
+                                  serviceDate:  getDateTimeFromEpochTime(widget.model.serviceDate ?? "") ?? DateTime.now(),
                                 ),
                               )).then((value) => value != null &&
                                   value
@@ -315,8 +312,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     widget.indexSelectedFrom == 2) &&
                 getDateTimeFromEpochTime(widget.model.serviceDate ?? "") !=
                     null &&
-                getDateTimeFromEpochTime(widget.model.serviceDate ?? "")!
-                    .isBefore(DateTime.now()))
+    (getDateTimeFromEpochTime(
+    widget.model.serviceDate ?? ""))!.isFutureDate == false)
               if (widget.indexSelectedFrom != 3 &&
                   widget.indexSelectedFrom != 1)
                 const SizedBox(height: spaceVertical / 1.5),

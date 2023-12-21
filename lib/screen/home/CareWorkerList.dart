@@ -207,6 +207,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                       clientName:
                                                           "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                                                       noteWriter: "",
+                                                          serviceDate:  getDateTimeFromEpochTime(widget.model.serviceDate ?? "") ?? DateTime.now(),
                                                     ),
                                                   ),
                                                 );

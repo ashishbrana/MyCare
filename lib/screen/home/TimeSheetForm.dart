@@ -418,7 +418,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                             clientName:
                                                 "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                                             noteWriter: fullName,
-                                          ),
+                                                serviceDate:  getDateTimeFromEpochTime(widget.model.serviceDate ?? "") ?? DateTime.now(),
+
+                                              ),
                                         )).then((value) => value != null &&
                                             value
                                         ? Navigator.pop(context, 0)

@@ -342,7 +342,8 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                           serviceShceduleClientID: model.servicescheduleCLientID ?? 0,
                                           noteId: model.noteID ?? 0,
                                           serviceName: model.serviceName ?? "",
-                                          clientName: model.clientName, noteWriter: model.createdByName ?? ""
+                                          clientName: model.clientName, noteWriter: model.createdByName ?? "",
+                                                serviceDate:   getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
                                         ),
                                       ),
                                     );

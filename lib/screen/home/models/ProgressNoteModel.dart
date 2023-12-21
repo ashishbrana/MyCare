@@ -20,6 +20,7 @@ class ProgressNoteModel {
   String? createdOn;
   int? serviceScheduleEmpID;
   int? tSid;
+  String? serviceDate;
 
   ProgressNoteModel(
       {this.clientName,
@@ -42,7 +43,9 @@ class ProgressNoteModel {
         this.clientRating,
         this.createdOn,
         this.serviceScheduleEmpID,
-        this.tSid});
+        this.tSid,
+        this.serviceDate
+      });
 
   ProgressNoteModel.fromJson(Map<String, dynamic> json) {
     clientName = json['ClientName'];
@@ -66,6 +69,7 @@ class ProgressNoteModel {
     createdOn = json['CreatedOn'];
     serviceScheduleEmpID = json['ServiceScheduleEmpID'];
     tSid = json['TSid'];
+    serviceDate = json["ServiceDate"];
   }
 
   Map<String, dynamic> toJson() {
@@ -91,6 +95,7 @@ class ProgressNoteModel {
     data['CreatedOn'] = this.createdOn;
     data['ServiceScheduleEmpID'] = this.serviceScheduleEmpID;
     data['TSid'] = this.tSid;
+    data['ServiceDate'] = this.serviceDate;
     return data;
   }
 }

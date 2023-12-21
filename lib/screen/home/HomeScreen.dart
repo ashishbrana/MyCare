@@ -1539,6 +1539,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               )
                                                             : InkWell(
                                                                 onTap: () {
+                                                                  print("progressnote 1");
                                                                   if (model
                                                                           .resName !=
                                                                       "Group Service") {
@@ -1566,6 +1567,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
                                                                           noteWriter:
                                                                               "",
+                                                                                  serviceDate:  getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
                                                                         ),
                                                                       ),
                                                                     );
@@ -2082,6 +2084,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 InkWell(
                                   onTap: () {
+                                    print("progressnote 2");
                                     if (keyScaffold.currentContext != null) {
                                       Navigator.of(keyScaffold.currentContext!)
                                           .push(
@@ -2102,6 +2105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             clientName: model.clientName,
                                             noteWriter:
                                                 model.createdByName ?? "",
+                                                serviceDate:  getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
                                           ),
                                         ),
                                       );
@@ -2240,6 +2244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: "Add Group Note",
                     padding: EdgeInsets.zero,
                     onTap: () {
+                      print("progressnote 4");
                       if (keyScaffold.currentContext != null) {
                         List<GroupServiceModel> temp = [];
                         for (GroupServiceModel model in tempListGroupService) {
@@ -2265,6 +2270,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 clientName: temp.first.clientName,
                                 noteWriter: temp.first.notewriter ?? "",
                                 selectedGroupServiceList: temp,
+                                serviceDate:  getDateTimeFromEpochTime(selectedModel?.serviceDate ?? "") ?? DateTime.now(),
+
                               ),
                             ),
                           )
@@ -2478,6 +2485,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 InkWell(
                                   onTap: () {
+                                    print("progressnote 3");
+                                    //Edit Group note
                                     if (keyScaffold.currentContext != null) {
                                       Navigator.of(keyScaffold.currentContext!)
                                           .push(
@@ -2494,11 +2503,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 model.servicescheduleCLientID ??
                                                     0,
                                             servicescheduleemployeeID:
-                                                model.serviceScheduleEmpID ?? 0,
+                                            selectedModel?.servicescheduleemployeeID ??
+                                                0,
                                             serviceName: model.groupname ?? "",
                                             clientName: model.clientName,
                                             noteWriter: model.notewriter ?? "",
-                                          ),
+                                                serviceDate:  getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
+
+                                              ),
                                         ),
                                       )
                                           .then((value) {

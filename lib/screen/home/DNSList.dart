@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/models/DSNListModel.dart';
 import 'package:rcare_2/screen/home/notes/DNSNotesDetails.dart';
+import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
 import '../../Network/API.dart';
@@ -280,8 +281,7 @@ class _DNSListState extends State<DNSList> {
                                 ),
                                 if ( (getDateTimeFromEpochTime(model.ssdate!) !=
                                         null &&
-                                    getDateTimeFromEpochTime(model.ssdate!)!
-                                        .isBefore(DateTime.now())) && (widget.userId == model.notewriterid || model.notewriterid == 0))
+                                    getDateTimeFromEpochTime(model.ssdate!)!.isFutureDate == false) && (widget.userId == model.notewriterid || model.notewriterid == 0))
                                   InkWell(
                                     onTap: () {
                                       Navigator.push(

@@ -255,6 +255,7 @@ class ProgressNoteState extends State<ProgressNote> {
                         ),
                         InkWell(
                           onTap: () {
+                            print("progressnote 1");
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ProgressNoteDetails(
@@ -268,6 +269,7 @@ class ProgressNoteState extends State<ProgressNote> {
                                   serviceName: model.serviceName ?? "",
                                   clientName: model.clientName,
                                   noteWriter: model.createdByName ?? "",
+                                  serviceDate: getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now()
 
                                 ),
                               ),

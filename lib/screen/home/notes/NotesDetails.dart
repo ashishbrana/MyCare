@@ -38,6 +38,7 @@ class ProgressNoteDetails extends StatefulWidget {
   String? clientName;
   String serviceName;
   String noteWriter;
+  DateTime serviceDate;
   List<GroupServiceModel>? selectedGroupServiceList = [];
 
   ProgressNoteDetails({
@@ -51,6 +52,7 @@ class ProgressNoteDetails extends StatefulWidget {
     required this.servicescheduleemployeeID,
     required this.serviceName,
     required this.noteWriter,
+    required this.serviceDate,
   });
 
   @override
@@ -84,6 +86,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   Uint8List? noteDocImage;
   List<File> selectedImageFilesList = [];
   int? clientRating;
+  String imgPath = "";
 
   bool isPast = false;
 
@@ -121,7 +124,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       'ServiceScheduleClientID': widget.serviceShceduleClientID.toString(),
       'ssEmpID': widget.servicescheduleemployeeID.toString(),
     };
-    print("params : $params");
+    print("getServiceDetail : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -229,7 +232,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 serviceTypeDateTime,
               );
 
-              isPast = serviceTypeDateTime.isPassed;
+              isPast = widget.serviceDate.isPassed;
               print("isPast : $isPast");
 
               _subject.text = model!.subject ?? "";
@@ -633,7 +636,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: spaceVertical),
-                    (signatureImage == null && serviceTypeDateTime.isToday)
+                    (signatureImage == null && widget.serviceDate.isToday)
                         ? Row(children: [
                             ThemedText(
                               text: "Client Signature",
@@ -668,7 +671,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
                       child: signatureImage != null
                           ? Image.memory(signatureImage!)
-                          : !isPast
+                          : widget.serviceDate.isToday
                               ? Signature(
                                   backgroundColor: Colors.white,
                                   controller: _controllerSignature,
@@ -679,7 +682,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     ),
                     const SizedBox(height: spaceVertical),
                     if (clientRating == 0 &&
-                        serviceTypeDateTime.isToday &&
+                        widget.serviceDate.isToday &&
                         !isPast)
                       Row(
                         children: [
@@ -858,7 +861,22 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   itemCount: noteDocList!.length,
                   itemBuilder: (context, index) => InkWell(
                     onTap: () {
-                      getNoteImage64(noteDocList![index]);
+                    //  getNoteImage64(noteDocList![index]);
+                      imgPath = "";
+                      String path = (noteDocList![index].path ?? "");
+
+                      String imageName = noteDocList![index].name ?? "";
+                      https://mycare.mycaresoftware.com/Uploads/client/108/notespic/1106-Bob108-211223-1.jpg
+                      https://mycare.mycaresoftware.com/Uploads/client/notes/96/notespic/1121-Bump96-211223-2.jpg
+                    //  $mainUrl$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"
+                      if(path.isNotEmpty){
+                        imgPath = path+"/"+model!.clientID.toString()+"/notespic/"+imageName;
+                        print(imgPath);
+                        setState(() {
+
+                        });
+                      }
+
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -876,11 +894,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     ),
                   ),
                 ),
-              if (noteDocImage != null)
+              if (imgPath.isNotEmpty)
                 SizedBox(
                   height: 200,
                   width: 300,
-                  child: Image.memory(noteDocImage!),
+   // https://mycare.mycaresoftware.com/Uploads/client/notes
+                  child: Image.network(imgPath),
+
                 ),
               if (selectedImageFilesList.isNotEmpty)
                 const SizedBox(height: spaceVertical),
@@ -918,23 +938,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         String clientId = "";
         String serviceScheduleClientId = "";
         String ssEmployeeId = "";
-        if (isGroupNote()) {
-          noteIds = "0";
-          for (GroupServiceModel model in widget.selectedGroupServiceList!) {
-            if (model.noteID != null) {
-              clientId +=
-                  "${clientId.isNotEmpty ? "," : ""}${model.rESID ?? "0"}";
-              serviceScheduleClientId +=
-                  "${serviceScheduleClientId.isNotEmpty ? "," : ""}${model.servicescheduleCLientID ?? "0"}";
-            }
-          }
-          ssEmployeeId = "0";
-        } else {
+
           noteIds = (model!.noteID ?? 0).toString();
           serviceScheduleClientId = widget.serviceShceduleClientID.toString();
           clientId = widget.clientId.toString();
           ssEmployeeId = widget.servicescheduleemployeeID.toString();
-        }
+
 
         try {
           getOverlay(context);
@@ -952,7 +961,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 _disscription.text.isNotEmpty ? _disscription.text : "",
             "Subject": _subject.text,
             "img": 0,
-            "userID": widget.userId,
+            "userID": (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
             "clientID": clientId,
             "ServiceScheduleClientID": serviceScheduleClientId,
             "bit64Signature": _controllerSignature.isNotEmpty
@@ -1200,6 +1209,19 @@ extension DateHelpers on DateTime {
     } else if (month < now.month) {
       return true;
     } else if (day < now.day) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool get isFutureDate {
+    final now = DateTime.now();
+    if (year > now.year) {
+      return true;
+    } else if (month > now.month) {
+      return true;
+    } else if (day > now.day) {
       return true;
     } else {
       return false;
