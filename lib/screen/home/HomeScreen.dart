@@ -265,6 +265,11 @@ class _HomeScreenState extends State<HomeScreen> {
           removeOverlay();
         } catch (e) {
           print("ERROR : $e");
+          availableDataList.clear();
+          mainList.addAll(availableDataList);
+          tempList.clear();
+          tempList.addAll(mainList);
+          setState(() {});
           removeOverlay();
         } finally {
           removeOverlay();

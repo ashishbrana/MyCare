@@ -130,11 +130,11 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                               await saveDNSApiCall();
                             } else {
                               showSnackBarWithText(_keyScaffold.currentState,
-                                  "You are only allowed to submit11!");
+                                  "You are not allowed to complete DSN for future date!");
                             }
                           } else {
                             showSnackBarWithText(_keyScaffold.currentState,
-                                "You are only allowed to submit22!");
+                                "You are not allowed to complete DSN for future date!");
                           }
                         },
                       ),

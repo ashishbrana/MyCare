@@ -20,6 +20,7 @@ import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
+import 'HomeScreen.dart';
 import 'models/ConfirmedResponseModel.dart';
 import 'notes/NotesDetails.dart';
 
@@ -195,7 +196,10 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    sDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget.model.serviceDate!.replaceAll("/Date(", "").replaceAll(")/", "")));
+    sDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget
+        .model.serviceDate!
+        .replaceAll("/Date(", "")
+        .replaceAll(")/", "")));
     _controllerServiceType.text = widget.model.serviceName ?? "";
     if (widget.model.tSConfirm == false &&
         widget.model.timeFrom != null &&
@@ -353,18 +357,27 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   }
                                   sendRiskAlert();
                                 } else {
-
-                                  if (sDate.isToday){
+                                  if (sDate.isToday) {
                                     String? address = await getAddress();
                                     if (address != null) {
                                       print("ADDRESS : $address");
-                                      saveTimeSheet(address, (widget.model.servicescheduleemployeeID ?? 0).toString(),sDate.isToday);
+                                      saveTimeSheet(
+                                          address,
+                                          (widget.model
+                                                      .servicescheduleemployeeID ??
+                                                  0)
+                                              .toString(),
+                                          sDate.isToday);
                                     }
+                                  } else {
+                                    saveTimeSheet(
+                                        "",
+                                        (widget.model
+                                                    .servicescheduleemployeeID ??
+                                                0)
+                                            .toString(),
+                                        sDate.isToday);
                                   }
-                                  else{
-                                    saveTimeSheet("", (widget.model.servicescheduleemployeeID ?? 0).toString(),sDate.isToday);
-                                  }
-
                                 }
                               },
                             ),
@@ -379,34 +392,40 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                 title: "Notes",
                                 fontSize: 14,
                                 onTap: () async {
-                                  String fullName = await Preferences()
-                                      .getPrefString(
-                                          Preferences.prefUserFullName);
-                                  Navigator.push(
-                                      _keyScaffold.currentContext!,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProgressNoteDetails(
-                                          userId: widget.model.empID ?? 0,
-                                          noteId: widget.model.noteID ?? 0,
-                                          clientId: widget.model.rESID ?? 0,
-                                          servicescheduleemployeeID: widget
-                                                  .model
-                                                  .servicescheduleemployeeID ??
-                                              0,
-                                          serviceShceduleClientID: widget.model
-                                                  .serviceShceduleClientID ??
-                                              0,
-                                          serviceName:
-                                              widget.model.serviceName ?? "",
-                                          clientName:
-                                              "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
-                                          noteWriter: fullName,
-                                        ),
-                                      )).then((value) => value != null &&
-                                          value
-                                      ? Navigator.pop(context, 0)
-                                      : () {});
+                                  print(widget.model.resName);
+                                  if (widget.model.resName != "Group Service") {
+                                    String fullName = await Preferences()
+                                        .getPrefString(
+                                            Preferences.prefUserFullName);
+                                    Navigator.push(
+                                        _keyScaffold.currentContext!,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProgressNoteDetails(
+                                            userId: widget.model.empID ?? 0,
+                                            noteId: widget.model.noteID ?? 0,
+                                            clientId: widget.model.rESID ?? 0,
+                                            servicescheduleemployeeID: widget
+                                                    .model
+                                                    .servicescheduleemployeeID ??
+                                                0,
+                                            serviceShceduleClientID: widget
+                                                    .model
+                                                    .serviceShceduleClientID ??
+                                                0,
+                                            serviceName:
+                                                widget.model.serviceName ?? "",
+                                            clientName:
+                                                "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
+                                            noteWriter: fullName,
+                                          ),
+                                        )).then((value) => value != null &&
+                                            value
+                                        ? Navigator.pop(context, 0)
+                                        : () {});
+                                  } else {
+                                    Navigator.pop(context, 1);
+                                  }
                                 },
                               ),
                             ),
@@ -1557,8 +1576,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           print(body);
 
           Response response = await http.post(
-              Uri.parse(
-                  "$mainUrl$updateShiftCommentsAndSendRiskAlert"),
+              Uri.parse("$mainUrl$updateShiftCommentsAndSendRiskAlert"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1589,7 +1607,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     });
   }
 
-  saveTimeSheet(String address, String sSEID ,bool isToday)  async {
+  saveTimeSheet(String address, String sSEID, bool isToday) async {
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         try {
@@ -1654,8 +1672,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           }
 
           Response response = await http.post(
-              Uri.parse(
-                  "$mainUrl$endSaveTimesheet"),
+              Uri.parse("$mainUrl$endSaveTimesheet"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1664,16 +1681,13 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             var jResponse = json.decode(response.body.toString());
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
-
-              if(isToday) {
+              if (isToday) {
                 saveLocationTime(address, sSEID);
-              }
-              else{
+              } else {
                 showSnackBarWithText(_keyScaffold.currentState, "Success",
                     color: colorGreen);
                 Navigator.pop(context, 0);
               }
-
             }
           } else {
             showSnackBarWithText(
@@ -1726,32 +1740,32 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
       Position position = await Geolocator.getCurrentPosition();
       List<Placemark> addressList =
-      await placemarkFromCoordinates(position.latitude, position.longitude);
+          await placemarkFromCoordinates(position.latitude, position.longitude);
 
-      Placemark placeMark  = addressList[0];
+      Placemark placeMark = addressList[0];
       String address = "";
       String name = placeMark?.name ?? "";
-      if(name.trim().isNotEmpty){
+      if (name.trim().isNotEmpty) {
         address = "${name}, ";
       }
       String subLocality = placeMark?.subLocality ?? "";
-      if(subLocality.trim().isNotEmpty){
+      if (subLocality.trim().isNotEmpty) {
         address = "${address}${subLocality},";
       }
-      String locality = placeMark?.locality?? "";
-      if(locality.trim().isNotEmpty){
+      String locality = placeMark?.locality ?? "";
+      if (locality.trim().isNotEmpty) {
         address = "${address}${locality}, ";
       }
-      String administrativeArea = placeMark?.administrativeArea?? "";
-      if(administrativeArea.isNotEmpty){
+      String administrativeArea = placeMark?.administrativeArea ?? "";
+      if (administrativeArea.isNotEmpty) {
         address = "${address}${administrativeArea}, ";
       }
-      String postalCode = placeMark?.postalCode?? "";
-      if(postalCode.trim().isNotEmpty){
+      String postalCode = placeMark?.postalCode ?? "";
+      if (postalCode.trim().isNotEmpty) {
         address = "${address}${postalCode}, ";
       }
-      String country = placeMark?.country?? "";
-      if(country.trim().isNotEmpty){
+      String country = placeMark?.country ?? "";
+      if (country.trim().isNotEmpty) {
         address = "${address}${country}, ";
       }
       address = address.trim();
@@ -1772,9 +1786,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   saveLocationTime(String address, String sSEID) async {
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid':
-      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'servicescheduleemployeeID': sSEID,
       'Location': address,
       'SaveTimesheet': "true",
@@ -1819,7 +1833,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
   }
-
 }
 
 String timeToDecimal(int minute) {

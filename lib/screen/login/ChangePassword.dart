@@ -178,7 +178,7 @@ class _ChangePasswordState extends State<ChangePassword> {
 
             var jResponse = json.decode(response);
             if (jResponse["status"] == 1) {
-              showSnackBarWithText(_keyScaffold.currentState,jResponse["message"],
+              showSnackBarWithText(_keyScaffold.currentState,"Password changed successfully",
                   color: colorGreen);
               Navigator.pop(context, true);
             }
