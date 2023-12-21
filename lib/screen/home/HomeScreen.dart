@@ -425,6 +425,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _keyNavigator.currentState!.pop();
           return Future(() => false);
         }
+        if (bottomCurrentIndex != 0) {
+          setState(() {
+            bottomCurrentIndex = 0;
+          });
+          return Future(() => false);
+        }
         return Future(() => true);
       },
       child: Scaffold(
@@ -1935,27 +1941,6 @@ class _HomeScreenState extends State<HomeScreen> {
   _buildProgressNoteList() {
     return Column(
       children: [
-        /*  InkWell(
-          onTap: () {
-            _buildDateDialog();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: spaceHorizontal, vertical: spaceVertical),
-            child: ThemedText(
-              text:
-                  "ProgressNotes : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: colorGreyText,
-            ),
-          ),
-        ),
-        const Divider(
-          thickness: 1,
-          height: 1,
-          color: colorGreyBorderD3,
-        ),*/
         Expanded(
           child: Container(
             color: colorLiteBlueBackGround,
@@ -2024,50 +2009,76 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 5),
-                                          FaIcon(
-                                            FontAwesomeIcons.calendarDays,
-                                            color: colorGreen,
-                                            size: 16,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            // model.serviceDate!,
-                                            model.noteDate != null
-                                                ? DateFormat("EEE,dd-MM-yyyy")
-                                                    .format(
-                                                    DateTime.fromMillisecondsSinceEpoch(
-                                                            int.parse(model
-                                                                .noteDate!
-                                                                .replaceAll(
-                                                                    "/Date(",
-                                                                    "")
-                                                                .replaceAll(
-                                                                    ")/", "")),
-                                                            isUtc: false)
-                                                        .add(
-                                                      Duration(
-                                                          hours: 5,
-                                                          minutes: 30),
-                                                    ),
-                                                  )
-                                                : "",
-                                            style: TextStyle(
-                                              color: colorGreyText,
-                                              fontSize: 14,
+                                          Expanded(
+                                            child: ThemedRichText(
+                                              spanList: [
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const SizedBox(width: 5),
+                                                      const FaIcon(
+                                                        FontAwesomeIcons
+                                                            .calendarDays,
+                                                        color: colorGreen,
+                                                        size: 16,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        // model.serviceDate!,
+                                                        model.noteDate != null
+                                                            ? DateFormat(
+                                                                    "EEE,dd-MM-yyyy")
+                                                                .format(
+                                                                DateTime.fromMillisecondsSinceEpoch(
+                                                                        int.parse(model
+                                                                            .noteDate!
+                                                                            .replaceAll("/Date(",
+                                                                                "")
+                                                                            .replaceAll(")/",
+                                                                                "")),
+                                                                        isUtc:
+                                                                            false)
+                                                                    .add(
+                                                                  Duration(
+                                                                      hours: 5,
+                                                                      minutes:
+                                                                          30),
+                                                                ),
+                                                              )
+                                                            : "",
+                                                        style: TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        width: 1,
+                                                        height: 25,
+                                                        color:
+                                                            colorGreyBorderD3,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                WidgetSpan(
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const SizedBox(width: 5),
+                                                      ThemedText(
+                                                          text: model.subject!,
+                                                          color: colorGreyText,
+                                                          fontSize: 14),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          const SizedBox(width: 5),
-                                          Container(
-                                            width: 1,
-                                            height: 25,
-                                            color: colorGreyBorderD3,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          ThemedText(
-                                              text: model.subject!,
-                                              color: colorGreyText,
-                                              fontSize: 14)
                                         ],
                                       ),
                                       ThemedText(
@@ -2486,9 +2497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ProgressNoteDetails(
                                             userId:
                                                 model.serviceScheduleEmpID ?? 0,
-                                            clientId:
-                                                model.rESID ??
-                                                    0,
+                                            clientId: model.rESID ?? 0,
                                             noteId: model.noteID ?? 0,
                                             serviceShceduleClientID:
                                                 model.servicescheduleCLientID ??
