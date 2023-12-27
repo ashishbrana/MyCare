@@ -86,7 +86,7 @@ class _LoginState extends State<Login> {
             LoginResponseModel responseModel =
                 LoginResponseModel.fromJson(jResponse);
             print('res ${jResponse['status']}');
-            if (responseModel.status == 1) {
+            if (responseModel.status == 1 && responseModel.accountType == 2) {
               print('res success');
               Preferences().setPrefString(
                   Preferences.prefAuthCode, responseModel.authcode ?? "");
@@ -102,7 +102,12 @@ class _LoginState extends State<Login> {
               await FlutterKeychain.put(key: "password", value: password);
               await FlutterKeychain.put(key: "companycode", value: comapanyCode);
               sendToHome();
-            } else {
+            }
+            else if (responseModel.status == 1 && responseModel.accountType != 2) {
+              showSnackBarWithText(
+                  _keyScaffold.currentState, "User can not login");
+            }
+            else {
               showSnackBarWithText(
                   _keyScaffold.currentState, jResponse['Message']);
             }

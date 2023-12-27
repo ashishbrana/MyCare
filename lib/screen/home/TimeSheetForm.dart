@@ -262,7 +262,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     if (widget.model.tSHours != null) {
       _controllerHours.text =
           getTimeStringFromDouble(widget.model.tSHours!.toDouble());
-      origionalMins = widget.model.tSHours!.toInt() * 60;
+      origionalMins = (widget.model.tSHours! * 60).toInt();
     }
     if (widget.model.tSHoursDiff != null) {
       diffHours = widget.model.tSHoursDiff!.toDouble();
@@ -273,13 +273,21 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
     _controllerTravelTime.text = getTimeStringFromDouble(
         double.tryParse(widget.model.tSTravelTime.toString()) ?? 0.0);
-    _controllerTravelDistance.text = widget.model.tSTravelDistance.toString();
-    _controllerTravelDistanceMax.text =
-        widget.model.maxTravelDistance.toString();
-    _controllerTravelDistanceMax.text =
-        widget.model.maxTravelDistance.toString();
+
+    _controllerTravelDistance.text = widget.model.tSTravelDistance!.toDouble().toString();
+    if(widget.model.tSTravelDistance! <= 0.0){
+      _controllerTravelDistance.text = "";
+    }
+
+    _controllerTravelDistanceMax.text = widget.model.maxTravelDistance!.toDouble().toString();
+
+    _controllerTravelDistanceMax.text = widget.model.maxTravelDistance!.toDouble().toString();
+
     _controllerClientTravelDistance.text =
-        widget.model.clienttraveldistance.toString();
+        widget.model.clienttraveldistance!.toDouble().toString();
+    if(widget.model.clienttraveldistance! <= 0.0){
+      _controllerClientTravelDistance.text = "";
+    }
     isRiskAlert = false;
     _controllerTimeSheetComments.text = widget.model.tSComments ?? "";
     setState(() {});
@@ -316,6 +324,23 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               fontSize: 14,
                               onTap: () async {
                                 if (widget.model.tSConfirm == false) {
+
+                                  int startMinTs = (fromHour * 60) + fromMin;
+                                  int endMinTs = (toHour * 60) + toMin;
+                                  if(endMinTs < startMinTs){
+                                    endMinTs = endMinTs+1440;
+                                  }
+
+
+
+                                  if(startMinTs == endMinTs){
+                                    showSnackBarWithText(
+                                        _keyScaffold.currentState,
+                                        "Please enter valid Untile Time",
+                                        color: colorRed);
+                                    return;
+                                  }
+
                                   if (isIncludeLaunchBrake && endBrakMin == 0) {
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
@@ -590,7 +615,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         const SizedBox(width: 5),
                         ThemedText(
                           text:
-                              "Travel Dist.: ${widget.model.tSTravelTime ?? ""}",
+                              "Travel Dist.: ${widget.model.tSTravelDistance?.toDouble().toString() ?? "0.00"}",
                           color: colorBlack,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -908,6 +933,16 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                             fromMin;
                                                     int endMinTs =
                                                         (toHour * 60) + toMin;
+                                                    if(endMinTs < startMinTs){
+                                                      endMinTs = endMinTs+1440;
+                                                      if(tempstartBreakMin < startMinTs){
+                                                        tempstartBreakMin += 1440;
+                                                      }
+                                                    }
+
+                                                    print(startMinTs.toString());
+                                                    print(endMinTs.toString());
+                                                    print(tempstartBreakMin.toString());
 
                                                     if (tempstartBreakMin <
                                                             startMinTs ||
@@ -983,8 +1018,21 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                     int teampendBrakMin =
                                                         (hours * 60) + minutes;
                                                     int startMinTs =
+                                                        (fromHour * 60) + fromMin;
+
+                                                    int endMinTs =
                                                         (toHour * 60) + toMin;
-                                                    if (startBreakMin == 0) {
+                                                 if(endMinTs < startMinTs){
+                                                   endMinTs = endMinTs+1440;
+                                                   }
+                                                    if(teampendBrakMin < startBreakMin){
+                                                      teampendBrakMin = teampendBrakMin+1440;
+                                                    }
+                                                    print(startBreakMin.toString());
+                                                    print(endMinTs.toString());
+                                                    print(teampendBrakMin.toString());
+
+                                                    if (startBreakMin == 0 && endMinTs > 1440) {
                                                       showSnackBarWithText(
                                                           _keyScaffold
                                                               .currentState,
@@ -992,9 +1040,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                           color: colorRed);
                                                       return;
                                                     }
+
+                                                    print(startBreakMin.toString());
+                                                    print(endMinTs.toString());
+                                                    print(teampendBrakMin.toString());
+                                                    print(startMinTs.toString());
+
                                                     if (teampendBrakMin <
                                                             startBreakMin ||
-                                                        teampendBrakMin >
+                                                        teampendBrakMin <
                                                             startMinTs) {
                                                       showSnackBarWithText(
                                                           _keyScaffold
@@ -1009,15 +1063,21 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
                                                     _controllerToLaunch.text =
                                                         "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                                    String diff =
+                                                   breakMin = endBrakMin - startBreakMin;
+                                                    print(breakMin.toString());
+                                                    int h = (breakMin/60).toInt();
+                                                    int m = (breakMin%60).toInt();
+                                                    print(h.toString());
+                                                    print(m.toString());
+                                                    _controllerHourLaunch.text =  "${get2CharString(h)}:${get2CharString(m)}";
+                                                   /* String diff =
                                                         findDurationDifference(
                                                             _controllerFromLaunch
                                                                 .text,
                                                             _controllerToLaunch
-                                                                .text);
+                                                                .text);*/
                                                     calculateHours();
-                                                    _controllerHourLaunch.text =
-                                                        diff;
+
                                                     setState(() {});
                                                   },
                                                 );
@@ -1258,6 +1318,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   borderColor: colorGreyBorderD3,
                                   backgroundColor: colorWhite,
                                   controller: _controllerTravelDistance,
+                                  hintText: "0.0",
                                 ),
                               ),
                             ],
@@ -1334,6 +1395,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   borderColor: colorGreyBorderD3,
                                   backgroundColor: colorWhite,
                                   controller: _controllerClientTravelDistance,
+                                  hintText: "0.0",
                                 ),
                               ),
                             ],
@@ -1468,13 +1530,19 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     print(breakMin);
 
     int diff = ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
+    if(diff < 0){
+      diff = diff +1440;
+    }
     totalWorkMin = diff;
     print(diff);
     int totalHours = (diff / 60).toInt();
     int totalMin = (diff % 60).toInt();
     _controllerHours.text =
         "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
+    print(diff);
+    print(origionalMins);
     double diffMin = ((((diff - breakMin) - origionalMins) * 100) / 60) / 100;
+    print(diffMin);
     String stdiffMin = diffMin.toStringAsFixed(2);
     diffHours = double.parse(stdiffMin);
     _controllerHoursDifference.text = "$diffHours";
@@ -1641,9 +1709,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'TSLBTo': isIncludeLaunchBrake
                 ? "1899-12-30 ${_controllerToLaunch.text}"
                 : "1899-12-30 00:00",
-            'TSHours':
-                "${get2CharString((totalWorkMin / 60).toInt())}.${get2CharString((totalWorkMin % 60).toInt())}",
-            'TSTravelDistance': _controllerTravelDistance.text,
+            'TSHours':timeToDecimal(totalWorkMin),
+            'TSTravelDistance': _controllerTravelDistance.text.isEmpty ? "0.0" : _controllerTravelDistance.text,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
             'TSHoursDiff': 0.0, //not in use
@@ -1658,7 +1725,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
             'clientID': widget.model.rESID != null
                 ? widget.model.rESID.toString()
                 : "0",
-            'TSClientTravelDistance': _controllerClientTravelDistance.text,
+            'TSClientTravelDistance': _controllerClientTravelDistance.text.isEmpty ?  "0.0" : _controllerClientTravelDistance.text,
             'ssEmployeeID': widget.model.servicescheduleemployeeID != null
                 ? widget.model.servicescheduleemployeeID.toString()
                 : "0",

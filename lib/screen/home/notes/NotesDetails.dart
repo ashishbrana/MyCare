@@ -240,8 +240,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               _disscription.text = model!.description ?? "";
               _assesmentScale = (model!.asessmentScale ?? 0).toString();
               _assesment_comment.text = model!.asessmentComment ?? "";
-              clientRating = int.parse(model!.clientRating ?? "3");
 
+              if(model!.clientRating == null || model!.clientRating!.isEmpty){
+                model!.clientRating = "0";
+              }
+
+              clientRating = int.parse(model!.clientRating ?? "0");
+              print("isPast : $clientRating");
               if (this.serviceDetail != null) {
                 final serviceDetail = this.serviceDetail;
                 model?.createdByName = serviceDetail?.createdByName;
@@ -682,8 +687,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     ),
                     const SizedBox(height: spaceVertical),
                     if (clientRating == 0 &&
-                        widget.serviceDate.isToday &&
-                        !isPast)
+                        widget.serviceDate.isToday)
                       Row(
                         children: [
                           InkWell(

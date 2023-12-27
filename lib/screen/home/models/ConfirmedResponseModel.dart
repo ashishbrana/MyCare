@@ -17,7 +17,7 @@ class TimeShiteModel {
   String? lunchBreak;
   var lunchBreakFrom;
   var lunchBreakTo;
-  dynamic? totalHours;
+  num? totalHours;
   int? comID;
   String? brokerageNo;
   String? comments;
@@ -35,8 +35,8 @@ class TimeShiteModel {
   String? tSLunchBreakTo;
   num? tSHours;
   String? tSTravelTime;
-  dynamic? tSTravelDistance;
-  dynamic? tSTravelH;
+  num? tSTravelDistance;
+  num? tSTravelH;
   String? tSComments;
   num? tSHoursDiff;
   int? tSTravelDistanceDiff;
@@ -51,15 +51,15 @@ class TimeShiteModel {
   String? startTime;
   String? endTime;
   int? timesheetID;
-  dynamic? serviceTavelDistance;
+  num? serviceTavelDistance;
   int? serviceShceduleClientID;
   int? noteID;
   int? type;
   int? servicescheduleemployeeID;
   String? locationName;
   String? logOffLocationName;
-  dynamic? maxTravelDistance;
-  dynamic? clienttraveldistance;
+  num? maxTravelDistance;
+  num? clienttraveldistance;
   String? fundingsourcename;
   int? tsservicetype;
   int? dsnId;
