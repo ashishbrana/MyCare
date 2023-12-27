@@ -1813,32 +1813,22 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
       Placemark placeMark = addressList[0];
       String address = "";
-      String name = placeMark?.name ?? "";
-      if (name.trim().isNotEmpty) {
-        address = "${name}, ";
+
+      void appendIfNotEmpty(String value) {
+        if (value.trim().isNotEmpty) {
+          address += "$value, ";
+        }
       }
-      String subLocality = placeMark?.subLocality ?? "";
-      if (subLocality.trim().isNotEmpty) {
-        address = "${address}${subLocality},";
-      }
-      String locality = placeMark?.locality ?? "";
-      if (locality.trim().isNotEmpty) {
-        address = "${address}${locality}, ";
-      }
-      String administrativeArea = placeMark?.administrativeArea ?? "";
-      if (administrativeArea.isNotEmpty) {
-        address = "${address}${administrativeArea}, ";
-      }
-      String postalCode = placeMark?.postalCode ?? "";
-      if (postalCode.trim().isNotEmpty) {
-        address = "${address}${postalCode}, ";
-      }
-      String country = placeMark?.country ?? "";
-      if (country.trim().isNotEmpty) {
-        address = "${address}${country}, ";
-      }
+
+      appendIfNotEmpty(placeMark?.name);
+      appendIfNotEmpty(placeMark?.subLocality);
+      appendIfNotEmpty(placeMark?.locality);
+      appendIfNotEmpty(placeMark?.administrativeArea);
+      appendIfNotEmpty(placeMark?.postalCode);
+      appendIfNotEmpty(placeMark?.country);
+
       address = address.trim();
-      if (address != null && address.length > 0) {
+      if (address.isNotEmpty) {
         address = address.substring(0, address.length - 1);
       }
       return address;
