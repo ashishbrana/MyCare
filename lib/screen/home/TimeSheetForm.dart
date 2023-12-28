@@ -1732,12 +1732,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
         }
       }
 
-      appendIfNotEmpty(placeMark?.name);
-      appendIfNotEmpty(placeMark?.subLocality);
-      appendIfNotEmpty(placeMark?.locality);
-      appendIfNotEmpty(placeMark?.administrativeArea);
-      appendIfNotEmpty(placeMark?.postalCode);
-      appendIfNotEmpty(placeMark?.country);
+      appendIfNotEmpty(placeMark.name ?? "");
+      appendIfNotEmpty(placeMark.subLocality ?? "");
+      appendIfNotEmpty(placeMark.locality ?? "");
+      appendIfNotEmpty(placeMark.administrativeArea ?? "");
+      appendIfNotEmpty(placeMark.postalCode ?? "");
+      appendIfNotEmpty(placeMark.country ?? "");
 
       address = address.trim();
       if (address.isNotEmpty) {
@@ -1829,3 +1829,51 @@ String getMinuteString(int decimalValue) {
 String getHourString(int flooredValue) {
   return '$flooredValue'.padLeft(2, '0');
 }
+
+/*
+void main() {
+  TimeOfDay range1StartTime = TimeOfDay(hour: 22, minute: 0); // Range 1: 10:00 PM
+  TimeOfDay range1EndTime = TimeOfDay(hour: 6, minute: 0);    // Range 1: 6:00 AM next day
+
+  TimeOfDay range2StartTime = TimeOfDay(hour: 23, minute: 0); // Range 2: 11:00 PM
+  TimeOfDay range2EndTime = TimeOfDay(hour: 2, minute: 0);   // Range 2: 2:00 AM next day
+
+  if (isSubPartOfTimeRange(range2StartTime, range2EndTime, range1StartTime, range1EndTime)) {
+    print('Range 2 is a sub-part of Range 1.');
+  } else {
+    print('Range 2 is not a sub-part of Range 1.');
+  }
+}
+
+bool isSubPartOfTimeRange(TimeOfDay range2StartTime, TimeOfDay range2EndTime, TimeOfDay range1StartTime, TimeOfDay range1EndTime) {
+  int startComparison = TimeOfDayExtension.compare(range2StartTime, range1StartTime);
+  int endComparison = TimeOfDayExtension.compare(range2EndTime, range1EndTime);
+
+  if (startComparison >= 0 && endComparison <= 0) {
+    return true;
+  }
+
+  // Check for overnight scenario
+  TimeOfDay endOfDay = TimeOfDay(hour: 23, minute: 59);
+  TimeOfDay startOfDay = TimeOfDay(hour: 0, minute: 0);
+
+  int startComparisonOvernight = TimeOfDayExtension.compare(range2StartTime, startOfDay);
+  int endComparisonOvernight = TimeOfDayExtension.compare(range2EndTime, endOfDay);
+
+  return startComparisonOvernight >= 0 && endComparisonOvernight <= 0;
+}
+
+extension TimeOfDayExtension on TimeOfDay {
+  static int compare(TimeOfDay a, TimeOfDay b) {
+    if (a.hour < b.hour) {
+      return -1;
+    } else if (a.hour > b.hour) {
+      return 1;
+    } else {
+      return a.minute.compareTo(b.minute);
+    }
+  }
+}
+
+
+ */

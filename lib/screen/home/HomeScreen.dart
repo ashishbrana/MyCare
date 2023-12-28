@@ -2695,12 +2695,12 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
 
-      appendIfNotEmpty(placeMark?.name);
-      appendIfNotEmpty(placeMark?.subLocality);
-      appendIfNotEmpty(placeMark?.locality);
-      appendIfNotEmpty(placeMark?.administrativeArea);
-      appendIfNotEmpty(placeMark?.postalCode);
-      appendIfNotEmpty(placeMark?.country);
+      appendIfNotEmpty(placeMark.name ?? "");
+      appendIfNotEmpty(placeMark.subLocality ?? "");
+      appendIfNotEmpty(placeMark.locality  ?? "");
+      appendIfNotEmpty(placeMark.administrativeArea ?? "");
+      appendIfNotEmpty(placeMark.postalCode ?? "");
+      appendIfNotEmpty(placeMark.country ?? "");
 
       address = address.trim();
       if (address.isNotEmpty) {
