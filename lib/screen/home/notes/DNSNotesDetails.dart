@@ -290,7 +290,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                 fontSize: 15,
               ),
               ThemedTextField(
-                padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                padding: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                 minLine: 4,
                 maxLine: 4,
                 borderColor: colorGreyBorderD3,
@@ -307,7 +307,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                 fontSize: 15,
               ),
               ThemedTextField(
-                padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
+                padding: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                 borderColor: colorGreyBorderD3,
                 backgroundColor: colorWhite,
                 isReadOnly: true,

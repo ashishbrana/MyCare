@@ -37,6 +37,7 @@ class _DNSListState extends State<DNSList> {
 
   int selectedExpandedIndex = -1;
   var userid = Preferences().getPrefInt(Preferences.prefUserID);
+
   @override
   void initState() {
     super.initState();
@@ -279,9 +280,13 @@ class _DNSListState extends State<DNSList> {
                                     ],
                                   ),
                                 ),
-                                if ( (getDateTimeFromEpochTime(model.ssdate!) !=
-                                        null &&
-                                    getDateTimeFromEpochTime(model.ssdate!)!.isFutureDate == false) && (widget.userId == model.notewriterid || model.notewriterid == 0))
+                                if ((getDateTimeFromEpochTime(model.ssdate!) !=
+                                            null &&
+                                        getDateTimeFromEpochTime(model.ssdate!)!
+                                                .isFutureDate ==
+                                            false) &&
+                                    (widget.userId == model.notewriterid ||
+                                        model.notewriterid == 0))
                                   InkWell(
                                     onTap: () {
                                       Navigator.push(
@@ -310,144 +315,143 @@ class _DNSListState extends State<DNSList> {
                                   ),
                               ],
                             ),
-                            ExpandableContainer(
-                              expanded: selectedExpandedIndex == index,
-                              expandedHeight: 110,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 5),
-                                    ThemedRichText(
-                                      spanList: [
-                                        WidgetSpan(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const SizedBox(
-                                                  width: spaceHorizontal / 2),
-                                              const SizedBox(
-                                                width: 25,
-                                                height: 25,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    FontAwesomeIcons.clock,
-                                                    color: colorGreen,
-                                                    size: 16,
-                                                  ),
+                            if (selectedExpandedIndex == index)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 5),
+                                  ThemedRichText(
+                                    spanList: [
+                                      WidgetSpan(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.clock,
+                                                  color: colorGreen,
+                                                  size: 16,
                                                 ),
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal / 2),
-                                              ThemedText(
-                                                text: "Time: ",
-                                                color: colorBlack,
-                                                fontSize: 12,
-                                              ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              ThemedText(
-                                                text:
-                                                    "${model.timefrom ?? ""} - ${model.timeto ?? ""}",
-                                                color: colorBlack,
-                                                fontSize: 12,
-                                              ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              Container(
-                                                  height: 20,
-                                                  width: 1,
-                                                  color: colorDivider),
-                                            ],
-                                          ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            ThemedText(
+                                              text: "Time: ",
+                                              color: colorBlack,
+                                              fontSize: 12,
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            ThemedText(
+                                              text:
+                                                  "${model.timefrom ?? ""} - ${model.timeto ?? ""}",
+                                              color: colorBlack,
+                                              fontSize: 12,
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Container(
+                                                height: 20,
+                                                width: 1,
+                                                color: colorDivider),
+                                          ],
                                         ),
-                                        WidgetSpan(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const SizedBox(
-                                                  width: spaceHorizontal / 2),
-                                              const SizedBox(
-                                                width: 25,
-                                                height: 25,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    FontAwesomeIcons.stickyNote,
-                                                    color: colorGreen,
-                                                    size: 16,
-                                                  ),
+                                      ),
+                                      WidgetSpan(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.stickyNote,
+                                                  color: colorGreen,
+                                                  size: 16,
                                                 ),
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal / 2),
-                                              ThemedText(
-                                                text: "Comments:",
-                                                color: colorBlack,
-                                                fontSize: 12,
-                                              ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              ThemedText(
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            ThemedText(
+                                              text: "Comments:",
+                                              color: colorBlack,
+                                              fontSize: 12,
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
                                                 text: model
                                                         .taskcompletedcomments ??
                                                     "",
                                                 color: colorBlack,
                                                 fontSize: 12,
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                            ],
-                                          ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                          ],
                                         ),
-                                        WidgetSpan(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const SizedBox(
-                                                  width: spaceHorizontal / 2),
-                                              const SizedBox(
-                                                width: 25,
-                                                height: 25,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    FontAwesomeIcons.stickyNote,
-                                                    color: colorGreen,
-                                                    size: 16,
-                                                  ),
+                                      ),
+                                      WidgetSpan(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            const SizedBox(
+                                              width: 25,
+                                              height: 25,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.stickyNote,
+                                                  color: colorGreen,
+                                                  size: 16,
                                                 ),
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal / 2),
-                                              ThemedText(
-                                                text: "Description:",
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal / 2),
+                                            ThemedText(
+                                              text: "Description:",
+                                              color: colorBlack,
+                                              fontSize: 12,
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                text:
+                                                    model.taskdescription ?? "",
                                                 color: colorBlack,
+                                                maxLine: 3,
                                                 fontSize: 12,
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              Expanded(
-                                                child: ThemedText(
-                                                  text: model.taskdescription ??
-                                                      "",
-                                                  color: colorBlack,
-                                                  maxLine: 3,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                            ],
-                                          ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 7),
-                                  ],
-                                ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                ],
                               ),
-                            ),
                           ],
                         ),
                       ),

@@ -337,13 +337,19 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                           // model: model,
                                           userId:
                                               model.serviceScheduleEmpID ?? 0,
-                                              clientId: model.clientID ?? 0,
-                                          servicescheduleemployeeID: model.serviceScheduleEmpID ?? 0,
-                                          serviceShceduleClientID: model.servicescheduleCLientID ?? 0,
+                                          clientId: model.clientID ?? 0,
+                                          servicescheduleemployeeID:
+                                              model.serviceScheduleEmpID ?? 0,
+                                          serviceShceduleClientID:
+                                              model.servicescheduleCLientID ??
+                                                  0,
                                           noteId: model.noteID ?? 0,
                                           serviceName: model.serviceName ?? "",
-                                          clientName: model.clientName, noteWriter: model.createdByName ?? "",
-                                                serviceDate:   getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
+                                          clientName: model.clientName,
+                                          noteWriter: model.createdByName ?? "",
+                                          serviceDate: getDateTimeFromEpochTime(
+                                                  model.serviceDate ?? "") ??
+                                              DateTime.now(),
                                         ),
                                       ),
                                     );
@@ -358,131 +364,123 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                 ),
                               ],
                             ),
-                            ExpandableContainer(
-                              expanded: selectedExpandedIndex == index,
-                              expandedHeight: 90,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 5),
-                                    Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        Expanded(
-                                          child: RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      const SizedBox(width: 5),
-                                                      const Icon(
-                                                        Icons.timer,
-                                                        color: colorGreen,
-                                                        size: 14,
+                            if (selectedExpandedIndex == index)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              WidgetSpan(
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    const SizedBox(width: 5),
+                                                    const Icon(
+                                                      Icons.timer,
+                                                      color: colorGreen,
+                                                      size: 14,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      "${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
+                                                      style: const TextStyle(
+                                                        color: colorGreyText,
+                                                        fontSize: 14,
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        "${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
-                                                        style: const TextStyle(
-                                                          color: colorGreyText,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Container(
-                                                        width: 1,
-                                                        height: 25,
-                                                        color:
-                                                            colorGreyBorderD3,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Container(
+                                                      width: 1,
+                                                      height: 25,
+                                                      color: colorGreyBorderD3,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                  ],
                                                 ),
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      const SizedBox(width: 5),
-                                                      const Icon(
-                                                        Icons.timer,
-                                                        color: colorGreen,
-                                                        size: 14,
+                                              ),
+                                              WidgetSpan(
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    const SizedBox(width: 5),
+                                                    const Icon(
+                                                      Icons.timer,
+                                                      color: colorGreen,
+                                                      size: 14,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      "Total Hours: ${model.totalHours ?? ""}hrs",
+                                                      style: const TextStyle(
+                                                        color: colorGreyText,
+                                                        fontSize: 14,
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        "Total Hours: ${model.totalHours ?? ""}hrs",
-                                                        style: const TextStyle(
-                                                          color: colorGreyText,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Container(
-                                                        width: 1,
-                                                        height: 25,
-                                                        color:
-                                                            colorGreyBorderD3,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Container(
+                                                      width: 1,
+                                                      height: 25,
+                                                      color: colorGreyBorderD3,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                  ],
                                                 ),
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      const SizedBox(width: 5),
-                                                      const Icon(
-                                                        Icons.timer,
-                                                        color: colorGreen,
-                                                        size: 14,
+                                              ),
+                                              WidgetSpan(
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    const SizedBox(width: 5),
+                                                    const Icon(
+                                                      Icons.timer,
+                                                      color: colorGreen,
+                                                      size: 14,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      "Created By: ${model.createdByName ?? ""}",
+                                                      style: const TextStyle(
+                                                        color: colorGreyText,
+                                                        fontSize: 14,
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        "Created By: ${model.createdByName ?? ""}",
-                                                        style: const TextStyle(
-                                                          color: colorGreyText,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Container(
-                                                        width: 1,
-                                                        height: 25,
-                                                        color:
-                                                            colorGreyBorderD3,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Container(
+                                                      width: 1,
+                                                      height: 25,
+                                                      color: colorGreyBorderD3,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 7),
-                                  ],
-                                ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                ],
                               ),
-                            ),
                           ],
                         ),
                       ),

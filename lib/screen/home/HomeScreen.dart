@@ -1545,7 +1545,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               )
                                                             : InkWell(
                                                                 onTap: () {
-                                                                  print("progressnote 1");
+                                                                  print(
+                                                                      "progressnote 1");
                                                                   if (model
                                                                           .resName !=
                                                                       "Group Service") {
@@ -1573,7 +1574,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
                                                                           noteWriter:
                                                                               "",
-                                                                                  serviceDate:  getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
+                                                                          serviceDate:
+                                                                              getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
                                                                         ),
                                                                       ),
                                                                     );
@@ -1719,212 +1721,200 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ],
                                         ),
-                                        ExpandableContainer(
-                                          expanded:
-                                              selectedExpandedIndex == index,
-                                          expandedHeight: 225,
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ThemedText(
-                                                    text: model.shiftComments !=
-                                                                null &&
-                                                            model.shiftComments!
-                                                                .isNotEmpty
-                                                        ? model.shiftComments!
-                                                        : "No shift comments provided."),
-                                                ThemedText(
-                                                    text: model.comments !=
-                                                                null &&
-                                                            model.comments!
-                                                                .isNotEmpty
-                                                        ? model.comments!
-                                                        : "No client comments provided."),
-                                                const SizedBox(height: 7),
-                                                InkWell(
-                                                  onTap: () {
-                                                    launchUrlMethod(
-                                                        "http://maps.google.com/?q=${model.resAddress}");
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        width: 25,
-                                                        height: 25,
-                                                        child: Center(
-                                                          child: FaIcon(
-                                                            FontAwesomeIcons
-                                                                .locationDot,
-                                                            color: colorGreen,
-                                                          ),
+                                        if (selectedExpandedIndex == index)
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ThemedText(
+                                                  text: model.shiftComments !=
+                                                              null &&
+                                                          model.shiftComments!
+                                                              .isNotEmpty
+                                                      ? model.shiftComments!
+                                                      : "No shift comments provided."),
+                                              ThemedText(
+                                                  text: model.comments !=
+                                                              null &&
+                                                          model.comments!
+                                                              .isNotEmpty
+                                                      ? model.comments!
+                                                      : "No client comments provided."),
+                                              const SizedBox(height: 7),
+                                              InkWell(
+                                                onTap: () {
+                                                  launchUrlMethod(
+                                                      "http://maps.google.com/?q=${model.resAddress}");
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const SizedBox(
+                                                      width: 25,
+                                                      height: 25,
+                                                      child: Center(
+                                                        child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .locationDot,
+                                                          color: colorGreen,
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                          width:
-                                                              spaceHorizontal),
-                                                      Expanded(
-                                                        child: ThemedText(
-                                                            text: model
-                                                                    .resAddress ??
-                                                                ""),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: spaceHorizontal),
+                                                    Expanded(
+                                                      child: ThemedText(
+                                                          text: model
+                                                                  .resAddress ??
+                                                              ""),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(height: 7),
-                                                InkWell(
-                                                  onTap: () {
-                                                    launchUrlMethod(
-                                                        "tel:${model.resHomePhone}");
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        width: 25,
-                                                        height: 25,
-                                                        child: Center(
-                                                          child: FaIcon(
-                                                            FontAwesomeIcons
-                                                                .phoneVolume,
-                                                            color: colorGreen,
-                                                          ),
+                                              ),
+                                              const SizedBox(height: 7),
+                                              InkWell(
+                                                onTap: () {
+                                                  launchUrlMethod(
+                                                      "tel:${model.resHomePhone}");
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const SizedBox(
+                                                      width: 25,
+                                                      height: 25,
+                                                      child: Center(
+                                                        child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .phoneVolume,
+                                                          color: colorGreen,
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                          width:
-                                                              spaceHorizontal),
-                                                      Expanded(
-                                                        child: ThemedText(
-                                                            text: model
-                                                                    .resHomePhone ??
-                                                                ""),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: spaceHorizontal),
+                                                    Expanded(
+                                                      child: ThemedText(
+                                                          text: model
+                                                                  .resHomePhone ??
+                                                              ""),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(height: 7),
-                                                InkWell(
-                                                  onTap: () {
-                                                    launchUrlMethod(
-                                                        "tel:${model.resMobilePhone}");
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        width: 25,
-                                                        height: 25,
-                                                        child: Center(
-                                                          child: FaIcon(
-                                                            FontAwesomeIcons
-                                                                .mobileAlt,
-                                                            color: colorGreen,
-                                                          ),
+                                              ),
+                                              const SizedBox(height: 7),
+                                              InkWell(
+                                                onTap: () {
+                                                  launchUrlMethod(
+                                                      "tel:${model.resMobilePhone}");
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const SizedBox(
+                                                      width: 25,
+                                                      height: 25,
+                                                      child: Center(
+                                                        child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .mobileAlt,
+                                                          color: colorGreen,
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                          width:
-                                                              spaceHorizontal),
-                                                      Expanded(
-                                                        child: ThemedText(
-                                                            text: model
-                                                                    .resMobilePhone ??
-                                                                ""),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: spaceHorizontal),
+                                                    Expanded(
+                                                      child: ThemedText(
+                                                          text: model
+                                                                  .resMobilePhone ??
+                                                              ""),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(height: 7),
-                                                InkWell(
-                                                  onTap: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ClientDocument(
-                                                          id: (model.clientID ??
-                                                                  0)
+                                              ),
+                                              const SizedBox(height: 7),
+                                              InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ClientDocument(
+                                                        id: (model.clientID ??
+                                                                0)
+                                                            .toString(),
+                                                        resId:
+                                                            (model.rESID ?? 0)
+                                                                .toString(),
+                                                      ),
+                                                    ),
+                                                  );
+                                                  // _launchUrl(
+                                                  //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const SizedBox(
+                                                      width: 25,
+                                                      height: 25,
+                                                      child: Center(
+                                                        child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .fileLines,
+                                                          color: colorGreen,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: spaceHorizontal),
+                                                    Expanded(
+                                                      child: ThemedText(
+                                                          text:
+                                                              "View Client Documents"),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 7),
+                                              InkWell(
+                                                onTap: () {
+                                                  print(
+                                                      "model.clientID : ${model.rESID}");
+                                                  Navigator.of(keyScaffold
+                                                          .currentContext!)
+                                                      .push(MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ClientInfo(
+                                                      clientId:
+                                                          (model.rESID ?? 0)
                                                               .toString(),
-                                                          resId:
-                                                              (model.rESID ?? 0)
-                                                                  .toString(),
+                                                    ),
+                                                  ));
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const SizedBox(
+                                                      width: 25,
+                                                      height: 25,
+                                                      child: Center(
+                                                        child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .circleInfo,
+                                                          color: colorGreen,
                                                         ),
                                                       ),
-                                                    );
-                                                    // _launchUrl(
-                                                    //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        width: 25,
-                                                        height: 25,
-                                                        child: Center(
-                                                          child: FaIcon(
-                                                            FontAwesomeIcons
-                                                                .fileLines,
-                                                            color: colorGreen,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                          width:
-                                                              spaceHorizontal),
-                                                      Expanded(
-                                                        child: ThemedText(
-                                                            text:
-                                                                "View Client Documents"),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    const SizedBox(
+                                                        width: spaceHorizontal),
+                                                    Expanded(
+                                                      child: ThemedText(
+                                                          text:
+                                                              "View Client Info"),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(height: 7),
-                                                InkWell(
-                                                  onTap: () {
-                                                    print(
-                                                        "model.clientID : ${model.rESID}");
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              ClientInfo(
-                                                            clientId:
-                                                                (model.rESID ??
-                                                                        0)
-                                                                    .toString(),
-                                                          ),
-                                                        ));
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      const SizedBox(
-                                                        width: 25,
-                                                        height: 25,
-                                                        child: Center(
-                                                          child: FaIcon(
-                                                            FontAwesomeIcons
-                                                                .circleInfo,
-                                                            color: colorGreen,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                          width:
-                                                              spaceHorizontal),
-                                                      Expanded(
-                                                        child: ThemedText(
-                                                            text:
-                                                                "View Client Info"),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 7),
-                                              ],
-                                            ),
+                                              ),
+                                              const SizedBox(height: 7),
+                                            ],
                                           ),
-                                        ),
                                       ],
                                     ),
                                   );
@@ -2116,7 +2106,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             clientName: model.clientName,
                                             noteWriter:
                                                 model.createdByName ?? "",
-                                                serviceDate:  getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
+                                            serviceDate:
+                                                getDateTimeFromEpochTime(
+                                                        model.serviceDate ??
+                                                            "") ??
+                                                    DateTime.now(),
                                           ),
                                         ),
                                       );
@@ -2132,95 +2126,90 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            ExpandableContainer(
-                              expanded: selectedExpandedIndex == index,
-                              expandedHeight: 60,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 7),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    Icons.access_time_rounded,
-                                                    color: colorGreen,
-                                                  ),
+                            if (selectedExpandedIndex == index)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  Icons.access_time_rounded,
+                                                  color: colorGreen,
                                                 ),
                                               ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              Expanded(
-                                                child: ThemedText(
-                                                  text:
-                                                      "Time ${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Center(
-                                                  child: FaIcon(
-                                                    Icons.access_time,
-                                                    color: colorGreen,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                  width: spaceHorizontal),
-                                              Expanded(
-                                                child: ThemedText(
-                                                  text:
-                                                      "Total Hours ${model.totalHours ?? ""}hrs",
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 7),
-                                    Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: Center(
-                                            child: FaIcon(
-                                              Icons.note_alt_sharp,
-                                              color: colorGreen,
                                             ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                text:
+                                                    "Time ${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: Center(
+                                                child: FaIcon(
+                                                  Icons.access_time,
+                                                  color: colorGreen,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                width: spaceHorizontal),
+                                            Expanded(
+                                              child: ThemedText(
+                                                text:
+                                                    "Total Hours ${model.totalHours ?? ""}hrs",
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: Center(
+                                          child: FaIcon(
+                                            Icons.note_alt_sharp,
+                                            color: colorGreen,
                                           ),
                                         ),
-                                        const SizedBox(width: spaceHorizontal),
-                                        Expanded(
-                                          child: ThemedText(
-                                            text:
-                                                "Created By ${model.createdByName ?? ""}",
-                                            fontSize: 12,
-                                          ),
+                                      ),
+                                      const SizedBox(width: spaceHorizontal),
+                                      Expanded(
+                                        child: ThemedText(
+                                          text:
+                                              "Created By ${model.createdByName ?? ""}",
+                                          fontSize: 12,
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
                           ],
                         ),
                       );
@@ -2281,8 +2270,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 clientName: temp.first.clientName,
                                 noteWriter: temp.first.notewriter ?? "",
                                 selectedGroupServiceList: temp,
-                                serviceDate:  getDateTimeFromEpochTime(selectedModel?.serviceDate ?? "") ?? DateTime.now(),
-
+                                serviceDate: getDateTimeFromEpochTime(
+                                        selectedModel?.serviceDate ?? "") ??
+                                    DateTime.now(),
                               ),
                             ),
                           )
@@ -2511,15 +2501,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                             serviceShceduleClientID:
                                                 model.servicescheduleCLientID ??
                                                     0,
-                                            servicescheduleemployeeID:
-                                            selectedModel?.servicescheduleemployeeID ??
+                                            servicescheduleemployeeID: selectedModel
+                                                    ?.servicescheduleemployeeID ??
                                                 0,
                                             serviceName: model.groupname ?? "",
                                             clientName: model.clientName,
                                             noteWriter: model.notewriter ?? "",
-                                                serviceDate:  getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
-
-                                              ),
+                                            serviceDate:
+                                                getDateTimeFromEpochTime(
+                                                        model.serviceDate ??
+                                                            "") ??
+                                                    DateTime.now(),
+                                          ),
                                         ),
                                       )
                                           .then((value) {
@@ -2541,103 +2534,94 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            ExpandableContainer(
-                              expanded: selectedExpandedIndex == index,
-                              expandedHeight: 110,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        launchUrlMethod(
-                                            "http://maps.google.com/?q=${model.resAddress}");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons.locationDot,
-                                                color: colorGreen,
-                                                size: 18,
-                                              ),
+                            if (selectedExpandedIndex == index)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      launchUrlMethod(
+                                          "http://maps.google.com/?q=${model.resAddress}");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.locationDot,
+                                              color: colorGreen,
+                                              size: 18,
                                             ),
                                           ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text: model.resAddress ?? ""),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: model.resAddress ?? ""),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        launchUrlMethod(
-                                            "tel:${model.resHomePhone}");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons.phoneVolume,
-                                                color: colorGreen,
-                                                size: 18,
-                                              ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      launchUrlMethod(
+                                          "tel:${model.resHomePhone}");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.phoneVolume,
+                                              color: colorGreen,
+                                              size: 18,
                                             ),
                                           ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text: model.resHomePhone ?? ""),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: model.resHomePhone ?? ""),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        launchUrlMethod(
-                                            "tel:${model.resMobilePhone}");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons.mobileAlt,
-                                                color: colorGreen,
-                                                size: 18,
-                                              ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                  InkWell(
+                                    onTap: () {
+                                      launchUrlMethod(
+                                          "tel:${model.resMobilePhone}");
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.mobileAlt,
+                                              color: colorGreen,
+                                              size: 18,
                                             ),
                                           ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text:
-                                                    model.resMobilePhone ?? ""),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(width: spaceHorizontal),
+                                        Expanded(
+                                          child: ThemedText(
+                                              text: model.resMobilePhone ?? ""),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 7),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(height: 7),
+                                ],
                               ),
-                            ),
                           ],
                         ),
                       );
@@ -2697,7 +2681,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       appendIfNotEmpty(placeMark.name ?? "");
       appendIfNotEmpty(placeMark.subLocality ?? "");
-      appendIfNotEmpty(placeMark.locality  ?? "");
+      appendIfNotEmpty(placeMark.locality ?? "");
       appendIfNotEmpty(placeMark.administrativeArea ?? "");
       appendIfNotEmpty(placeMark.postalCode ?? "");
       appendIfNotEmpty(placeMark.country ?? "");
@@ -2890,37 +2874,5 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return confirmedDataList.length;
     }
-  }
-}
-
-class ExpandableContainer extends StatelessWidget {
-  final bool expanded;
-  final double collapsedHeight;
-  final double expandedHeight;
-  final Widget child;
-
-  ExpandableContainer({
-    super.key,
-    required this.child,
-    this.collapsedHeight = 0.0,
-    this.expandedHeight = 300.0,
-    this.expanded = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      width: screenWidth,
-      height: expanded ? expandedHeight : collapsedHeight,
-      child: new Container(
-        child: child,
-        // decoration: new BoxDecoration(
-        //   border: new Border.all(width: 1.0, color: Colors.blue),
-        // ),
-      ),
-    );
   }
 }

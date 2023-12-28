@@ -176,7 +176,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                               ),
                                             ),
                                           ),
-                                           if (model.noteID != 0)
+                                          if (model.noteID != 0)
                                             InkWell(
                                               onTap: () {
                                                 Navigator.push(
@@ -187,9 +187,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                       userId:
                                                           widget.model.empID ??
                                                               0,
-                                                      noteId:
-                                                          model.noteID ??
-                                                              0,
+                                                      noteId: model.noteID ?? 0,
                                                       clientId:
                                                           widget.model.rESID ??
                                                               0,
@@ -207,7 +205,12 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                       clientName:
                                                           "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
                                                       noteWriter: "",
-                                                          serviceDate:  getDateTimeFromEpochTime(widget.model.serviceDate ?? "") ?? DateTime.now(),
+                                                      serviceDate:
+                                                          getDateTimeFromEpochTime(
+                                                                  widget.model
+                                                                          .serviceDate ??
+                                                                      "") ??
+                                                              DateTime.now(),
                                                     ),
                                                   ),
                                                 );
@@ -217,8 +220,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                 Icons.note_alt_outlined,
                                                 size: 22,
                                               ),
-                                            ) ,
-
+                                            ),
 
                                           /*const SizedBox(width: spaceHorizontal / 2),
                                           Container(
@@ -423,34 +425,29 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                 ),
                               ],
                             ),
-                            ExpandableContainer(
-                              expanded: selectedExpandedIndex == index,
-                              expandedHeight: 30,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 5),
-                                    ThemedRichText(
-                                      spanList: [
-                                        getTextSpan(
-                                          text: "Client : ",
-                                          fontColor: colorBlack,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        getTextSpan(
-                                          text: model.clientName ?? "",
-                                          fontColor: colorBlack,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ],
+                            if(selectedExpandedIndex == index)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 5),
+                                ThemedRichText(
+                                  spanList: [
+                                    getTextSpan(
+                                      text: "Client : ",
+                                      fontColor: colorBlack,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    const SizedBox(height: 7),
+                                    getTextSpan(
+                                      text: model.clientName ?? "",
+                                      fontColor: colorBlack,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ],
                                 ),
-                              ),
+                                const SizedBox(height: 7),
+                              ],
                             ),
                           ],
                         ),

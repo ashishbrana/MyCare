@@ -259,19 +259,19 @@ class ProgressNoteState extends State<ProgressNote> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ProgressNoteDetails(
-                                  userId: model.serviceScheduleEmpID ?? 0,
-                                  clientId: model.clientID ?? 0,
-                                  noteId: model.noteID ?? 0,
-                                  serviceShceduleClientID:
-                                      model.servicescheduleCLientID ?? 0,
-                                  servicescheduleemployeeID:
-                                      model.serviceScheduleEmpID ?? 0,
-                                  serviceName: model.serviceName ?? "",
-                                  clientName: model.clientName,
-                                  noteWriter: model.createdByName ?? "",
-                                  serviceDate: getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now()
-
-                                ),
+                                    userId: model.serviceScheduleEmpID ?? 0,
+                                    clientId: model.clientID ?? 0,
+                                    noteId: model.noteID ?? 0,
+                                    serviceShceduleClientID:
+                                        model.servicescheduleCLientID ?? 0,
+                                    servicescheduleemployeeID:
+                                        model.serviceScheduleEmpID ?? 0,
+                                    serviceName: model.serviceName ?? "",
+                                    clientName: model.clientName,
+                                    noteWriter: model.createdByName ?? "",
+                                    serviceDate: getDateTimeFromEpochTime(
+                                            model.serviceDate ?? "") ??
+                                        DateTime.now()),
                               ),
                             );
                           },
@@ -285,96 +285,91 @@ class ProgressNoteState extends State<ProgressNote> {
                         ),
                       ],
                     ),
-                    ExpandableContainer(
-                      expanded: selectedExpandedIndex == index,
-                      expandedHeight: 60,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 7),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: Center(
-                                          child: FaIcon(
-                                            Icons.access_time_rounded,
-                                            color: colorGreen,
-                                          ),
+                    if (selectedExpandedIndex == index)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 7),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Center(
+                                        child: FaIcon(
+                                          Icons.access_time_rounded,
+                                          color: colorGreen,
                                         ),
                                       ),
-                                      const SizedBox(width: spaceHorizontal),
-                                      Expanded(
-                                        child: ThemedText(
-                                          text: "Time " +
-                                              (model.timeFrom ?? "") +
-                                              " - " +
-                                              (model.timeTo ?? ""),
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: Center(
-                                          child: FaIcon(
-                                            Icons.access_time,
-                                            color: colorGreen,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: spaceHorizontal),
-                                      Expanded(
-                                        child: ThemedText(
-                                          text: "Total Hours " +
-                                              (model.totalHours ?? "") +
-                                              "hrs",
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 7),
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Center(
-                                    child: FaIcon(
-                                      Icons.note_alt_sharp,
-                                      color: colorGreen,
                                     ),
+                                    const SizedBox(width: spaceHorizontal),
+                                    Expanded(
+                                      child: ThemedText(
+                                        text: "Time " +
+                                            (model.timeFrom ?? "") +
+                                            " - " +
+                                            (model.timeTo ?? ""),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Center(
+                                        child: FaIcon(
+                                          Icons.access_time,
+                                          color: colorGreen,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: spaceHorizontal),
+                                    Expanded(
+                                      child: ThemedText(
+                                        text: "Total Hours " +
+                                            (model.totalHours ?? "") +
+                                            "hrs",
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 7),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Center(
+                                  child: FaIcon(
+                                    Icons.note_alt_sharp,
+                                    color: colorGreen,
                                   ),
                                 ),
-                                const SizedBox(width: spaceHorizontal),
-                                Expanded(
-                                  child: ThemedText(
-                                    text: "Created By " +
-                                        (model.createdByName ?? ""),
-                                    fontSize: 12,
-                                  ),
+                              ),
+                              const SizedBox(width: spaceHorizontal),
+                              Expanded(
+                                child: ThemedText(
+                                  text: "Created By " +
+                                      (model.createdByName ?? ""),
+                                  fontSize: 12,
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
                   ],
                 ),
               );
