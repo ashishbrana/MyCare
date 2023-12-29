@@ -103,6 +103,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
       }
     } else {
       //Fill model with defalt value and save with noteid = 0
+      allowEdit = true;
       final now = DateTime.now();
       serviceTypeDateTime = DateTime(now.year, now.month, now.day);
 
