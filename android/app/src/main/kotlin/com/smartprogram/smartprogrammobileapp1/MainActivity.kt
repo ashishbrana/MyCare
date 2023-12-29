@@ -1,4 +1,4 @@
-package com.mycaresoft.mycareapp
+package com.smartprogram.smartprogrammobileapp1
 
 import io.flutter.embedding.android.FlutterActivity
 
