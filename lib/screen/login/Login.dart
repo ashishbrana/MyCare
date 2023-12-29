@@ -109,7 +109,7 @@ class _LoginState extends State<Login> {
             }
             else {
               showSnackBarWithText(
-                  _keyScaffold.currentState, jResponse['Message']);
+                  _keyScaffold.currentState, jResponse['message']);
             }
           } else {
             showSnackBarWithText(

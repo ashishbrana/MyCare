@@ -41,6 +41,7 @@ class ProgressNoteDetails extends StatefulWidget {
   DateTime serviceDate;
   List<GroupServiceModel>? selectedGroupServiceList = [];
 
+
   ProgressNoteDetails({
     super.key,
     this.clientName,
@@ -63,7 +64,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   DateTime serviceTypeDateTime = DateTime.now();
-
+  int userId = 0;
   String _assesmentScale = "1";
   final TextEditingController _serviceType = TextEditingController();
   final TextEditingController _subject = TextEditingController();
@@ -89,11 +90,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   String imgPath = "";
 
   bool isPast = false;
+  bool allowEdit = false;
 
   @override
   void initState() {
     super.initState();
-
     if (widget.noteId != 0) {
       if (widget.noteWriter.isEmpty) {
         getServiceDetail();
@@ -190,6 +191,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   getData() async {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    userId = await Preferences().getPrefInt(Preferences.prefUserID) as int;
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
@@ -215,6 +217,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
             List jResponse = json.decode(response);
             print("jResponse $jResponse");
+            print(userId);
             model = jResponse
                 .map((e) => ProgressNoteListByNoteIdModel.fromJson(e))
                 .toList()[0];
@@ -233,6 +236,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               );
 
               isPast = widget.serviceDate.isPassed;
+              allowEdit = (model!.createdBy ?? userId) == userId;
+              print("isPast : $allowEdit");
               print("isPast : $isPast");
 
               _subject.text = model!.subject ?? "";
@@ -470,7 +475,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Expanded(
+                    if (allowEdit) Expanded(
                       child: ThemedButton(
                         padding: EdgeInsets.zero,
                         title: "Save",
@@ -533,7 +538,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   isReadOnly: true,
-                  isEnable: !isPast,
+                  isEnable: !isPast && allowEdit,
                   onTap: () {
                     showDatePicker(
                       context: context,
@@ -570,7 +575,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
-                  isReadOnly: false,
+                  isReadOnly: !allowEdit,
                   labelTextColor: colorBlack,
                   controller: _subject,
                 ),
@@ -589,7 +594,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 borderColor: colorGreyBorderD3,
                 labelTextColor: colorBlack,
                 backgroundColor: colorWhite,
-                isReadOnly: false,
+                isReadOnly: !allowEdit,
                 controller: _disscription,
               ),
               const SizedBox(height: 10),
@@ -600,6 +605,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               ),
               ThemedDropDown(
                 defaultValue: _assesmentScale,
+                isDisabled: !allowEdit,
                 dataString: const [
                   "0",
                   "1",
@@ -630,7 +636,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     const EdgeInsets.symmetric(horizontal: spaceHorizontal),
                 borderColor: colorGreyBorderD3,
                 backgroundColor: colorWhite,
-                isReadOnly: false,
+                isReadOnly: !allowEdit,
                 minLine: 3,
                 maxLine: 3,
                 controller: _assesment_comment,
@@ -641,7 +647,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: spaceVertical),
-                    (signatureImage == null && widget.serviceDate.isToday)
+                    (allowEdit  && signatureImage == null && widget.serviceDate.isToday)
                         ? Row(children: [
                             ThemedText(
                               text: "Client Signature",
@@ -676,7 +682,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       ),
                       child: signatureImage != null
                           ? Image.memory(signatureImage!)
-                          : widget.serviceDate.isToday
+                          : widget.serviceDate.isToday && allowEdit
                               ? Signature(
                                   backgroundColor: Colors.white,
                                   controller: _controllerSignature,
@@ -686,7 +692,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               : null,
                     ),
                     const SizedBox(height: spaceVertical),
-                    if (clientRating == 0 &&
+                    if ( allowEdit && clientRating == 0 &&
                         widget.serviceDate.isToday)
                       Row(
                         children: [
@@ -770,7 +776,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 height: textFiledHeight,
                 child: Row(
                   children: [
-                    if (!isGroupNote())
+                    if (!isGroupNote() && allowEdit)
                       Expanded(
                         child: ThemedButton(
                           padding: EdgeInsets.zero,
@@ -886,8 +892,9 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
+
                           ThemedText(text: noteDocList![index].name ?? ""),
-                          IconButton(
+                          if (allowEdit) IconButton(
                             icon: const Icon(Icons.close_rounded),
                             onPressed: () {
                               deleteNoteDoc(noteDocList![index].name ?? "");
