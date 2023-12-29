@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:rcare_2/screen/ClinetHome/ClientHomeScreen.dart';
 import 'package:rcare_2/screen/login/ForgotPassword.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
 import 'package:rcare_2/utils/Preferences.dart';
@@ -86,7 +87,7 @@ class _LoginState extends State<Login> {
             LoginResponseModel responseModel =
                 LoginResponseModel.fromJson(jResponse);
             print('res ${jResponse['status']}');
-            if (responseModel.status == 1 && responseModel.accountType == 2) {
+            if (responseModel.status == 1 ) {
               print('res success');
               Preferences().setPrefString(
                   Preferences.prefAuthCode, responseModel.authcode ?? "");
@@ -101,7 +102,12 @@ class _LoginState extends State<Login> {
               await FlutterKeychain.put(key: "username", value: username);
               await FlutterKeychain.put(key: "password", value: password);
               await FlutterKeychain.put(key: "companycode", value: comapanyCode);
-              sendToHome();
+              if(responseModel.accountType == 2) {
+                sendToHome();
+              }
+              if(responseModel.accountType == 3) {
+                sendToClientHome();
+              }
             }
             else if (responseModel.status == 1 && responseModel.accountType != 2) {
               showSnackBarWithText(
@@ -354,6 +360,13 @@ class _LoginState extends State<Login> {
         context,
         MaterialPageRoute(
           builder: (context) => HomeScreen(),
+        ));
+  }
+  sendToClientHome() {
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ClientHomeScreen(),
         ));
   }
 }

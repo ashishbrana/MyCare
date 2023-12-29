@@ -33,5 +33,9 @@ const String endsaveDSNDetails = 'saveDSNDetails';
 const String updateShiftCommentsAndSendRiskAlert = 'updateShiftCommentsAndSendRiskAlert';
 
 
+const String ClientFundingDetails = 'ClientFundingDetails';
+
+
+
 
 

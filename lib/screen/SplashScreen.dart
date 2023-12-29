@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rcare_2/screen/ClinetHome/ClientHomeScreen.dart';
 import 'package:rcare_2/utils/Preferences.dart';
 
 import 'Login/Login.dart';
@@ -23,8 +24,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   getData() async {
+
     if ((await Preferences().getPrefString(Preferences.prefAuthCode)).isNotEmpty) {
-      sendToHome();
+      int accountType = await Preferences().getPrefInt(
+          Preferences.prefAccountType);
+      print(accountType);
+      if (accountType == 2) {
+        sendToHome();
+      }
+      else{
+        sendToClientHome();
+      }
     } else {
       sendToLogin();
     }
@@ -38,6 +48,19 @@ class _SplashScreenState extends State<SplashScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => HomeScreen(),
+            ));
+      },
+    );
+  }
+
+  sendToClientHome() {
+    Future.delayed(
+      const Duration(seconds: 3),
+          () {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ClientHomeScreen(),
             ));
       },
     );
