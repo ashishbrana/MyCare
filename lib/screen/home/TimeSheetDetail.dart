@@ -11,8 +11,9 @@ import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/methods.dart';
@@ -70,12 +71,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                 const SizedBox(width: spaceHorizontal),
                 if (getDateTimeFromEpochTime(widget.model.serviceDate!) != null)
                   Text(
-                    // model.serviceDate!,
-                    widget.model.serviceDate != null
-                        ? DateFormat("EEE,dd-MM-yyyy").format(
-                            getDateTimeFromEpochTime(
-                                widget.model.serviceDate!)!)
-                        : "",
+                      formatServiceDate(widget.model.serviceDate),
                     style: const TextStyle(
                       color: colorBlack,
                       fontSize: 12,
@@ -445,10 +441,8 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                   int.parse(widget.model.serviceDate!
                       .replaceAll("/Date(", "")
                       .replaceAll(")/", "")),
-                  isUtc: false)
-              .add(
-        const Duration(hours: 5, minutes: 30),
-      ))
+                  isUtc: true),
+      )
     };
 
     print("params : ${params}");

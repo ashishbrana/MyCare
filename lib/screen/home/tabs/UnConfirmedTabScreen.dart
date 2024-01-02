@@ -4,12 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/Network/ApiUrls.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/Preferences.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 
-import '../../../Network/API.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/methods.dart';

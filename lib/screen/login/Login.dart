@@ -9,9 +9,9 @@ import 'package:rcare_2/screen/login/ForgotPassword.dart';
 import 'package:rcare_2/utils/ConstantStrings.dart';
 import 'package:rcare_2/utils/Preferences.dart';
 
-import '../../Network/API.dart';
-import '../../Network/ApiUrls.dart';
-import '../../Network/GlobalMethods.dart';
+
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/Constants.dart';
 import '../../utils/Constants.dart';
@@ -63,6 +63,26 @@ class _LoginState extends State<Login> {
 
   _loginApiCall(String username, String password, String comapanyCode) {
     closeKeyboard();
+
+    if(comapanyCode == "nhc"){
+      String cName = "nhc-northside";
+      baseUrlWithHttp ="https://$cName-web.mycaresoftware.com/";
+      baseUrl = '$cName-web.mycaresoftware.com';
+      nestedUrl = 'MobileAPI/v1.asmx/';
+      masterURL = "https://$cName-web.mycaresoftware.com/MobileAPI/v1.asmx/";
+    }
+    else{
+      baseUrlWithHttp ="https://$comapanyCode-web.mycaresoftware.com/";
+      baseUrl = '$comapanyCode-web.mycaresoftware.com';
+      nestedUrl = 'MobileAPI/v1.asmx/';
+      masterURL = "https://$comapanyCode-web.mycaresoftware.com/MobileAPI/v1.asmx/";
+    }
+
+
+    print(baseUrlWithHttp);
+    print(baseUrl);
+    print(masterURL);
+
     var params = {
       'username': username,
       'password': password,
@@ -102,11 +122,33 @@ class _LoginState extends State<Login> {
               await FlutterKeychain.put(key: "username", value: username);
               await FlutterKeychain.put(key: "password", value: password);
               await FlutterKeychain.put(key: "companycode", value: comapanyCode);
+
+              if(comapanyCode == "nhc"){
+                String cName = "nhc-northside";
+                baseUrlWithHttp ="https://$cName-web.mycaresoftware.com/";
+                baseUrl = '$cName-web.mycaresoftware.com';
+                nestedUrl = 'MobileAPI/v1.asmx/';
+                masterURL = "https://$cName-web.mycaresoftware.com/MobileAPI/v1.asmx/";
+              }
+              else{
+                baseUrlWithHttp ="https://$comapanyCode-web.mycaresoftware.com/";
+                baseUrl = '$comapanyCode-web.mycaresoftware.com';
+                nestedUrl = 'MobileAPI/v1.asmx/';
+                masterURL = "https://$comapanyCode-web.mycaresoftware.com/MobileAPI/v1.asmx/";
+              }
+
+
+              print(baseUrlWithHttp);
+              print(baseUrl);
+              print(masterURL);
+
               if(responseModel.accountType == 2) {
                 sendToHome();
               }
               if(responseModel.accountType == 3) {
                 sendToClientHome();
+               /*showSnackBarWithText(
+                    _keyScaffold.currentState, "Clent can not login");*/
               }
             }
             else if (responseModel.status == 1 && responseModel.accountType != 2) {
@@ -226,9 +268,9 @@ class _LoginState extends State<Login> {
                                                 value.trim().isEmpty) {
                                               return "Please enter password!";
                                             }
-                                            if (value.length < 8 ||
+                                            if (value.length < 5 ||
                                                 value.length > 15) {
-                                              return "Please enter valid length(between 8 to 15) password!";
+                                              return "Please enter valid length(between 5 to 15) password!";
                                             }
                                           },
                                           backgroundColor:

@@ -7,8 +7,8 @@ import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/GlobalMethods.dart';
 import '../../utils/Preferences.dart';
@@ -118,18 +118,7 @@ class _ClientDocumentState extends State<ClientDocument> {
                             fontWeight: FontWeight.w400,
                           ),
                           ThemedText(
-                            text: model.createdon != null
-                                ? DateFormat("EEE, dd-MM-yyyy").format(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                            int.parse(model.createdon!
-                                                .replaceAll("/Date(", "")
-                                                .replaceAll(")/", "")),
-                                            isUtc: false)
-                                        .add(
-                                      const Duration(hours: 5, minutes: 30),
-                                    ),
-                                  )
-                                : "",
+                            text:  formatServiceDate(model.createdon),
                             color: colorGreyDarkText,
                             fontSize: 16,
                             fontWeight: FontWeight.w400,

@@ -7,14 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
 import 'package:rcare_2/utils/Images.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-import '../../../network/API.dart';
-import '../../../network/ApiUrls.dart';
+
+import '../../../appconstant/ApiUrls.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/Constants.dart';
@@ -158,7 +159,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
               if (getDateTimeFromEpochTime(widget.dsnListModel.ssdate!) !=
                       null &&
                   getDateTimeFromEpochTime(widget.dsnListModel.ssdate!)!
-                      .isAfter(DateTime.now()))
+                      .isFutureDate)
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Container(
@@ -342,7 +343,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
           }
 
           Response response = await http.post(
-            Uri.parse("$mainUrl$endsaveDSNDetails"),
+            Uri.parse("$masterURL$endsaveDSNDetails"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );
@@ -374,16 +375,3 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
   }
 }
 
-extension DateHelpers on DateTime {
-  bool get isToday {
-    final now = DateTime.now();
-    return now.day == day && now.month == month && now.year == year;
-  }
-
-  bool get isYesterday {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return yesterday.day == day &&
-        yesterday.month == month &&
-        yesterday.year == year;
-  }
-}

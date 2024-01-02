@@ -14,8 +14,8 @@ import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-import '../../../network/API.dart';
-import '../../../network/ApiUrls.dart';
+import '../../../appconstant/API.dart';
+import '../../../appconstant/ApiUrls.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/Constants.dart';
@@ -255,8 +255,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
               print("isPast : $clientRating");
               if (this.serviceDetail != null) {
                 final serviceDetail = this.serviceDetail;
-                model?.createdByName = serviceDetail?.createdByName;
-                widget.serviceName = serviceDetail!.serviceName!;
+            //    model?.createdByName = serviceDetail?.createdByName;
+              //  widget.serviceName = serviceDetail!.serviceName!;
               }
 
               // print("models.length : ${dataList.length}");
@@ -877,9 +877,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                       String path = (noteDocList![index].path ?? "");
 
                       String imageName = noteDocList![index].name ?? "";
-                      https://mycare.mycaresoftware.com/Uploads/client/108/notespic/1106-Bob108-211223-1.jpg
-                      https://mycare.mycaresoftware.com/Uploads/client/notes/96/notespic/1121-Bump96-211223-2.jpg
-                    //  $mainUrl$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"
                       if(path.isNotEmpty){
                         imgPath = path+"/"+model!.clientID.toString()+"/notespic/"+imageName;
                         print(imgPath);
@@ -990,7 +987,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           }
 
           Response response = await http.post(
-            Uri.parse("$mainUrl$endSaveNoteDetails"),
+            Uri.parse("$masterURL$endSaveNoteDetails"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );
@@ -1068,7 +1065,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           }
 
           Response response = await http.post(
-            Uri.parse("$mainUrl$saveNoteDetailsForGroup"),
+            Uri.parse("$masterURL$saveNoteDetailsForGroup"),
             headers: {"Content-Type": "application/json"},
             body: strBody,
           );
@@ -1112,7 +1109,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         try {
           getOverlay(context);
           Response response = await http.post(
-            Uri.parse("$mainUrl$endSaveNotePicture"),
+            Uri.parse("$masterURL$endSaveNotePicture"),
             headers: {"Content-Type": "application/json"},
             body: json.encode({
               "noteId": widget.noteId.toString(),
@@ -1165,7 +1162,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           try {
             getOverlay(context);
             Response response = await http.get(Uri.parse(
-                "$mainUrl$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
+                "$masterURL$endDeleteNotePicture?fileName=$imageName&clientId=${widget.clientId.toString()}"));
             print("responseDELETERESPONSE ${response.body}");
             if (response.statusCode == 200 || response.statusCode == 201) {
               var jResponse = json.decode(
@@ -1201,42 +1198,3 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 }
 
-extension DateHelpers on DateTime {
-  bool get isToday {
-    final now = DateTime.now();
-    return now.day == day && now.month == month && now.year == year;
-  }
-
-  bool get isYesterday {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return yesterday.day == day &&
-        yesterday.month == month &&
-        yesterday.year == year;
-  }
-
-  bool get isPassed {
-    final now = DateTime.now();
-    if (year < now.year) {
-      return true;
-    } else if (month < now.month) {
-      return true;
-    } else if (day < now.day) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  bool get isFutureDate {
-    final now = DateTime.now();
-    if (year > now.year) {
-      return true;
-    } else if (month > now.month) {
-      return true;
-    } else if (day > now.day) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-}

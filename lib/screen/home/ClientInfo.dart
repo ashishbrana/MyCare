@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';

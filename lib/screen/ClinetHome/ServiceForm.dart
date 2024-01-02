@@ -10,12 +10,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
+import '../../utils/LabeledCheckbox.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
@@ -50,7 +52,7 @@ class _ServiceFormState extends State<ServiceForm> {
   int startBreakMin = 0;
   int endBrakMin = 0;
   int travelMin = 0;
-  late DateTime sDate;
+  DateTime? sDate;
   String fromHourService = "00";
   final TextEditingController _controllerFromService = TextEditingController();
   String fromMinuteService = "00";
@@ -81,25 +83,30 @@ class _ServiceFormState extends State<ServiceForm> {
   // final TextEditingController _controllerToMinuteLaunch = TextEditingController();
 
   final TextEditingController _controllerServiceType = TextEditingController();
+  final TextEditingController _controllerServiceTypeDesc =
+      TextEditingController();
+  final TextEditingController _controllerServiceDate = TextEditingController();
   final TextEditingController _controllerHours = TextEditingController();
   final TextEditingController _controllerHoursDifference =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _controllerTravelTime = TextEditingController();
   final TextEditingController _controllerTravelDistance =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _controllerTravelDistanceMax =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _controllerClientTravelDistance =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _controllerTimeSheetComments =
-  TextEditingController();
+      TextEditingController();
 
   bool isIncludeLaunchBrake = false;
-  bool isRiskAlert = false;
+  bool isClientFunding = false;
+  bool isRecurringService = false;
 
-  List<String> hourList = List.generate(23, (index) => index.toString().padLeft(2, '0'));
-  List<String> minuteList = List.generate(60, (index) => index.toString().padLeft(2, '0'));
-
+  List<String> hourList =
+      List.generate(23, (index) => index.toString().padLeft(2, '0'));
+  List<String> minuteList =
+      List.generate(60, (index) => index.toString().padLeft(2, '0'));
 
   String timeSheetValidation = "";
 
@@ -108,7 +115,7 @@ class _ServiceFormState extends State<ServiceForm> {
     // TODO: implement initState
     super.initState();
 
-    if(widget.model.serviceDate != null) {
+    if (widget.model.serviceDate != null) {
       sDate = DateTime.fromMillisecondsSinceEpoch(int.parse(widget
           .model.serviceDate!
           .replaceAll("/Date(", "")
@@ -182,7 +189,7 @@ class _ServiceFormState extends State<ServiceForm> {
       }
       if (widget.model.tSConfirm == true) {
         timeSheetValidation =
-        "Timesheet Submitted.Only comments can be updated!";
+            "Timesheet Submitted.Only comments can be updated!";
       }
       _controllerHoursDifference.text = widget.model.tSHoursDiff.toString();
       _controllerTravelTime.text = getTimeStringFromDouble(
@@ -205,10 +212,10 @@ class _ServiceFormState extends State<ServiceForm> {
       if (widget.model.clienttraveldistance! <= 0.0) {
         _controllerClientTravelDistance.text = "";
       }
-      isRiskAlert = false;
+      //  isRecurring = false;
       _controllerTimeSheetComments.text = widget.model.tSComments ?? "";
     }
-    
+
     setState(() {});
   }
 
@@ -235,65 +242,55 @@ class _ServiceFormState extends State<ServiceForm> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          if (!(widget.model.completeCW ?? false))
                           const SizedBox(width: spaceHorizontal),
-                          Expanded(
-                            child: ThemedButton(
-                              padding: EdgeInsets.zero,
-                              title: "Save",
-                              fontSize: 14,
-                              onTap: () async {
-                                if (widget.model.tSConfirm == false) {
+                          if (!(widget.model.completeCW ?? false))
+                            Expanded(
+                              child: ThemedButton(
+                                padding: EdgeInsets.zero,
+                                title: "Save",
+                                fontSize: 14,
+                                onTap: () async {
+                                  if (widget.model.tSConfirm == false) {
+                                    int startMinTs = (fromHour * 60) + fromMin;
+                                    int endMinTs = (toHour * 60) + toMin;
+                                    if (endMinTs < startMinTs) {
+                                      endMinTs = endMinTs + 1440;
+                                    }
 
-                                  int startMinTs = (fromHour * 60) + fromMin;
-                                  int endMinTs = (toHour * 60) + toMin;
-                                  if(endMinTs < startMinTs){
-                                    endMinTs = endMinTs+1440;
+                                    if (startMinTs == endMinTs) {
+                                      showSnackBarWithText(
+                                          _keyScaffold.currentState,
+                                          "Please enter valid Untile Time",
+                                          color: colorRed);
+                                      return;
+                                    }
+
+                                    if (isIncludeLaunchBrake &&
+                                        endBrakMin == 0) {
+                                      showSnackBarWithText(
+                                          _keyScaffold.currentState,
+                                          "Please enter valid lunch break",
+                                          color: colorRed);
+                                      return;
+                                    }
+                                    if (diffHours != 0.0 &&
+                                        widget.model.tSConfirm == false &&
+                                        _controllerTimeSheetComments
+                                            .text.isEmpty) {
+                                      showSnackBarWithText(
+                                          _keyScaffold.currentState,
+                                          "Comments are required if hours are differemt",
+                                          color: colorRed);
+                                      return;
+                                    }
                                   }
-
-
-
-                                  if(startMinTs == endMinTs){
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Please enter valid Untile Time",
-                                        color: colorRed);
-                                    return;
-                                  }
-
-                                  if (isIncludeLaunchBrake && endBrakMin == 0) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Please enter valid lunch break",
-                                        color: colorRed);
-                                    return;
-                                  }
-
-                                  if (isRiskAlert &&
-                                      _controllerTimeSheetComments
-                                          .text.isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Please enter Timesheet comment",
-                                        color: colorRed);
-                                    return;
-                                  }
-                                  if (diffHours != 0.0 &&
-                                      widget.model.tSConfirm == false &&
-                                      _controllerTimeSheetComments
-                                          .text.isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Comments are required if hours are differemt",
-                                        color: colorRed);
-                                    return;
-                                  }
-                                }
-                              },
+                                },
+                              ),
                             ),
-                          ),
+                          if (widget.indexSelectedFrom == 1)
                           const SizedBox(width: spaceHorizontal),
-                          if (widget.indexSelectedFrom != 3 &&
-                              widget.indexSelectedFrom != 1)
+                          if (widget.indexSelectedFrom == 1)
                             Expanded(
                               // height: textFiledHeight,
                               child: ThemedButton(
@@ -301,7 +298,7 @@ class _ServiceFormState extends State<ServiceForm> {
                                 title: "Delete",
                                 fontSize: 14,
                                 onTap: () async {
-                                //implement delete service
+                                  //implement delete service
                                 },
                               ),
                             ),
@@ -324,160 +321,156 @@ class _ServiceFormState extends State<ServiceForm> {
                     const SizedBox(height: 10),
                     timeSheetValidation.isNotEmpty
                         ? SizedBox(
-                      child: Container(
-                        padding: EdgeInsets.all(10.0),
-                        margin:
-                        const EdgeInsets.symmetric(horizontal: 10.0),
-                        color: colorRed,
-                        child: ThemedText(
-                          text: timeSheetValidation,
-                          fontSize: 14,
-                          maxLine: 2,
-                          color: colorWhite,
-                        ),
-                      ),
-                    )
+                            child: Container(
+                              padding: EdgeInsets.all(10.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              color: colorRed,
+                              child: ThemedText(
+                                text: timeSheetValidation,
+                                fontSize: 14,
+                                maxLine: 2,
+                                color: colorWhite,
+                              ),
+                            ),
+                          )
                         : Container(),
-                    const SizedBox(height: 20),
-                    ThemedText(
-                      text: widget.model.resName ?? "",
-                      color: colorBlack,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    const SizedBox(height: spaceVertical / 2),
-                    ThemedText(
-                      text: widget.model.serviceName ?? "",
-                      color: colorBlack,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    const SizedBox(height: spaceVertical / 2),
-                    Container(
-                        height: 1,
-                        width: MediaQuery.of(context).size.width * .9,
-                        color: colorDivider),
-                    const SizedBox(height: spaceVertical / 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const FaIcon(
-                          FontAwesomeIcons.calendarDays,
-                          color: colorGreen,
-                          size: 14,
+                    ////DO NOT SHOW FOR NEW SERVICE
+                    if (widget.indexSelectedFrom >= 0)
+                      Column(children: [
+                        const SizedBox(height: 20),
+                        ThemedText(
+                          text: widget.model.resName ?? "",
+                          color: colorBlack,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(width: spaceHorizontal),
-                        Text(
-                          // model.serviceDate!,
-                          widget.model.serviceDate != null
-                              ? DateFormat("EEE,dd-MM-yyyy").format(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                  int.parse(widget.model.serviceDate!
-                                      .replaceAll("/Date(", "")
-                                      .replaceAll(")/", "")),
-                                  isUtc: false))
-                              : "",
-                          style: const TextStyle(
-                            color: colorBlack,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        const SizedBox(height: spaceVertical / 2),
+                        ThemedText(
+                          text: widget.model.serviceName ?? "",
+                          color: colorBlack,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(height: spaceVertical / 2),
                         Container(
-                            height: 20,
-                            width: dividerWidth,
+                            height: 1,
+                            width: MediaQuery.of(context).size.width * .9,
                             color: colorDivider),
-                        const SizedBox(width: 5),
-                        Container(
-                            height: 20,
-                            width: dividerWidth,
-                            color: colorDivider),
-                        const SizedBox(width: 5),
-                        const Icon(
-                          Icons.timer,
-                          color: colorGreen,
-                          size: 14,
+                        const SizedBox(height: spaceVertical / 2),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const FaIcon(
+                              FontAwesomeIcons.calendarDays,
+                              color: colorGreen,
+                              size: 14,
+                            ),
+                            const SizedBox(width: spaceHorizontal),
+                            Text(
+                              formatServiceDate(widget.model.serviceDate),
+                              style: const TextStyle(
+                                color: colorBlack,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Container(
+                                height: 20,
+                                width: dividerWidth,
+                                color: colorDivider),
+                            const SizedBox(width: 5),
+                            Container(
+                                height: 20,
+                                width: dividerWidth,
+                                color: colorDivider),
+                            const SizedBox(width: 5),
+                            const Icon(
+                              Icons.timer,
+                              color: colorGreen,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              widget.model.shift ?? "",
+                              style: const TextStyle(
+                                  color: colorBlack,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(width: 5),
+                            // Container(height: 20, width: 1, color: colorDivider),
+                            // const SizedBox(width: 5),
+                            // const Icon(
+                            //   CupertinoIcons.time,
+                            //   color: colorGreen,
+                            //   size: 14,
+                            // ),
+                            // const SizedBox(width: 5),
+                            // Text(
+                            //   "${widget.model.totalHours}hrs",
+                            //   style: const TextStyle(
+                            //       color: colorBlack,
+                            //       fontSize: 12,
+                            //       fontWeight: FontWeight.w500),
+                            // ),
+                          ],
                         ),
-                        const SizedBox(width: 5),
-                        Text(
-                          widget.model.shift ?? "",
-                          style: const TextStyle(
+                        const SizedBox(height: spaceVertical / 2),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              CupertinoIcons.time,
+                              color: colorGreen,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              "${widget.model.totalHours}hrs",
+                              style: const TextStyle(
+                                  color: colorBlack,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(width: 5),
+                            Container(
+                                height: 20,
+                                width: dividerWidth,
+                                color: colorDivider),
+                            const SizedBox(width: 5),
+                            const SizedBox(width: spaceHorizontal),
+                            ThemedText(
+                              text:
+                                  "Lunch Break : ${widget.model.tSLunchBreak ?? ""}",
                               color: colorBlack,
                               fontSize: 12,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(width: 5),
-                        // Container(height: 20, width: 1, color: colorDivider),
-                        // const SizedBox(width: 5),
-                        // const Icon(
-                        //   CupertinoIcons.time,
-                        //   color: colorGreen,
-                        //   size: 14,
-                        // ),
-                        // const SizedBox(width: 5),
-                        // Text(
-                        //   "${widget.model.totalHours}hrs",
-                        //   style: const TextStyle(
-                        //       color: colorBlack,
-                        //       fontSize: 12,
-                        //       fontWeight: FontWeight.w500),
-                        // ),
-                      ],
-                    ),
-                    const SizedBox(height: spaceVertical / 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          CupertinoIcons.time,
-                          color: colorGreen,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          "${widget.model.totalHours}hrs",
-                          style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
+                            const SizedBox(width: 5),
+                            Container(
+                                height: 20,
+                                width: dividerWidth,
+                                color: colorDivider),
+                            const SizedBox(width: 5),
+                            ThemedText(
+                              text:
+                                  "Travel Dist.: ${widget.model.tSTravelDistance?.toDouble().toString() ?? "0.00"}",
                               color: colorBlack,
                               fontSize: 12,
-                              fontWeight: FontWeight.w500),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            const SizedBox(width: 5),
+                          ],
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(height: spaceVertical),
                         Container(
-                            height: 20,
-                            width: dividerWidth,
+                            height: 1,
+                            width: MediaQuery.of(context).size.width * .9,
                             color: colorDivider),
-                        const SizedBox(width: 5),
-                        const SizedBox(width: spaceHorizontal),
-                        ThemedText(
-                          text:
-                          "Lunch Break : ${widget.model.tSLunchBreak ?? ""}",
-                          color: colorBlack,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        const SizedBox(width: 5),
-                        Container(
-                            height: 20,
-                            width: dividerWidth,
-                            color: colorDivider),
-                        const SizedBox(width: 5),
-                        ThemedText(
-                          text:
-                          "Travel Dist.: ${widget.model.tSTravelDistance?.toDouble().toString() ?? "0.00"}",
-                          color: colorBlack,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        const SizedBox(width: 5),
-                      ],
-                    ),
-                    const SizedBox(height: spaceVertical),
-                    Container(
-                        height: 1,
-                        width: MediaQuery.of(context).size.width * .9,
-                        color: colorDivider),
-                    const SizedBox(height: spaceVertical),
+                        const SizedBox(height: spaceVertical),
+                      ])
                     /*  SizedBox(
                       height: 50,
                       width: MediaQuery.of(context).size.width * .85,
@@ -501,6 +494,29 @@ class _ServiceFormState extends State<ServiceForm> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ThemedText(
+                      text: "Service Date",
+                      fontSize: 14,
+                      color: colorBlack,
+                    ),
+                    SizedBox(
+                      height: textFiledHeight,
+                      child: ThemedTextField(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: spaceHorizontal),
+                        borderColor: colorGreyBorderD3,
+                        backgroundColor: colorWhite,
+                        sufFix: const Icon(
+                          Icons.keyboard_arrow_down_outlined,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                        isReadOnly: true,
+                        hintText: "Select Date",
+                        controller: _controllerServiceDate,
+                      ),
+                    ),
+                    const SizedBox(height: spaceBetween),
+                    ThemedText(
                       text: "Service Type",
                       fontSize: 14,
                       color: colorBlack,
@@ -511,9 +527,26 @@ class _ServiceFormState extends State<ServiceForm> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: spaceHorizontal),
                         borderColor: colorGreyBorderD3,
-                        backgroundColor: colorGreyE8,
+                        backgroundColor: colorWhite,
                         isReadOnly: true,
+                        sufFix: const Icon(
+                          Icons.keyboard_arrow_down_outlined,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
                         controller: _controllerServiceType,
+                      ),
+                    ),
+                    const SizedBox(height: spaceBetween),
+                    SizedBox(
+                      height: textFiledHeight,
+                      child: ThemedTextField(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: spaceHorizontal),
+                        borderColor: colorGreyBorderD3,
+                        backgroundColor: colorWhite,
+                        isReadOnly: false,
+                        controller: _controllerServiceTypeDesc,
                       ),
                     ),
                     const SizedBox(height: spaceBetween),
@@ -531,6 +564,11 @@ class _ServiceFormState extends State<ServiceForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  sufFix: const Icon(
+                                    Icons.keyboard_arrow_down_outlined,
+                                    color: Colors.grey,
+                                    size: 30.0,
+                                  ),
                                   controller: _controllerFromService,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
@@ -538,16 +576,16 @@ class _ServiceFormState extends State<ServiceForm> {
                                   backgroundColor: colorWhite,
                                   isReadOnly: true,
                                   onTap: () async {
-                                    if (widget.model.tSConfirm == false) {
+                                    if (widget.indexSelectedFrom < 0) {
                                       showTimePickerDialog(
                                         initialTimeText:
-                                        _controllerFromService.text,
+                                            _controllerFromService.text,
                                         onTimePick: (hours, minutes) {
                                           fromHour = hours;
                                           fromMin = minutes;
                                           calculateHours();
                                           _controllerFromService.text =
-                                          "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                              "${get2CharString(hours)}:${get2CharString(minutes)}";
 
                                           setState(() {});
                                         },
@@ -572,6 +610,11 @@ class _ServiceFormState extends State<ServiceForm> {
                               SizedBox(
                                 height: textFiledHeight,
                                 child: ThemedTextField(
+                                  sufFix: const Icon(
+                                    Icons.keyboard_arrow_down_outlined,
+                                    color: Colors.grey,
+                                    size: 30.0,
+                                  ),
                                   controller: _controllerToService,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: spaceHorizontal),
@@ -579,16 +622,16 @@ class _ServiceFormState extends State<ServiceForm> {
                                   backgroundColor: colorWhite,
                                   isReadOnly: true,
                                   onTap: () async {
-                                    if (widget.model.tSConfirm == false) {
+                                    if (widget.indexSelectedFrom < 0) {
                                       showTimePickerDialog(
                                         initialTimeText:
-                                        _controllerToService.text,
+                                            _controllerToService.text,
                                         onTimePick: (hours, minutes) {
                                           toHour = hours;
                                           toMin = minutes;
                                           calculateHours();
                                           _controllerToService.text =
-                                          "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                              "${get2CharString(hours)}:${get2CharString(minutes)}";
                                           setState(() {});
                                         },
                                       );
@@ -599,72 +642,121 @@ class _ServiceFormState extends State<ServiceForm> {
                             ],
                           ),
                         ),
+                        const SizedBox(width: spaceHorizontal / 2),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ThemedText(
+                                text: "Hours(hh:mm)",
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              SizedBox(
+                                height: textFiledHeight,
+                                child: ThemedTextField(
+                                  controller: _controllerToService,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: spaceHorizontal),
+                                  borderColor: colorGreyBorderD3,
+                                  backgroundColor: colorWhite,
+                                  isReadOnly: true,
+                                  onTap: () async {},
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
-                        ThemedText(
-                          text: "TS Lunch Break*",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        Radio<bool>(
-                          value: true,
-                          groupValue: isIncludeLaunchBrake,
-                          activeColor: colorGreen,
-                          onChanged: widget.model.tSConfirm == true
-                              ? null
-                              : (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                isIncludeLaunchBrake = value;
-                              });
-                            }
-                          },
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              isIncludeLaunchBrake = true;
-                            });
-                          },
-                          child: ThemedText(
-                            text: "Yes",
-                            color: colorBlack,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: isIncludeLaunchBrake,
-                          activeColor: colorGreen,
-                          onChanged: widget.model.tSConfirm == true
-                              ? null
-                              : (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                isIncludeLaunchBrake = value;
-                              });
-                            }
-                          },
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              isIncludeLaunchBrake = false;
-                            });
-                          },
-                          child: ThemedText(
-                            text: "No",
-                            color: colorBlack,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                    ThemedText(
+                      text: "Service",
+                      fontSize: 14,
+                      color: colorBlack,
+                      fontWeight: FontWeight.w500,
                     ),
+                    SizedBox(
+                      height: textFiledHeight,
+                      child: ThemedTextField(
+                        sufFix: const Icon(
+                          Icons.keyboard_arrow_down_outlined,
+                          color: Colors.grey,
+                          size: 30.0,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: spaceHorizontal),
+                        borderColor: colorGreyBorderD3,
+                        backgroundColor: colorWhite,
+                        isReadOnly: true,
+                        controller: _controllerServiceDate,
+                      ),
+                    ),
+                    const SizedBox(height: spaceBetween),
+                    if (widget.indexSelectedFrom >= 0)
+                      Row(
+                        children: [
+                          ThemedText(
+                            text: "TS Lunch Break*",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          Radio<bool>(
+                            value: true,
+                            groupValue: isIncludeLaunchBrake,
+                            activeColor: colorGreen,
+                            onChanged: widget.model.tSConfirm == true
+                                ? null
+                                : (bool? value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        isIncludeLaunchBrake = value;
+                                      });
+                                    }
+                                  },
+                          ),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                isIncludeLaunchBrake = true;
+                              });
+                            },
+                            child: ThemedText(
+                              text: "Yes",
+                              color: colorBlack,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Radio<bool>(
+                            value: false,
+                            groupValue: isIncludeLaunchBrake,
+                            activeColor: colorGreen,
+                            onChanged: widget.model.tSConfirm == true
+                                ? null
+                                : (bool? value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        isIncludeLaunchBrake = value;
+                                      });
+                                    }
+                                  },
+                          ),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                isIncludeLaunchBrake = false;
+                              });
+                            },
+                            child: ThemedText(
+                              text: "No",
+                              color: colorBlack,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: spaceBetween),
                     if (isIncludeLaunchBrake)
                       Column(
@@ -761,6 +853,11 @@ class _ServiceFormState extends State<ServiceForm> {
                                     SizedBox(
                                       height: textFiledHeight,
                                       child: ThemedTextField(
+                                        sufFix: const Icon(
+                                          Icons.keyboard_arrow_down_outlined,
+                                          color: Colors.grey,
+                                          size: 30.0,
+                                        ),
                                         controller: _controllerFromLaunch,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: spaceHorizontal),
@@ -770,58 +867,63 @@ class _ServiceFormState extends State<ServiceForm> {
                                         onTap: widget.model.tSConfirm == true
                                             ? () {}
                                             : () async {
-                                          showTimePickerDialog(
-                                            initialTimeText:
-                                            _controllerFromLaunch
-                                                .text,
-                                            onTimePick: (hours, minutes) {
-                                              int tempstartBreakMin =
-                                                  (hours * 60) + minutes;
-                                              int startMinTs =
-                                                  (fromHour * 60) +
-                                                      fromMin;
-                                              int endMinTs =
-                                                  (toHour * 60) + toMin;
-                                              if(endMinTs < startMinTs){
-                                                endMinTs = endMinTs+1440;
-                                                if(tempstartBreakMin < startMinTs){
-                                                  tempstartBreakMin += 1440;
-                                                }
-                                              }
+                                                showTimePickerDialog(
+                                                  initialTimeText:
+                                                      _controllerFromLaunch
+                                                          .text,
+                                                  onTimePick: (hours, minutes) {
+                                                    int tempstartBreakMin =
+                                                        (hours * 60) + minutes;
+                                                    int startMinTs =
+                                                        (fromHour * 60) +
+                                                            fromMin;
+                                                    int endMinTs =
+                                                        (toHour * 60) + toMin;
+                                                    if (endMinTs < startMinTs) {
+                                                      endMinTs =
+                                                          endMinTs + 1440;
+                                                      if (tempstartBreakMin <
+                                                          startMinTs) {
+                                                        tempstartBreakMin +=
+                                                            1440;
+                                                      }
+                                                    }
 
-                                              print(startMinTs.toString());
-                                              print(endMinTs.toString());
-                                              print(tempstartBreakMin.toString());
+                                                    print(
+                                                        startMinTs.toString());
+                                                    print(endMinTs.toString());
+                                                    print(tempstartBreakMin
+                                                        .toString());
 
-                                              if (tempstartBreakMin <
-                                                  startMinTs ||
-                                                  tempstartBreakMin >
-                                                      endMinTs) {
-                                                showSnackBarWithText(
-                                                    _keyScaffold
-                                                        .currentState,
-                                                    "Please enter valid lunch break time",
-                                                    color: colorRed);
-                                                return;
-                                              } else {
-                                                startBreakMin =
-                                                    tempstartBreakMin;
-                                              }
+                                                    if (tempstartBreakMin <
+                                                            startMinTs ||
+                                                        tempstartBreakMin >
+                                                            endMinTs) {
+                                                      showSnackBarWithText(
+                                                          _keyScaffold
+                                                              .currentState,
+                                                          "Please enter valid lunch break time",
+                                                          color: colorRed);
+                                                      return;
+                                                    } else {
+                                                      startBreakMin =
+                                                          tempstartBreakMin;
+                                                    }
 
-                                              _controllerFromLaunch.text =
-                                              "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                              String diff =
-                                              findDurationDifference(
-                                                  _controllerFromLaunch
-                                                      .text,
-                                                  _controllerToLaunch
-                                                      .text);
-                                              _controllerHourLaunch.text =
-                                                  diff;
-                                              setState(() {});
-                                            },
-                                          );
-                                        },
+                                                    _controllerFromLaunch.text =
+                                                        "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                                    String diff =
+                                                        findDurationDifference(
+                                                            _controllerFromLaunch
+                                                                .text,
+                                                            _controllerToLaunch
+                                                                .text);
+                                                    _controllerHourLaunch.text =
+                                                        diff;
+                                                    setState(() {});
+                                                  },
+                                                );
+                                              },
                                       ),
                                     ),
                                   ],
@@ -851,6 +953,11 @@ class _ServiceFormState extends State<ServiceForm> {
                                     SizedBox(
                                       height: textFiledHeight,
                                       child: ThemedTextField(
+                                        sufFix: const Icon(
+                                          Icons.keyboard_arrow_down_outlined,
+                                          color: Colors.grey,
+                                          size: 30.0,
+                                        ),
                                         controller: _controllerToLaunch,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: spaceHorizontal),
@@ -860,87 +967,98 @@ class _ServiceFormState extends State<ServiceForm> {
                                         onTap: widget.model.tSConfirm == true
                                             ? () {}
                                             : () async {
-                                          showTimePickerDialog(
-                                            initialTimeText:
-                                            _controllerToLaunch.text,
-                                            onTimePick: (hours, minutes) {
-                                              int teampendBrakMin =
-                                                  (hours * 60) + minutes;
-                                              int startMinTs =
-                                                  (fromHour * 60) + fromMin;
+                                                showTimePickerDialog(
+                                                  initialTimeText:
+                                                      _controllerToLaunch.text,
+                                                  onTimePick: (hours, minutes) {
+                                                    int teampendBrakMin =
+                                                        (hours * 60) + minutes;
+                                                    int startMinTs =
+                                                        (fromHour * 60) +
+                                                            fromMin;
 
-                                              int endMinTs =
-                                                  (toHour * 60) + toMin;
-                                              if(endMinTs < startMinTs){
-                                                endMinTs = endMinTs+1440;
-                                              }
-                                              if(teampendBrakMin < startBreakMin){
-                                                teampendBrakMin = teampendBrakMin+1440;
-                                              }
-                                              print(startBreakMin.toString());
-                                              print(endMinTs.toString());
-                                              print(teampendBrakMin.toString());
+                                                    int endMinTs =
+                                                        (toHour * 60) + toMin;
+                                                    if (endMinTs < startMinTs) {
+                                                      endMinTs =
+                                                          endMinTs + 1440;
+                                                    }
+                                                    if (teampendBrakMin <
+                                                        startBreakMin) {
+                                                      teampendBrakMin =
+                                                          teampendBrakMin +
+                                                              1440;
+                                                    }
+                                                    print(startBreakMin
+                                                        .toString());
+                                                    print(endMinTs.toString());
+                                                    print(teampendBrakMin
+                                                        .toString());
 
-                                              if (startBreakMin == 0 && endMinTs > 1440) {
-                                                showSnackBarWithText(
-                                                    _keyScaffold
-                                                        .currentState,
-                                                    "Please enter start lunch break time",
-                                                    color: colorRed);
-                                                return;
-                                              }
+                                                    if (startBreakMin == 0 &&
+                                                        endMinTs > 1440) {
+                                                      showSnackBarWithText(
+                                                          _keyScaffold
+                                                              .currentState,
+                                                          "Please enter start lunch break time",
+                                                          color: colorRed);
+                                                      return;
+                                                    }
 
-                                              print(startBreakMin.toString());
-                                              print(endMinTs.toString());
-                                              print(teampendBrakMin.toString());
-                                              print(startMinTs.toString());
+                                                    print(startBreakMin
+                                                        .toString());
+                                                    print(endMinTs.toString());
+                                                    print(teampendBrakMin
+                                                        .toString());
+                                                    print(
+                                                        startMinTs.toString());
 
-                                              if (teampendBrakMin <
-                                                  startBreakMin ||
-                                                  teampendBrakMin <
-                                                      startMinTs) {
-                                                showSnackBarWithText(
-                                                    _keyScaffold
-                                                        .currentState,
-                                                    "Please enter valid lunch break time",
-                                                    color: colorRed);
-                                                return;
-                                              } else {
-                                                endBrakMin =
-                                                    teampendBrakMin;
-                                              }
+                                                    if (teampendBrakMin <
+                                                            startBreakMin ||
+                                                        teampendBrakMin <
+                                                            startMinTs) {
+                                                      showSnackBarWithText(
+                                                          _keyScaffold
+                                                              .currentState,
+                                                          "Please enter valid lunch break time",
+                                                          color: colorRed);
+                                                      return;
+                                                    } else {
+                                                      endBrakMin =
+                                                          teampendBrakMin;
+                                                    }
 
-                                              _controllerToLaunch.text =
-                                              "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                              breakMin = endBrakMin - startBreakMin;
-                                              print(breakMin.toString());
-                                              int h = (breakMin/60).toInt();
-                                              int m = (breakMin%60).toInt();
-                                              print(h.toString());
-                                              print(m.toString());
-                                              _controllerHourLaunch.text =  "${get2CharString(h)}:${get2CharString(m)}";
-                                              /* String diff =
+                                                    _controllerToLaunch.text =
+                                                        "${get2CharString(hours)}:${get2CharString(minutes)}";
+                                                    breakMin = endBrakMin -
+                                                        startBreakMin;
+                                                    print(breakMin.toString());
+                                                    int h =
+                                                        (breakMin / 60).toInt();
+                                                    int m =
+                                                        (breakMin % 60).toInt();
+                                                    print(h.toString());
+                                                    print(m.toString());
+                                                    _controllerHourLaunch.text =
+                                                        "${get2CharString(h)}:${get2CharString(m)}";
+                                                    /* String diff =
                                                         findDurationDifference(
                                                             _controllerFromLaunch
                                                                 .text,
                                                             _controllerToLaunch
                                                                 .text);*/
-                                              calculateHours();
+                                                    calculateHours();
 
-                                              setState(() {});
-                                            },
-                                          );
-                                        },
+                                                    setState(() {});
+                                                  },
+                                                );
+                                              },
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                          /*  const SizedBox(height: spaceBetween),
-                          Row(
-                            children: [
+                              const SizedBox(width: spaceHorizontal / 2),
                               Expanded(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -948,7 +1066,7 @@ class _ServiceFormState extends State<ServiceForm> {
                                   children: [
                                     ThemedRichText(spanList: [
                                       getTextSpan(
-                                        text: "TS Launch To",
+                                        text: "TS Launch Break",
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         fontColor: colorBlack,
@@ -963,379 +1081,131 @@ class _ServiceFormState extends State<ServiceForm> {
                                     const SizedBox(height: spaceBetween),
                                     SizedBox(
                                       height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: toHourLaunch,
-                                        dataString: hourList,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            toHourLaunch = value;
-                                            findDurationDifference();
-                                          });
-                                        },
+                                      child: ThemedTextField(
+                                        controller: _controllerToLaunch,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: spaceHorizontal),
+                                        borderColor: colorGreyBorderD3,
+                                        backgroundColor: colorWhite,
+                                        isReadOnly: true,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: spaceHorizontal / 2),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ThemedText(
-                                      text: "",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    SizedBox(
-                                      height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: toMinuteLaunch,
-                                        dataString: minuteList,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            toMinuteLaunch = value;
-                                            findDurationDifference();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
                             ],
-                          ),*/
-                          const SizedBox(height: spaceBetween),
+                          ),
                         ],
                       ),
                     const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ThemedRichText(spanList: [
-                                getTextSpan(
-                                  text: "Hours(hh:mm)",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorBlack,
-                                ),
-                                getTextSpan(
-                                  text: "*",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorRed,
-                                ),
-                              ]),
-                              const SizedBox(height: spaceBetween),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedTextField(
-                                  isReadOnly: widget.model.tSConfirm == true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: spaceHorizontal),
-                                  borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorGreyE8,
-                                  controller: _controllerHours,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: spaceHorizontal / 2),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ThemedRichText(spanList: [
-                                getTextSpan(
-                                  text: "Hours Diff.",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorBlack,
-                                ),
-                                getTextSpan(
-                                  text: "*",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorRed,
-                                ),
-                              ]),
-                              const SizedBox(height: spaceBetween),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedTextField(
-                                  isReadOnly: true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: spaceHorizontal),
-                                  borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorGreyE8,
-                                  controller: _controllerHoursDifference,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ThemedRichText(spanList: [
-                                getTextSpan(
-                                  text: "Travel Time (hh:mm)",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorBlack,
-                                ),
-                                getTextSpan(
-                                  text: "",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorRed,
-                                ),
-                              ]),
-                              const SizedBox(height: spaceBetween),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedTextField(
-                                  isAcceptDecimalOnly: true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: spaceHorizontal),
-                                  borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorWhite,
-                                  controller: _controllerTravelTime,
-                                  isReadOnly: true,
-                                  onTap: widget.model.tSConfirm == true
-                                      ? () {}
-                                      : () async {
-                                    showTimePickerDialog(
-                                      initialTimeText:
-                                      _controllerTravelTime.text,
-                                      onTimePick: (hours, minutes) {
-                                        travelMin =
-                                            (hours * 60) + minutes;
-                                        _controllerTravelTime.text =
-                                        "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                        setState(() {});
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: spaceHorizontal / 2),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ThemedRichText(spanList: [
-                                getTextSpan(
-                                  text: "Travel Dist (km)",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorBlack,
-                                ),
-                                getTextSpan(
-                                  text: "",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorRed,
-                                ),
-                              ]),
-                              const SizedBox(height: spaceBetween),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedTextField(
-                                  isAcceptDecimalOnly: true,
-                                  keyBoardType: TextInputType.number,
-                                  isReadOnly: widget.model.tSConfirm == true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: spaceHorizontal),
-                                  borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorWhite,
-                                  controller: _controllerTravelDistance,
-                                  hintText: "0.0",
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ThemedRichText(spanList: [
-                                getTextSpan(
-                                  text: "Max Travel Dist.(km)",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorBlack,
-                                ),
-                                getTextSpan(
-                                  text: "",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorRed,
-                                ),
-                              ]),
-                              const SizedBox(height: spaceBetween),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedTextField(
-                                  isReadOnly: true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: spaceHorizontal),
-                                  borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorGreyE8,
-                                  controller: _controllerTravelDistanceMax,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: spaceHorizontal / 2),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ThemedRichText(spanList: [
-                                getTextSpan(
-                                  text: "Client Travel Dist.",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorBlack,
-                                ),
-                                getTextSpan(
-                                  text: "",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: colorRed,
-                                ),
-                              ]),
-                              const SizedBox(height: spaceBetween),
-                              SizedBox(
-                                height: textFiledHeight,
-                                child: ThemedTextField(
-                                  isAcceptDecimalOnly: true,
-                                  keyBoardType: TextInputType.number,
-                                  isReadOnly: widget.model.tSConfirm == true,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: spaceHorizontal),
-                                  borderColor: colorGreyBorderD3,
-                                  backgroundColor: colorWhite,
-                                  controller: _controllerClientTravelDistance,
-                                  hintText: "0.0",
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: spaceBetween),
-                    Row(
-                      children: [
-                        ThemedRichText(spanList: [
-                          getTextSpan(
-                            text: "Risk Alert :",
+                    LabeledCheckbox(
+                        value: false,
+                        label: "Client Funding",
+                        leadingCheckbox: false,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            setState(() {
+                              isClientFunding = value;
+                            });
+                          }
+                        }),
+                    if(isClientFunding)
+                    Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ThemedText(
+                            text: "Funding Service*",
                             fontSize: 14,
+                            color: colorBlack,
                             fontWeight: FontWeight.w500,
-                            fontColor: colorBlack,
                           ),
-                          getTextSpan(
-                            text: "*",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontColor: colorRed,
+                          SizedBox(
+                            height: textFiledHeight,
+                            child: ThemedTextField(
+                              sufFix: const Icon(
+                                Icons.keyboard_arrow_down_outlined,
+                                color: Colors.grey,
+                                size: 30.0,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: spaceHorizontal),
+                              borderColor: colorGreyBorderD3,
+                              backgroundColor: colorWhite,
+                              isReadOnly: true,
+                              controller: _controllerServiceDate,
+                            ),
                           ),
                         ]),
-                        Radio<bool>(
-                          value: true,
-                          groupValue: isRiskAlert,
-                          activeColor: colorGreen,
-                          onChanged: (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                isRiskAlert = value;
-                              });
-                            }
-                          },
-                        ),
-                        InkWell(
-                          onTap: () {
+                    LabeledCheckbox(
+                        value: false,
+                        label: "Recurring",
+                        leadingCheckbox: false,
+                        onChanged: (bool? value) {
+                          if (value != null) {
                             setState(() {
-                              isRiskAlert = true;
+                              isRecurringService = value;
                             });
-                          },
-                          child: ThemedText(
-                            text: "Yes",
-                            color: colorBlack,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: isRiskAlert,
-                          activeColor: colorGreen,
-                          onChanged: (bool? value) {
-                            if (value != null) {
-                              setState(() {
-                                isRiskAlert = value;
-                              });
-                            }
-                          },
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              isRiskAlert = false;
-                            });
-                          },
-                          child: ThemedText(
-                            text: "No",
-                            color: colorBlack,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
+                          }
+                        }),
+                    if (isRecurringService)
+                      Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ThemedRichText(spanList: [
+                              getTextSpan(
+                                text: "Interval (Single Choice)",
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: colorBlack,
+                              )
+                            ]),
+                            SizedBox(height: spaceBetween),
+                            SingleChoice(),
+                            const SizedBox(height: spaceBetween*2),
+                            ThemedRichText(spanList: [
+                              getTextSpan(
+                                text: "Days (Multiple Choice)",
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: colorBlack,
+                              )
+                            ]),
+                            SizedBox(height: spaceBetween),
+                            MultipleChoice(),
+                            const SizedBox(height: spaceBetween),
+                            ThemedText(
+                              text: "Service End",
+                              fontSize: 14,
+                              color: colorBlack,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            SizedBox(
+                              height: textFiledHeight,
+                              child: ThemedTextField(
+                                sufFix: const Icon(
+                                  Icons.keyboard_arrow_down_outlined,
+                                  color: Colors.grey,
+                                  size: 30.0,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: spaceHorizontal),
+                                borderColor: colorGreyBorderD3,
+                                backgroundColor: colorWhite,
+                                isReadOnly: true,
+                                controller: _controllerServiceDate,
+                              ),
+                            ),
+                          ]),
                     const SizedBox(height: spaceBetween),
                     ThemedRichText(spanList: [
                       getTextSpan(
-                        text: "TimeSheet Comments",
+                        text: "Shift Comments",
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontColor: colorBlack,
                       ),
-                      if (isRiskAlert)
-                        getTextSpan(
-                          text: "*",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontColor: colorRed,
-                        ),
                     ]),
                     const SizedBox(height: spaceBetween),
                     ThemedTextField(
@@ -1347,7 +1217,6 @@ class _ServiceFormState extends State<ServiceForm> {
                       minLine: 5,
                       controller: _controllerTimeSheetComments,
                     ),
-                    const SizedBox(height: spaceBetween),
                     const SizedBox(height: spaceBetween),
                     /* SizedBox(
                       height: 50,
@@ -1379,15 +1248,15 @@ class _ServiceFormState extends State<ServiceForm> {
     print(breakMin);
 
     int diff = ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
-    if(diff < 0){
-      diff = diff +1440;
+    if (diff < 0) {
+      diff = diff + 1440;
     }
     totalWorkMin = diff;
     print(diff);
     int totalHours = (diff / 60).toInt();
     int totalMin = (diff % 60).toInt();
     _controllerHours.text =
-    "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
+        "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
     print(diff);
     print(origionalMins);
     double diffMin = ((((diff - breakMin) - origionalMins) * 100) / 60) / 100;
@@ -1399,17 +1268,17 @@ class _ServiceFormState extends State<ServiceForm> {
 
   showTimePickerDialog(
       {required String? initialTimeText,
-        required void Function(int hours, int minutes) onTimePick}) async {
+      required void Function(int hours, int minutes) onTimePick}) async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(
         hour: initialTimeText != null
             ? int.tryParse(initialTimeText.split(":").first) ??
-            TimeOfDay.now().hour
+                TimeOfDay.now().hour
             : TimeOfDay.now().hour,
         minute: initialTimeText != null
             ? int.tryParse(initialTimeText.split(":").last) ??
-            TimeOfDay.now().minute
+                TimeOfDay.now().minute
             : TimeOfDay.now().minute,
       ),
       initialEntryMode: TimePickerEntryMode.dial,
@@ -1434,9 +1303,9 @@ class _ServiceFormState extends State<ServiceForm> {
         : TimeOfDay.now().minute;
 
     Duration difference = DateTime(DateTime.now().year, DateTime.now().month,
-        DateTime.now().day, toHourLaunch, toMinuteLaunch)
+            DateTime.now().day, toHourLaunch, toMinuteLaunch)
         .difference(DateTime(DateTime.now().year, DateTime.now().month,
-        DateTime.now().day, fromHourLaunch, fromMinuteLaunch));
+            DateTime.now().day, fromHourLaunch, fromMinuteLaunch));
     int hour = difference.inHours;
     int minute = difference.inMinutes;
     breakMin = (hour * 60) + minute;
@@ -1477,7 +1346,7 @@ class _ServiceFormState extends State<ServiceForm> {
 
           String body = json.encode({
             'auth_code':
-            (await Preferences().getPrefString(Preferences.prefAuthCode)),
+                (await Preferences().getPrefString(Preferences.prefAuthCode)),
             'rosterId': widget.model.rosterID != null
                 ? widget.model.rosterID.toString()
                 : "0",
@@ -1485,9 +1354,9 @@ class _ServiceFormState extends State<ServiceForm> {
                 ? widget.model.rESID.toString()
                 : "0",
             'userId':
-            widget.model.empID != null ? widget.model.empID.toString() : 0,
+                widget.model.empID != null ? widget.model.empID.toString() : 0,
             'shiftComments': _controllerTimeSheetComments.text + " ",
-            'riskAlert': isRiskAlert.toString(),
+            'riskAlert': isRecurringService.toString(),
             'tsId': widget.model.timesheetID != null
                 ? widget.model.timesheetID.toString()
                 : "0",
@@ -1495,7 +1364,7 @@ class _ServiceFormState extends State<ServiceForm> {
           print(body);
 
           Response response = await http.post(
-              Uri.parse("$mainUrl$updateShiftCommentsAndSendRiskAlert"),
+              Uri.parse("$masterURL$updateShiftCommentsAndSendRiskAlert"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1539,7 +1408,7 @@ class _ServiceFormState extends State<ServiceForm> {
 
           String body = json.encode({
             'auth_code':
-            (await Preferences().getPrefString(Preferences.prefAuthCode)),
+                (await Preferences().getPrefString(Preferences.prefAuthCode)),
             'timesheetID': widget.model.timesheetID != null
                 ? widget.model.timesheetID.toString()
                 : "0",
@@ -1558,8 +1427,10 @@ class _ServiceFormState extends State<ServiceForm> {
             'TSLBTo': isIncludeLaunchBrake
                 ? "1899-12-30 ${_controllerToLaunch.text}"
                 : "1899-12-30 00:00",
-            'TSHours':timeToDecimal(totalWorkMin),
-            'TSTravelDistance': _controllerTravelDistance.text.isEmpty ? "0.0" : _controllerTravelDistance.text,
+            'TSHours': timeToDecimal(totalWorkMin),
+            'TSTravelDistance': _controllerTravelDistance.text.isEmpty
+                ? "0.0"
+                : _controllerTravelDistance.text,
             'TSComments': _controllerTimeSheetComments.text + " ",
             'TSConfirm': tsconfirm,
             'TSHoursDiff': 0.0, //not in use
@@ -1567,14 +1438,17 @@ class _ServiceFormState extends State<ServiceForm> {
             'TSTravelTime': timeToDecimal(travelMin),
             'tsHoursDifference': diffHours,
             'empID':
-            widget.model.empID != null ? widget.model.empID.toString() : 0,
+                widget.model.empID != null ? widget.model.empID.toString() : 0,
             'RosterDate': DateFormat("dd/MM/yyyy")
                 .format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
-            'RiskAlert': isRiskAlert.toString(),
+            'RiskAlert': isRecurringService.toString(),
             'clientID': widget.model.rESID != null
                 ? widget.model.rESID.toString()
                 : "0",
-            'TSClientTravelDistance': _controllerClientTravelDistance.text.isEmpty ?  "0.0" : _controllerClientTravelDistance.text,
+            'TSClientTravelDistance':
+                _controllerClientTravelDistance.text.isEmpty
+                    ? "0.0"
+                    : _controllerClientTravelDistance.text,
             'ssEmployeeID': widget.model.servicescheduleemployeeID != null
                 ? widget.model.servicescheduleemployeeID.toString()
                 : "0",
@@ -1590,7 +1464,7 @@ class _ServiceFormState extends State<ServiceForm> {
           }
 
           Response response = await http.post(
-              Uri.parse("$mainUrl$endSaveTimesheet"),
+              Uri.parse("$masterURL$endSaveTimesheet"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1658,7 +1532,7 @@ class _ServiceFormState extends State<ServiceForm> {
 
       Position position = await Geolocator.getCurrentPosition();
       List<Placemark> addressList =
-      await placemarkFromCoordinates(position.latitude, position.longitude);
+          await placemarkFromCoordinates(position.latitude, position.longitude);
 
       Placemark placeMark = addressList[0];
       String address = "";
@@ -1694,9 +1568,9 @@ class _ServiceFormState extends State<ServiceForm> {
   saveLocationTime(String address, String sSEID) async {
     Map<String, dynamic> params = {
       'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+          (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid':
-      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+          (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
       'servicescheduleemployeeID': sSEID,
       'Location': address,
       'SaveTimesheet': "true",
@@ -1740,6 +1614,91 @@ class _ServiceFormState extends State<ServiceForm> {
         showSnackBarWithText(_keyScaffold.currentState, stringErrorNoInterNet);
       }
     });
+  }
+}
+
+enum Calendar { day, week, month, year }
+
+class SingleChoice extends StatefulWidget {
+  const SingleChoice({super.key});
+
+  @override
+  State<SingleChoice> createState() => _SingleChoiceState();
+}
+
+class _SingleChoiceState extends State<SingleChoice> {
+  Calendar calendarView = Calendar.day;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<Calendar>(
+      showSelectedIcon: false,
+      segments: const <ButtonSegment<Calendar>>[
+        ButtonSegment<Calendar>(
+          value: Calendar.day,
+          label: Text('Daily'),
+        ),
+        ButtonSegment<Calendar>(
+          value: Calendar.week,
+          label: Text('Weekly'),
+        ),
+        ButtonSegment<Calendar>(
+          value: Calendar.month,
+          label: Text('Fortnightly'),
+        ),
+      ],
+      selected: <Calendar>{calendarView},
+      onSelectionChanged: (Set<Calendar> newSelection) {
+        setState(() {
+          // By default there is only a single segment that can be
+          // selected at one time, so its value is always the first
+          // item in the selected set.
+          calendarView = newSelection.first;
+        });
+      },
+    );
+  }
+}
+
+enum Day { mon, tue, wed, thu, fri, sat, sun }
+
+class MultipleChoice extends StatefulWidget {
+  const MultipleChoice({super.key});
+
+  @override
+  State<MultipleChoice> createState() => _MultipleChoiceState();
+}
+
+class _MultipleChoiceState extends State<MultipleChoice> {
+  Set<Day> selection = <Day>{Day.mon};
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<Day>(
+      segments: const <ButtonSegment<Day>>[
+        ButtonSegment<Day>(value: Day.mon, label: Text('M')),
+        ButtonSegment<Day>(value: Day.tue, label: Text('T')),
+        ButtonSegment<Day>(value: Day.wed, label: Text('W')),
+        ButtonSegment<Day>(
+          value: Day.thu,
+          label: Text('T'),
+        ),
+        ButtonSegment<Day>(value: Day.fri, label: Text('F')),
+        ButtonSegment<Day>(
+          value: Day.sat,
+          label: Text('S'),
+        ),
+        ButtonSegment<Day>(value: Day.sun, label: Text('S')),
+      ],
+      selected: selection,
+      showSelectedIcon: false,
+      onSelectionChanged: (Set<Day> newSelection) {
+        setState(() {
+          selection = newSelection;
+        });
+      },
+      multiSelectionEnabled: true,
+    );
   }
 }
 

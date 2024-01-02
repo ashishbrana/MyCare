@@ -1,7 +1,7 @@
-String baseUrlWithHttp = "https://mycare-web.mycaresoftware.com/";
-String baseUrl = 'mycare-web.mycaresoftware.com';
-String nestedUrl = 'MobileAPI/v1.asmx/';
-String mainUrl = baseUrlWithHttp+nestedUrl;
+String baseUrlWithHttp = "";
+String baseUrl = '';
+String nestedUrl = '';
+String masterURL = "1";
 
 const String endLogin = 'Login';
 const String endTimeSheets = 'timesheets';
@@ -33,7 +33,10 @@ const String endsaveDSNDetails = 'saveDSNDetails';
 const String updateShiftCommentsAndSendRiskAlert = 'updateShiftCommentsAndSendRiskAlert';
 
 
-const String ClientFundingDetails = 'ClientFundingDetails';
+const String endClientFundingDetails = 'ClientFundingDetails';
+const String getFundingServiceType = 'getFundingServiceType';
+const String clientservicetype = 'clientservicetype';
+
 
 
 

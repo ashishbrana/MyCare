@@ -10,8 +10,9 @@ import 'package:rcare_2/screen/home/notes/DNSNotesDetails.dart';
 import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
@@ -255,14 +256,11 @@ class _DNSListState extends State<DNSList> {
                                                         ),
                                                       ),
                                                       const SizedBox(width: 10),
-                                                      Text(
-                                                        "${model.taskcompleted == false ? "Not Completed" : "Completed"}",
-                                                        style: const TextStyle(
-                                                          color:
-                                                              Color(0xFF337ab7),
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
+                                                      Icon(
+                                                        Icons.check_circle_rounded,
+                                                        color: model.taskcompleted == true ? colorRed : colorOrange,
+                                                        size: 22,
+                                                      ),
                                                     ],
                                                   ),
                                                 ),
@@ -385,7 +383,7 @@ class _DNSListState extends State<DNSList> {
                                             const SizedBox(
                                                 width: spaceHorizontal / 2),
                                             ThemedText(
-                                              text: "Comments:",
+                                              text: "Desc:",
                                               color: colorBlack,
                                               fontSize: 12,
                                             ),
@@ -394,7 +392,7 @@ class _DNSListState extends State<DNSList> {
                                             Expanded(
                                               child: ThemedText(
                                                 text: model
-                                                        .taskcompletedcomments ??
+                                                        .taskdescription ??
                                                     "",
                                                 color: colorBlack,
                                                 fontSize: 12,
@@ -427,7 +425,7 @@ class _DNSListState extends State<DNSList> {
                                             const SizedBox(
                                                 width: spaceHorizontal / 2),
                                             ThemedText(
-                                              text: "Description:",
+                                              text: "Com:",
                                               color: colorBlack,
                                               fontSize: 12,
                                             ),
@@ -436,7 +434,7 @@ class _DNSListState extends State<DNSList> {
                                             Expanded(
                                               child: ThemedText(
                                                 text:
-                                                    model.taskdescription ?? "",
+                                                    model.taskcompletedcomments ?? "",
                                                 color: colorBlack,
                                                 maxLine: 3,
                                                 fontSize: 12,

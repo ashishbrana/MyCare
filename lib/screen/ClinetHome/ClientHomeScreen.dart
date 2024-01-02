@@ -7,8 +7,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/ClinetHome/ServiceForm.dart';
+import 'package:rcare_2/screen/ClinetHome/model/ClientFundingDetail.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
@@ -22,7 +22,9 @@ import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 
-import '../../Network/API.dart';
+
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/GlobalMethods.dart';
 import '../../utils/Preferences.dart';
@@ -35,8 +37,7 @@ import '../home/models/ProgressNoteModel.dart';
 
 
 DateTime fromDate = DateTime.now();
-DateTime toDate = DateTime(
-    DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
+DateTime toDate = fromDate.addDays(14);
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
 GlobalKey<ScaffoldState> keyScaffold = GlobalKey<ScaffoldState>();
@@ -59,8 +60,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   List<TimeShiteModel> unConfirmedDataList = [];
   List<TimeShiteModel> timeSheetDataList = [];
   List<TimeShiteModel> availableDataList = [];
-  List<ProgressNoteModel> notesDataList = [];
-  List<ProgressNoteModel> notesTempList = [];
+  List<ClientFundingDetail> fundingList = [];
+  List<ClientFundingDetail> notesTempList = [];
   List<TimeShiteModel> mainList = [];
   List<TimeShiteModel> tempList = [];
 
@@ -81,7 +82,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     super.initState();
 
     getData();
-    getAvailableShiftsData();
+    loadFundingServiceType();
+    loadclientServiceType();
     getFundingList();
   }
 
@@ -138,9 +140,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   confirmedDataList.add(model);
                   DateTime? serviceDate =
                   getDateTimeFromEpochTime(model.serviceDate!);
-                  if (serviceDate!
-                      .compareTo(DateTime.now().add(Duration(days: 1))) <
-                      0) {
+                  if (serviceDate!.isToday){
                     timeSheetDataList.add(model);
                   }
                 } else if (model.empID != 0 && model.timesheetStatus == true) {
@@ -216,22 +216,84 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     });
   }
 
-  getAvailableShiftsData() async {
+  loadFundingServiceType() async {
     print("availableDataList getAvailableShiftsData");
     userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
       (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid':
-      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
-      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
-      'todate': DateFormat("yyyy/MM/dd").format(toDate),
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString()
     };
     print("getAvailableShiftsData : ${params}");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(endAvailableShifts, params: params).toString(),
+            url: getUrl(getFundingServiceType, params: params).toString(),
+            authMethod: '',
+            body: '',
+            headerType: '',
+            params: '',
+            method: 'GET');
+        getOverlay(context);
+        try {
+          String response = await HttpService().init(request, keyScaffold);
+          print("availableDataList $endAvailableShifts $response");
+          removeOverlay();
+          if (response != null && response != "") {
+            // print('res ${response}');
+
+            List jResponse = json.decode(response);
+            // print("jResponse $endAvailableShifts $jResponse");
+            availableDataList.clear();
+            availableDataList =
+                jResponse.map((e) => TimeShiteModel.fromJson(e)).toList();
+            print("availableDataList : ${availableDataList.length}");
+
+            if (bottomCurrentIndex == 3) {
+              mainList.addAll(availableDataList);
+              tempList.clear();
+              tempList.addAll(mainList);
+              print("availableDataList ${availableDataList.length}");
+            }
+            setState(() {});
+          } else {
+            showSnackBarWithText(
+                keyScaffold.currentState, stringSomeThingWentWrong);
+          }
+          removeOverlay();
+        } catch (e) {
+          print("ERROR : $e");
+          availableDataList.clear();
+          mainList.addAll(availableDataList);
+          tempList.clear();
+          tempList.addAll(mainList);
+          setState(() {});
+          removeOverlay();
+        } finally {
+          removeOverlay();
+          setState(() {});
+        }
+      } else {
+        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
+      }
+    });
+  }
+
+  loadclientServiceType() async {
+    print("availableDataList getAvailableShiftsData");
+    userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    Map<String, dynamic> params = {
+      'auth_code':
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'userid':
+      (await Preferences().getPrefInt(Preferences.prefUserID)).toString()
+    };
+    print("getAvailableShiftsData : ${params}");
+    isConnected().then((hasInternet) async {
+      if (hasInternet) {
+        HttpRequestModel request = HttpRequestModel(
+            url: getUrl(clientservicetype, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',
@@ -297,11 +359,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       'isCareworkerSpecific': "1",
       'rosterid': "0",
     };
-    print("params : ${params}");
+    print("getFundingList : ${params}");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(ClientFundingDetails, params: params).toString(),
+            url: getUrl(endClientFundingDetails, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',
@@ -310,30 +372,28 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         getOverlay(context);
         try {
           String response = await HttpService().init(request, keyScaffold);
-          log("$progressNotesList : $response");
           removeOverlay();
           if (response != null && response != "") {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-            print("jResponse $jResponse");
-           /* notesDataList =
-                jResponse.map((e) => ProgressNoteModel.fromJson(e)).toList();
+            print("getFundingList $jResponse");
+            fundingList =
+                jResponse.map((e) => ClientFundingDetail.fromJson(e)).toList();
             notesTempList.clear();
-            notesTempList.addAll(notesDataList);
-            print("NOTES : ${notesDataList.length}");
-
+            notesTempList.addAll(fundingList);
+            print("NOTES : ${fundingList.length}");
             int accType =
             await Preferences().getPrefInt(Preferences.prefAccountType);
 
-            setState(() {});*/
+            setState(() {});
           } else {
             showSnackBarWithText(
                 keyScaffold.currentState, stringSomeThingWentWrong);
           }
           removeOverlay();
         } catch (e) {
-          print("ERROR : $e");
+          print("ERRORparsing : $e");
           removeOverlay();
         } finally {
           removeOverlay();
@@ -821,7 +881,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               keyScaffold.currentState!.closeEndDrawer();
                             }
                             getData();
-                            getAvailableShiftsData();
+                            loadFundingServiceType();
                             getFundingList();
                             Navigator.pop(context);
                           },
@@ -884,13 +944,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               if (bottomCurrentIndex == 4) {
                 if (string.isNotEmpty && string.length > 1) {
                   notesTempList = [];
-                  for (ProgressNoteModel model in notesDataList) {
-                    if ((model.serviceName != null &&
-                        model.serviceName!
+                  for (ClientFundingDetail model in fundingList) {
+                    if ((model.fundingServiceName != null &&
+                        model.fundingServiceName!
                             .toLowerCase()
                             .contains(string.toLowerCase())) ||
-                        (model.serviceName != null &&
-                            model.serviceName!
+                        (model.sourceType != null &&
+                            model.sourceType!
                                 .toLowerCase()
                                 .contains(string.toLowerCase()))) {
                       notesTempList.add(model);
@@ -898,7 +958,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   }
                 } else {
                   notesTempList = [];
-                  notesTempList.addAll(notesDataList);
+                  notesTempList.addAll(fundingList);
                 }
                 setState(() {});
               } else {
@@ -937,7 +997,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               child: InkWell(
                 onTap: () {
                   getData();
-                  getAvailableShiftsData();
+                  loadFundingServiceType();
                   getFundingList();
                 },
                 child: const Center(
@@ -996,7 +1056,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 horizontal: spaceHorizontal, vertical: spaceVertical),
             child: ThemedText(
               text:
-              "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex == 2 ? "TimeSheet" : bottomCurrentIndex == 3 ? "Available" : bottomCurrentIndex == 4 ? "ProgressNotes" : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
+              "${bottomCurrentIndex == 1 ? "UnConfirmed" : bottomCurrentIndex == 2 ? "Completed" : bottomCurrentIndex == 3 ? "u" : bottomCurrentIndex == 4 ? "Funding" : "Confirmed"} : ${DateFormat("dd-MM-yyyy").format(fromDate)} - ${DateFormat("dd-MM-yyyy").format(toDate)}",
               fontSize: 18,
               fontWeight: FontWeight.w500,
               color: colorGreyText,
@@ -1070,8 +1130,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                                       ),
                                                     ),
                                                     TextSpan(
-                                                      text: model
-                                                          .serviceName,
+                                                      text:  " ${model.serviceName}",
                                                       style:
                                                       const TextStyle(
                                                         color:
@@ -1082,85 +1141,22 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                                         fontSize: 14,
                                                       ),
                                                     ),
+                                                    TextSpan(
+                                                      text: " ${model.emplName}",
+                                                      style:
+                                                      const TextStyle(
+                                                        color:
+                                                        colorGreyText,
+                                                        fontWeight:
+                                                        FontWeight
+                                                            .w400,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
                                             ),
-                                            if (bottomCurrentIndex !=
-                                                3 &&
-                                                model.noteID != 0)
-                                              InkWell(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder:
-                                                          (context) =>
-                                                          ProgressNoteListByNoteId(
-                                                            userId: model
-                                                                .empID ??
-                                                                0,
-                                                            noteID: model
-                                                                .noteID ??
-                                                                0,
-                                                            rosterID:
-                                                            model.rosterID ??
-                                                                0,
-                                                          ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: const FaIcon(
-                                                  FontAwesomeIcons
-                                                      .calendarDays,
-                                                  size: 22,
-                                                ),
-                                              ),
-                                            const SizedBox(
-                                                width:
-                                                spaceHorizontal /
-                                                    2),
-                                            if (bottomCurrentIndex !=
-                                                3)
-                                              InkWell(
-                                                onTap: () {
-                                                  print(
-                                                      "CareWorkerList ${model.empID} ${model.rosterID}");
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder:
-                                                          (context) =>
-                                                          CareWorkerList(
-                                                            userId: model
-                                                                .empID ??
-                                                                0,
-                                                            rosterID:
-                                                            model.rosterID ??
-                                                                0,
-                                                            model: model,
-                                                          ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  decoration:
-                                                  BoxDecoration(
-                                                    color:
-                                                    Colors.black,
-                                                    borderRadius:
-                                                    BorderRadius
-                                                        .circular(
-                                                        5),
-                                                  ),
-                                                  child: const Icon(
-                                                      CupertinoIcons
-                                                          .person_crop_circle,
-                                                      color: Colors
-                                                          .white,
-                                                      size: 22),
-                                                ),
-                                              ),
                                           ],
                                         ),
                                         const SizedBox(height: 8),
@@ -1224,15 +1220,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                                           const SizedBox(
                                                               width:
                                                               5),
-                                                          if (getDateTimeFromEpochTime(
-                                                              model.serviceDate!) !=
-                                                              null)
                                                             Text(
-                                                              // model.serviceDate!,
-                                                              model.serviceDate !=
-                                                                  null
-                                                                  ? DateFormat("EEE,dd-MM-yyyy").format(getDateTimeFromEpochTime(model.serviceDate!)!)
-                                                                  : "",
+                                                              formatServiceDate(model.serviceDate),
                                                               style:
                                                               const TextStyle(
                                                                 color:
@@ -1344,252 +1333,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                                 ),
                                               ),
                                             ),
-                                            const SizedBox(width: 5),
-                                            if ((bottomCurrentIndex == 0 ||
-                                                bottomCurrentIndex ==
-                                                    2) &&
-                                                model.tSConfirm ==
-                                                    false &&
-                                                serviceDate != null &&
-                                                serviceDate.isToday)
-                                              InkWell(
-                                                onTap: model.locationName !=
-                                                    null &&
-                                                    model
-                                                        .locationName!
-                                                        .isNotEmpty
-                                                    ? null
-                                                    : () {
-                                                  showDialog(
-                                                    context:
-                                                    context,
-                                                    builder:
-                                                        (context) =>
-                                                        Dialog(
-                                                          shape: RoundedRectangleBorder(
-                                                              borderRadius:
-                                                              boxBorderRadius),
-                                                          child:
-                                                          Padding(
-                                                            padding: const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal:
-                                                                spaceHorizontal,
-                                                                vertical:
-                                                                spaceVertical),
-                                                            child:
-                                                            Column(
-                                                              mainAxisSize:
-                                                              MainAxisSize.min,
-                                                              children: [
-                                                                ThemedText(text: "Are You Sure You Want To Logon The Shift ?"),
-                                                                const SizedBox(height: spaceVertical),
-                                                                Row(
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child: ThemedButton(
-                                                                        onTap: () {
-                                                                          Navigator.pop(context);
-                                                                        },
-                                                                        title: "Cancel",
-                                                                        fontSize: 18,
-                                                                        padding: EdgeInsets.zero,
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: spaceHorizontal / 2,
-                                                                    ),
-                                                                    Expanded(
-                                                                      child: ThemedButton(
-                                                                        onTap: () async {
-                                                                          Navigator.pop(context);
-                                                                          String? address = await getAddress();
-                                                                          if (address != null) {
-                                                                            print("ADDRESS : $address");
-                                                                            saveLocationTime(address, (model.servicescheduleemployeeID ?? 0).toString());
-                                                                          }
-                                                                        },
-                                                                        title: "Ok",
-                                                                        fontSize: 18,
-                                                                        padding: EdgeInsets.zero,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                  );
-                                                },
-                                                child: FaIcon(
-                                                  Icons.history,
-                                                  color: model.locationName !=
-                                                      null &&
-                                                      model
-                                                          .locationName!
-                                                          .isNotEmpty
-                                                      ? colorGreen
-                                                      : colorRed,
-                                                  size: 22,
-                                                ),
-                                              ),
-                                            if ((bottomCurrentIndex ==
-                                                0 ||
-                                                bottomCurrentIndex ==
-                                                    2) &&
-                                                serviceDate != null &&
-                                                serviceDate.isToday)
-                                              const SizedBox(
-                                                  width:
-                                                  spaceHorizontal /
-                                                      2),
-                                            if ((bottomCurrentIndex ==
-                                                0 ||
-                                                bottomCurrentIndex ==
-                                                    2) &&
-                                                (model.resName ==
-                                                    "Group Service" ||
-                                                    model.noteID !=
-                                                        0))
-                                              model.resName ==
-                                                  "Group Service"
-                                                  ? InkWell(
-                                                onTap: () {
-                                                  selectedModel =
-                                                      model;
-
-                                                  setState(() {
-                                                    bottomCurrentIndex =
-                                                    5;
-                                                  });
-                                                },
-
-                                              )
-                                                  : InkWell(
-                                                onTap: () {
-                                                  print(
-                                                      "progressnote 1");
-                                                  if (model
-                                                      .resName !=
-                                                      "Group Service") {
-                                                    Navigator
-                                                        .push(
-                                                      keyScaffold
-                                                          .currentContext!,
-                                                      MaterialPageRoute(
-                                                        builder:
-                                                            (context) =>
-                                                            ProgressNoteDetails(
-                                                              userId:
-                                                              model.empID ?? 0,
-                                                              noteId:
-                                                              model.noteID ?? 0,
-                                                              clientId:
-                                                              model.rESID ?? 0,
-                                                              servicescheduleemployeeID:
-                                                              model.servicescheduleemployeeID ?? 0,
-                                                              serviceShceduleClientID:
-                                                              model.serviceShceduleClientID ?? 0,
-                                                              serviceName:
-                                                              model.serviceName ?? "",
-                                                              clientName:
-                                                              "${model.resName} - ${model.rESID.toString().padLeft(5, "0")}",
-                                                              noteWriter:
-                                                              "",
-                                                              serviceDate:
-                                                              getDateTimeFromEpochTime(model.serviceDate ?? "") ?? DateTime.now(),
-                                                            ),
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    selectedModel =
-                                                        model;
-
-                                                    setState(
-                                                            () {
-                                                          bottomCurrentIndex =
-                                                          5;
-                                                        });
-                                                  }
-                                                },
-                                                child:
-                                                const FaIcon(
-                                                  // FontAwesomeIcons.notesMedical,
-                                                  Icons
-                                                      .note_alt_outlined,
-                                                  color: Colors
-                                                      .green,
-                                                  size: 22,
-                                                ),
-                                              ),
-                                            const SizedBox(
-                                                width:
-                                                spaceHorizontal /
-                                                    2),
-                                            if (model.dsnId != 0 &&
-                                                bottomCurrentIndex !=
-                                                    3)
-                                              InkWell(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => DNSList(
-                                                          userId:
-                                                          model.empID ??
-                                                              0,
-                                                          rosterID:
-                                                          model.serviceShceduleClientID ??
-                                                              0),
-                                                    ),
-                                                  );
-                                                },
-                                                child: const FaIcon(
-                                                  FontAwesomeIcons
-                                                      .lifeRing,
-                                                  size: 22,
-                                                ),
-                                              ),
-                                            if (model.dsnId != 0)
-                                              const SizedBox(
-                                                  width:
-                                                  spaceHorizontal /
-                                                      2),
-                                            if (bottomCurrentIndex ==
-                                                2 &&
-                                                model.tSConfirm ==
-                                                    true)
-                                              Icon(
-                                                Icons
-                                                    .check_circle_rounded,
-                                                color: model.locationName ==
-                                                    "" ||
-                                                    model.logOffLocationName ==
-                                                        ""
-                                                    ? colorRed
-                                                    : colorGreen,
-                                                size: 22,
-                                              ),
-                                            if (bottomCurrentIndex ==
-                                                2)
-                                              const SizedBox(
-                                                  width:
-                                                  spaceHorizontal /
-                                                      2),
-                                            /*const Expanded(
-                                            child: Icon(
-                                          Icons.timelapse_rounded,
-                                          color: colorGreen,
-                                          size: 26,
-                                        )),*/
-                                            // const SizedBox(width: 5),
-                                            Container(
-                                              width: 1,
-                                              height: 30,
-                                              color:
-                                              colorGreyBorderD3,
-                                            ),
                                           ],
                                         ),
                                       ],
@@ -1601,15 +1344,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                       Navigator.push(
                                         keyScaffold.currentContext!,
                                         MaterialPageRoute(
-                                          builder: (context) => model
-                                              .tSConfirm ==
-                                              false
-                                              ? TimeSheetDetail(
-                                            model: model,
-                                            indexSelectedFrom:
-                                            bottomCurrentIndex,
-                                          )
-                                              : TimeSheetForm(
+                                          builder: (context) =>  ServiceForm(
                                               model: model,
                                               indexSelectedFrom:
                                               bottomCurrentIndex),
@@ -1618,7 +1353,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                         if (value != null) {
                                           if (value == 0) {
                                             getData();
-                                            getAvailableShiftsData();
+                                            loadFundingServiceType();
                                             getFundingList();
                                           } else if (value == 1) {
                                             bottomCurrentIndex = 5;
@@ -1639,18 +1374,25 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                 ],
                               ),
                               if (selectedExpandedIndex == index)
+                              Row( // this row has full width
+                              children: [
+                                const SizedBox(width: 40),
                                 Column(
                                   crossAxisAlignment:
                                   CrossAxisAlignment.start,
                                   children: [
                                     ThemedText(
-                                        text: model.shiftComments !=
+                                        textAlign: TextAlign.start,
+                                        color: Colors.black,
+                                        text: (model.shiftComments !=
                                             null &&
-                                            model.shiftComments!
+                                            model.shiftComments!.trim()
                                                 .isNotEmpty
                                             ? model.shiftComments!
-                                            : "No shift comments provided."),
+                                            : "No shift comments provided.")),
                                     ThemedText(
+                                        textAlign: TextAlign.start,
+                                        color: Colors.black,
                                         text: model.comments !=
                                             null &&
                                             model.comments!
@@ -1658,180 +1400,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                             ? model.comments!
                                             : "No client comments provided."),
                                     const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        launchUrlMethod(
-                                            "http://maps.google.com/?q=${model.resAddress}");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons
-                                                    .locationDot,
-                                                color: colorGreen,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text: model
-                                                    .resAddress ??
-                                                    ""),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        launchUrlMethod(
-                                            "tel:${model.resHomePhone}");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons
-                                                    .phoneVolume,
-                                                color: colorGreen,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text: model
-                                                    .resHomePhone ??
-                                                    ""),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        launchUrlMethod(
-                                            "tel:${model.resMobilePhone}");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons
-                                                    .mobileAlt,
-                                                color: colorGreen,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text: model
-                                                    .resMobilePhone ??
-                                                    ""),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ClientDocument(
-                                                  id: (model.clientID ??
-                                                      0)
-                                                      .toString(),
-                                                  resId:
-                                                  (model.rESID ?? 0)
-                                                      .toString(),
-                                                ),
-                                          ),
-                                        );
-                                        // _launchUrl(
-                                        //     "https://mycare.mycaresoftware.com/Uploads/client/5/MyDocs/Cappadocia1.jpg");
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons
-                                                    .fileLines,
-                                                color: colorGreen,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text:
-                                                "View Client Documents"),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 7),
-                                    InkWell(
-                                      onTap: () {
-                                        print(
-                                            "model.clientID : ${model.rESID}");
-                                        Navigator.of(keyScaffold
-                                            .currentContext!)
-                                            .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              ClientInfo(
-                                                clientId:
-                                                (model.rESID ?? 0)
-                                                    .toString(),
-                                              ),
-                                        ));
-                                      },
-                                      child: Row(
-                                        children: [
-                                          const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons
-                                                    .circleInfo,
-                                                color: colorGreen,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                              width: spaceHorizontal),
-                                          Expanded(
-                                            child: ThemedText(
-                                                text:
-                                                "View Client Info"),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 7),
                                   ],
                                 ),
+                        ])
                             ],
                           ),
                         );
@@ -1861,7 +1432,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     itemCount: notesTempList.length,
                     primary: true,
                     itemBuilder: (context, index) {
-                      ProgressNoteModel model = notesTempList[index];
+                      ClientFundingDetail model = notesTempList[index];
                       return Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
@@ -1880,17 +1451,22 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
+                                  Row(
+                                  children: [
+
                                       ThemedText(
-                                          text: "${model.serviceName}",
+                                          text: "${model.fundingServiceName}",
                                           color: colorBlack,
                                           fontWeight: FontWeight.w400,
                                           fontSize: 16),
                                       ThemedText(
                                           text:
-                                          "Note Writer: ${model.createdByName}",
+                                          " ${model.sourceType}",
                                           color: colorGreyLiteText,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16),
+                                      ]
+                                  ),
                                       const SizedBox(height: 8),
                                       Container(
                                         width:
@@ -1934,29 +1510,21 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                                         size: 16,
                                                       ),
                                                       const SizedBox(width: 5),
-                                                      Text(
-                                                        // model.serviceDate!,
-                                                        model.noteDate != null
-                                                            ? DateFormat(
-                                                            "EEE,dd-MM-yyyy")
-                                                            .format(
-                                                          DateTime.fromMillisecondsSinceEpoch(
-                                                              int.parse(model
-                                                                  .noteDate!
-                                                                  .replaceAll("/Date(",
-                                                                  "")
-                                                                  .replaceAll(")/",
-                                                                  "")),
-                                                              isUtc:
-                                                              false)
-                                                              .add(
-                                                            Duration(
-                                                                hours: 5,
-                                                                minutes:
-                                                                30),
-                                                          ),
-                                                        )
-                                                            : "",
+                                                  Text( formatServiceDate(model.startDate),
+                                                        style: TextStyle(
+                                                          color: colorGreyText,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      const FaIcon(
+                                                        FontAwesomeIcons
+                                                            .calendarDays,
+                                                        color: colorGreen,
+                                                        size: 16,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text( formatServiceDate(model.endDate),
                                                         style: TextStyle(
                                                           color: colorGreyText,
                                                           fontSize: 14,
@@ -1972,37 +1540,17 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                                     ],
                                                   ),
                                                 ),
-                                                WidgetSpan(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                    MainAxisSize.min,
-                                                    children: [
-                                                      const SizedBox(width: 5),
-                                                      ThemedText(
-                                                          text: model.subject!,
-                                                          color: colorGreyText,
-                                                          fontSize: 14),
-                                                    ],
-                                                  ),
-                                                ),
                                               ],
                                             ),
                                           ),
                                         ],
                                       ),
-                                      ThemedText(
-                                          text: model.tSid != 0
-                                              ? "Timesheet"
-                                              : "",
-                                          color: colorLiteBlue,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16),
                                     ],
                                   ),
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    print("progressnote 2");
+                                   /* print("progressnote 2");
                                     if (keyScaffold.currentContext != null) {
                                       Navigator.of(keyScaffold.currentContext!)
                                           .push(
@@ -2031,7 +1579,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                               ),
                                         ),
                                       );
-                                    }
+                                    }*/
                                   },
                                   child: const Align(
                                     child: Icon(
@@ -2053,23 +1601,14 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                       Expanded(
                                         child: Row(
                                           children: [
-                                            const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Center(
-                                                child: FaIcon(
-                                                  Icons.access_time_rounded,
-                                                  color: colorGreen,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal),
+                                           const SizedBox(
+                                                width: 30),
                                             Expanded(
                                               child: ThemedText(
                                                 text:
-                                                "Time ${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
-                                                fontSize: 12,
+                                                "Budget: \$${model.budget?.toDouble().toInt() ?? "0"}",
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold
                                               ),
                                             ),
                                           ],
@@ -2079,22 +1618,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                         child: Row(
                                           children: [
                                             const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Center(
-                                                child: FaIcon(
-                                                  Icons.access_time,
-                                                  color: colorGreen,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
                                                 width: spaceHorizontal),
                                             Expanded(
                                               child: ThemedText(
                                                 text:
-                                                "Total Hours ${model.totalHours ?? ""}hrs",
-                                                fontSize: 12,
+                                                "Utilised \$${model.utilizeTotal ?? ""}",
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold
                                               ),
                                             ),
                                           ],
@@ -2105,22 +1635,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                   const SizedBox(height: 7),
                                   Row(
                                     children: [
-                                      const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: Center(
-                                          child: FaIcon(
-                                            Icons.note_alt_sharp,
-                                            color: colorGreen,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: spaceHorizontal),
+                                      const SizedBox(width: 30),
                                       Expanded(
                                         child: ThemedText(
                                           text:
-                                          "Created By ${model.createdByName ?? ""}",
-                                          fontSize: 12,
+                                          "Balance: \$${model.balanceAmount ?? ""}",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold
                                         ),
                                       ),
                                     ],
@@ -2141,128 +1662,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     );
   }
 
-
-
-  Future<String?> getAddress() async {
-    try {
-      getOverlay(context);
-      bool serviceEnabled;
-      LocationPermission permission;
-
-      // Test if location services are enabled.
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        showSnackBarWithText(
-            keyScaffold.currentState, "Please Enable the Location!");
-        return Future.error('Location services are disabled.');
-      }
-
-      permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          showSnackBarWithText(
-              keyScaffold.currentState, "We need Location Permission!");
-          return Future.error('Location permissions are denied');
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        showSnackBarWithText(
-            keyScaffold.currentState, "We need Location Permission!");
-        return Future.error(
-            'Location permissions are permanently denied, we cannot request permissions.');
-      }
-
-      Position position = await Geolocator.getCurrentPosition();
-      List<Placemark> addressList =
-      await placemarkFromCoordinates(position.latitude, position.longitude);
-
-      Placemark placeMark = addressList[0];
-      String address = "";
-      void appendIfNotEmpty(String value) {
-        if (value.trim().isNotEmpty) {
-          address += "$value, ";
-        }
-      }
-
-      appendIfNotEmpty(placeMark.name ?? "");
-      appendIfNotEmpty(placeMark.subLocality ?? "");
-      appendIfNotEmpty(placeMark.locality ?? "");
-      appendIfNotEmpty(placeMark.administrativeArea ?? "");
-      appendIfNotEmpty(placeMark.postalCode ?? "");
-      appendIfNotEmpty(placeMark.country ?? "");
-
-      address = address.trim();
-      if (address.isNotEmpty) {
-        address = address.substring(0, address.length - 1);
-      }
-      return address;
-    } catch (e) {
-      showSnackBarWithText(keyScaffold.currentState, stringSomeThingWentWrong);
-      print(e);
-    } finally {
-      removeOverlay();
-      // setState(() {});
-    }
-    // return null;
-  }
-
-  saveLocationTime(String address, String sSEID) async {
-    userName = await Preferences().getPrefString(Preferences.prefUserFullName);
-    Map<String, dynamic> params = {
-      'auth_code':
-      (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'userid':
-      (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
-      'servicescheduleemployeeID': sSEID,
-      'Location': address,
-      'SaveTimesheet': "false",
-    };
-    print("params : ${params}");
-    isConnected().then((hasInternet) async {
-      if (hasInternet) {
-        HttpRequestModel request = HttpRequestModel(
-            url: getUrl(endSaveLocationTime, params: params).toString(),
-            authMethod: '',
-            body: '',
-            headerType: '',
-            params: '',
-            method: 'GET');
-        getOverlay(context);
-        try {
-          String response = await HttpService().init(request, keyScaffold);
-          removeOverlay();
-          if (response != null && response != "") {
-            // print('res ${response}');
-
-            if (json.decode(response)["status"] == 1) {
-              showSnackBarWithText(keyScaffold.currentState, "Success",
-                  color: colorGreen);
-              getData();
-              getAvailableShiftsData();
-              getFundingList();
-              // Navigator.pop(context);
-            }
-            setState(() {});
-          } else {
-            showSnackBarWithText(
-                keyScaffold.currentState, stringSomeThingWentWrong);
-          }
-          removeOverlay();
-        } catch (e) {
-          print("ERROR : $e");
-          removeOverlay();
-        } finally {
-          removeOverlay();
-          setState(() {});
-        }
-      } else {
-        showSnackBarWithText(keyScaffold.currentState, stringErrorNoInterNet);
-      }
-    });
-  }
-
   Widget getViewAsPerIndex(int index) {
     if (index < 4) {
       return _buildList(list: tempList);
@@ -2281,13 +1680,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         builder: (context) =>  ServiceForm(
             model: TimeShiteModel(),
             indexSelectedFrom:
-            bottomCurrentIndex),
+            -1),
       ),
     ).then((value) {
       if (value != null) {
         if (value == 0) {
           getData();
-          getAvailableShiftsData();
           getFundingList();
         } else if (value == 1) {
           bottomCurrentIndex = 5;
@@ -2325,7 +1723,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   MaterialPageRoute(
                     builder: (context) => ProfileTabScreen(),
                   ));*/
-              print(notesDataList.length);
+              print(fundingList.length);
               // mainList = availableDataList;
               bottomCurrentIndex = index;
               break;
@@ -2399,7 +1797,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       case 3:
         return availableDataList.length;
       case 4:
-        return notesDataList.length;
+        return fundingList.length;
       default:
         return confirmedDataList.length;
     }

@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/Network/ApiUrls.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../../Network/API.dart';
+
+import '../../../appconstant/API.dart';
+import '../../../appconstant/ApiUrls.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/Constants.dart';
@@ -213,20 +214,7 @@ class ProgressNoteState extends State<ProgressNote> {
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    // model.serviceDate!,
-                                    model.noteDate != null
-                                        ? DateFormat("EEE,dd-MM-yyyy").format(
-                                            DateTime.fromMillisecondsSinceEpoch(
-                                                    int.parse(model.noteDate!
-                                                        .replaceAll(
-                                                            "/Date(", "")
-                                                        .replaceAll(")/", "")),
-                                                    isUtc: false)
-                                                .add(
-                                              Duration(hours: 5, minutes: 30),
-                                            ),
-                                          )
-                                        : "",
+                                      formatServiceDate(model.noteDate),
                                     style: TextStyle(
                                       color: colorGreyText,
                                       fontSize: 14,

@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
@@ -204,7 +204,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                           "",
                                                       clientName:
                                                           "${widget.model.resName} - ${widget.model.rESID.toString().padLeft(5, "0")}",
-                                                      noteWriter: "",
+                                                      noteWriter: model.careWorkerName ?? "",
                                                       serviceDate:
                                                           getDateTimeFromEpochTime(
                                                                   widget.model
@@ -292,27 +292,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                         const SizedBox(
                                                             width: 5),
                                                         Text(
-                                                          // model.serviceDate!,
-                                                          model.serviceDate !=
-                                                                  null
-                                                              ? DateFormat(
-                                                                      "EEE,dd-MM-yyyy")
-                                                                  .format(
-                                                                  DateTime.fromMillisecondsSinceEpoch(
-                                                                          int.parse(model.serviceDate!.replaceAll("/Date(", "").replaceAll(
-                                                                              ")/",
-                                                                              "")),
-                                                                          isUtc:
-                                                                              false)
-                                                                      .add(
-                                                                    Duration(
-                                                                        hours:
-                                                                            5,
-                                                                        minutes:
-                                                                            30),
-                                                                  ),
-                                                                )
-                                                              : "",
+                                                            formatServiceDate(model.serviceDate),
                                                           style: TextStyle(
                                                             color:
                                                                 colorGreyText,

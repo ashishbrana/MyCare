@@ -11,8 +11,8 @@ import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import '../../Network/API.dart';
-import '../../network/ApiUrls.dart';
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
@@ -432,14 +432,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         const SizedBox(width: spaceHorizontal),
                         Text(
                           // model.serviceDate!,
-                          widget.model.serviceDate != null
-                              ? DateFormat("EEE,dd-MM-yyyy").format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      int.parse(widget.model.serviceDate!
-                                          .replaceAll("/Date(", "")
-                                          .replaceAll(")/", "")),
-                                      isUtc: false))
-                              : "",
+                            formatServiceDate(widget.model.serviceDate),
                           style: const TextStyle(
                             color: colorBlack,
                             fontSize: 12,
@@ -1558,7 +1551,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           print(body);
 
           Response response = await http.post(
-              Uri.parse("$mainUrl$updateShiftCommentsAndSendRiskAlert"),
+              Uri.parse("$masterURL$updateShiftCommentsAndSendRiskAlert"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);
@@ -1653,7 +1646,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           }
 
           Response response = await http.post(
-              Uri.parse("$mainUrl$endSaveTimesheet"),
+              Uri.parse("$masterURL$endSaveTimesheet"),
               headers: {"Content-Type": "application/json"},
               body: body);
           // response = await HttpService().init(request, _keyScaffold);

@@ -8,7 +8,9 @@ import 'package:intl/intl.dart';
 // import 'package:geolocator/geolocator.dart';
 // import 'package:platform_maps_flutter/platform_maps_flutter.dart';
 import 'dart:ui' as ui;
-import '../Network/ApiUrls.dart';
+
+import '../appconstant/ApiUrls.dart';
+
 
 Future<bool> isConnected() async {
   var connectivityResult = await (Connectivity().checkConnectivity());
@@ -56,6 +58,19 @@ DateTime getDateTime(String date) {
     return DateTime.now();
   }
 }
+
+String formatServiceDate(String? serviceDate) {
+  DateTime? dateTime = serviceDate != null
+      ? DateTime.fromMillisecondsSinceEpoch(
+      int.parse(serviceDate.replaceAll("/Date(", "").replaceAll(")/", "")),
+      isUtc: false)
+      : null;
+
+  return dateTime != null
+      ? DateFormat("EEE, dd-MM-yyyy").format(dateTime)
+      : "";
+}
+
 
 DateTime? getDateTimeFromEpochTime(String date) {
   try {
@@ -226,4 +241,48 @@ makeFirstLetterCapital(TextEditingController controller) {
     return;
   }
   return;
+}
+
+extension DateHelpers on DateTime {
+  bool get isToday {
+    final now = DateTime.now();
+    return now.day == day && now.month == month && now.year == year;
+  }
+
+  bool get isYesterday {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    return yesterday.day == day &&
+        yesterday.month == month &&
+        yesterday.year == year;
+  }
+
+  bool get isPassed {
+    final now = DateTime.now();
+    if (year < now.year) {
+      return true;
+    } else if (month < now.month) {
+      return true;
+    } else if (day < now.day) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool get isFutureDate {
+    final now = DateTime.now();
+    final inputDate = DateTime(year, month, day);
+
+    // Compare the entire DateTime objects
+    return inputDate.isAfter(now);
+  }
+
+  DateTime subtractDays(int days) {
+    return DateTime(this.year, this.month, this.day - days);
+  }
+
+  DateTime addDays(int days) {
+    return DateTime(this.year, this.month, this.day + days);
+  }
+
 }

@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/Login/Login.dart';
 import 'package:rcare_2/screen/home/CareWorkerList.dart';
 import 'package:rcare_2/screen/home/ClientDocument.dart';
@@ -21,7 +20,8 @@ import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 
-import '../../Network/API.dart';
+import '../../appconstant/API.dart';
+import '../../appconstant/ApiUrls.dart';
 import '../../utils/ConstantStrings.dart';
 import '../../utils/GlobalMethods.dart';
 import '../../utils/Preferences.dart';
@@ -33,8 +33,7 @@ import 'models/GroupServiceResponseModel.dart';
 import 'models/ProgressNoteModel.dart';
 
 DateTime fromDate = DateTime.now();
-DateTime toDate = DateTime(
-    DateTime.now().year, DateTime.now().month, DateTime.now().day + 15);
+DateTime toDate = fromDate.addDays(14);
 DateTime tempFromDate = DateTime.now();
 DateTime tempToDate = DateTime.now();
 GlobalKey<ScaffoldState> keyScaffold = GlobalKey<ScaffoldState>();
@@ -137,9 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   confirmedDataList.add(model);
                   DateTime? serviceDate =
                       getDateTimeFromEpochTime(model.serviceDate!);
-                  if (serviceDate!
-                          .compareTo(DateTime.now().add(Duration(days: 1))) <
-                      0) {
+                  if (serviceDate!.isToday){
                     timeSheetDataList.add(model);
                   }
                 } else if (model.empID != 0 && model.timesheetStatus == true) {
@@ -764,10 +761,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   sufFix: InkWell(
                     onTap: () {
-                      tempFromDate = DateTime(tempFromDate.year,
-                          tempFromDate.month, tempFromDate.day + 15);
-                      tempToDate = DateTime(tempFromDate.year,
-                          tempFromDate.month, tempFromDate.day + 15);
+                      tempFromDate = tempFromDate.addDays(15);
+                      tempToDate = tempFromDate.addDays(14);
                       _controllerFromDate.text =
                           DateFormat("dd-MM-yyyy").format(tempFromDate);
                       _controllerToDate.text =
@@ -818,10 +813,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   sufFix: InkWell(
                     onTap: () {
-                      tempFromDate = DateTime(tempFromDate.year,
-                          tempFromDate.month, tempFromDate.day - 15);
-                      tempToDate = DateTime(tempFromDate.year,
-                          tempFromDate.month, tempFromDate.day + 15);
+                      tempFromDate = tempFromDate.subtractDays(15);
+                      tempToDate = tempFromDate.addDays(14);
                       _controllerFromDate.text =
                           DateFormat("dd-MM-yyyy").format(tempFromDate);
                       _controllerToDate.text =
@@ -1288,11 +1281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             model.serviceDate!) !=
                                                                         null)
                                                                       Text(
-                                                                        // model.serviceDate!,
-                                                                        model.serviceDate !=
-                                                                                null
-                                                                            ? DateFormat("EEE,dd-MM-yyyy").format(getDateTimeFromEpochTime(model.serviceDate!)!)
-                                                                            : "",
+                                                                        formatServiceDate(model.serviceDate),
                                                                         style:
                                                                             const TextStyle(
                                                                           color:
@@ -2019,27 +2008,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       const SizedBox(width: 5),
                                                       Text(
                                                         // model.serviceDate!,
-                                                        model.noteDate != null
-                                                            ? DateFormat(
-                                                                    "EEE,dd-MM-yyyy")
-                                                                .format(
-                                                                DateTime.fromMillisecondsSinceEpoch(
-                                                                        int.parse(model
-                                                                            .noteDate!
-                                                                            .replaceAll("/Date(",
-                                                                                "")
-                                                                            .replaceAll(")/",
-                                                                                "")),
-                                                                        isUtc:
-                                                                            false)
-                                                                    .add(
-                                                                  Duration(
-                                                                      hours: 5,
-                                                                      minutes:
-                                                                          30),
-                                                                ),
-                                                              )
-                                                            : "",
+                                                        formatServiceDate(model.noteDate),
                                                         style: TextStyle(
                                                           color: colorGreyText,
                                                           fontSize: 14,
@@ -2368,11 +2337,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               spaceHorizontal /
                                                                   2),
                                                       ThemedText(
-                                                        text: DateFormat(
-                                                                "EEE,dd-MM-yyyy")
-                                                            .format(getDateTimeFromEpochTime(
-                                                                model
-                                                                    .serviceDate!)!),
+                                                        text: formatServiceDate(model
+                                                            .serviceDate),
                                                         color: colorGreyText,
                                                         fontSize: 12,
                                                       ),

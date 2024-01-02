@@ -8,8 +8,6 @@ import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:rcare_2/Network/GlobalMethods.dart';
-import 'package:rcare_2/network/ApiUrls.dart';
 import 'package:rcare_2/screen/home/models/ProfileModel.dart';
 import 'package:rcare_2/screen/login/ChangePassword.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
@@ -17,7 +15,9 @@ import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
-import '../../../Network/API.dart';
+import '../../../appconstant/API.dart';
+import '../../../appconstant/ApiUrls.dart';
+import '../../../appconstant/GlobalMethods.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/Preferences.dart';
 import '../../../utils/methods.dart';
@@ -71,9 +71,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
     };
     isConnected().then((hasInternet) async {
+      int accountType = await Preferences().getPrefInt(Preferences.prefAccountType);
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
-            url: getUrl(endEmployeeProfile, params: params).toString(),
+            url: getUrl(accountType == 2 ? endEmployeeProfile : endClientProfile, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',
@@ -524,6 +525,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                         _keyScaffold.currentState,
                                         "Please enter valid email ID");
                                   } else {
+                                    print("checkurl ="+masterURL);
                                     _saveProfileApiCall();
                                   }
                                 },
@@ -598,7 +600,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             // response = await HttpService().init(request, _keyScaffold);
             Response response = await http.post(
                 Uri.parse(
-                    "$mainUrl$endSaveEmployeeProfile"),
+                    "$masterURL$endSaveEmployeeProfile"),
                 headers: {"Content-Type": "application/json"},
                 body: body);
             print(
@@ -612,9 +614,14 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                 showSnackBarWithText(_keyScaffold.currentState, message,
                     color: colorGreen);
               }
+              else{
+                String message = dResponse["message"];
+                showSnackBarWithText(_keyScaffold.currentState, message,
+                    color: colorRed);
+              }
             } else {
-              showSnackBarWithText(
-                  _keyScaffold.currentState, stringSomeThingWentWrong);
+              showSnackBarWithText(_keyScaffold.currentState, "Something went wrong!",
+                  color: colorRed);
             }
             removeOverlay();
           } catch (e) {
@@ -639,8 +646,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         try {
           getOverlay(context);
           Response response = await http.post(
-            Uri.parse(
-                "https://mycare-web.mycaresoftware.com/MobileAPI/v1.asmx/SaveProfilePicForm"),
+            Uri.parse("${baseUrlWithHttp}MobileAPI/v1.asmx/SaveProfilePicForm"),
             headers: {"Content-Type": "application/json"},
             body: json.encode({
               'auth_code':(await Preferences().getPrefString(Preferences.prefAuthCode)),
