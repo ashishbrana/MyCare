@@ -145,7 +145,7 @@ class _LoginState extends State<Login> {
               if(responseModel.accountType == 2) {
                 sendToHome();
               }
-              if(responseModel.accountType == 3) {
+              else if(responseModel.accountType == 3) {
                 sendToClientHome();
                /*showSnackBarWithText(
                     _keyScaffold.currentState, "Clent can not login");*/
@@ -341,8 +341,7 @@ class _LoginState extends State<Login> {
                                           _loginApiCall(
                                               _controllerUsername.text.trim(),
                                               _controllerPassword.text.trim(),
-                                              _controllerCompanyCode.text
-                                                  .trim());
+                                              _controllerCompanyCode.text.trim());
                                         }
                                         // sendToHome();
                                       },

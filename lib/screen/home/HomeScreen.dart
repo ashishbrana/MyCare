@@ -406,6 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
     await Preferences().setPrefInt(Preferences.prefUserID, 0);
     await Preferences().setPrefString(Preferences.prefUserFullName, "");
     keyScaffold = GlobalKey<ScaffoldState>();
+    Navigator.pop(context);
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -634,6 +635,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             logout();
                           }, onNoTap: () {
                             Navigator.pop(context);
+                            if (keyScaffold.currentState != null) {
+                              keyScaffold.currentState!.closeEndDrawer();
+                            }
                           });
                         },
                         child: Container(
