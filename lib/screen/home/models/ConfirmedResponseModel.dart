@@ -1,3 +1,10 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:rcare_2/utils/ColorConstants.dart';
+
+import '../../../utils/methods.dart';
+
 class TimeShiteModel {
   int? rosterID;
   int? clientID;
@@ -26,7 +33,7 @@ class TimeShiteModel {
   dynamic? clientPayRate;
   dynamic? clientPay;
   dynamic? callOut;
-  double? clientTotalPay;
+  num? clientTotalPay;
   String? tSFrom;
   String? tSUntil;
   bool? tSLunchBreakSetting;
@@ -63,6 +70,13 @@ class TimeShiteModel {
   String? fundingsourcename;
   int? tsservicetype;
   int? dsnId;
+  String? calculatedDost;
+  String? expenseTotal;
+  String? totalAmountwithGST;
+  int? serviceScheduleType;
+  String? groupName;
+  int? CWNumber;
+  bool? isDNSComplete;
 
   TimeShiteModel(
       {this.rosterID,
@@ -128,7 +142,15 @@ class TimeShiteModel {
       this.clienttraveldistance,
       this.fundingsourcename,
       this.tsservicetype,
-      this.dsnId});
+      this.dsnId,
+        this.calculatedDost,
+        this.expenseTotal,
+        this.totalAmountwithGST,
+        this.serviceScheduleType,
+        this.groupName,
+        this.CWNumber,
+        this.isDNSComplete
+      });
 
   TimeShiteModel.fromJson(Map<String, dynamic> json) {
     rosterID = json['RosterID'];
@@ -195,6 +217,13 @@ class TimeShiteModel {
     fundingsourcename = json['fundingsourcename'];
     tsservicetype = json['tsservicetype'];
     dsnId = json['dsnId'];
+    calculatedDost = json['Calculatedcost'];
+    expenseTotal = json['Expensetotal'];
+    totalAmountwithGST = json['TotalamountwithGST'];
+    serviceScheduleType = json['serviceScheduleType'];
+    groupName = json['groupName'];
+    isDNSComplete = json['isDNSComplete'];
+    CWNumber = json['CWNumber'];
   }
 
   Map<String, dynamic> toJson() {
@@ -263,6 +292,51 @@ class TimeShiteModel {
     data['fundingsourcename'] = this.fundingsourcename;
     data['tsservicetype'] = this.tsservicetype;
     data['dsnId'] = this.dsnId;
+    data['Calculatedcost'] = this.calculatedDost;
+    data['Expensetotal'] = this.expenseTotal;
+    data['TotalamountwithGST'] = this.totalAmountwithGST;
+    data['serviceScheduleType'] = this.serviceScheduleType;
+    data['groupName'] = this.groupName;
+    data['isDNSComplete'] = this.isDNSComplete;
+    data['CWNumber'] = this.CWNumber;
+
     return data;
+  }
+
+  Color getStatusColor(){
+
+    if (this.confirmCW == true &&
+        this.empID != 0 &&
+        this.tSConfirm == false) {
+      DateTime? serviceDate =
+      getDateTimeFromEpochTime(this.serviceDate!);
+      if (serviceDate!.isToday) {
+        return Colors.red;
+      }
+      return colorGreen;
+    } else if (this.empID != 0 && this.timesheetStatus == true) {
+      return Color(0xb64d9950);;
+    }
+    else if ((this.status1 == 5 || this.confirmCW == false) && this.empID != 0) {
+      return Colors.orange;
+    }
+    else if (this.empID == 0 && comID ==0) {
+      return Colors.blue;
+    }
+    else{
+      return Colors.green;
+    }
+  }
+
+}
+
+extension GroppServiceModel on TimeShiteModel{
+  bool get isGroupService => serviceScheduleType == 2;
+  bool allowAddGroupNote(){
+    return (getDateTimeFromEpochTime(serviceDate!) !=
+        null &&
+        getDateTimeFromEpochTime(serviceDate!)!
+            .isFutureDate ==
+            false);
   }
 }

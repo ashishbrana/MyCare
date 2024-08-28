@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:rcare_2/utils/WidgetMethods.dart';
 
 import '../../appconstant/API.dart';
@@ -13,7 +12,6 @@ import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/methods.dart';
 import 'models/ClientInfomationModel.dart';
-import 'models/ProfileModel.dart';
 
 class ClientInfo extends StatefulWidget {
   final String clientId;
@@ -33,6 +31,7 @@ class _ClientInfoState extends State<ClientInfo> {
   final TextEditingController _controllerRiskNotification =
       TextEditingController();
   final TextEditingController _controllerClientGoals = TextEditingController();
+  final TextEditingController _controllerProvidedComments = TextEditingController();
 
   @override
   void initState() {
@@ -43,12 +42,8 @@ class _ClientInfoState extends State<ClientInfo> {
 
   getData() async {
     var params = {
-      'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
-      // 'userid': (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
+      'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'accountType': (await Preferences().getPrefInt(Preferences.prefAccountType)).toString(),
       'userid': widget.clientId,
     };
     isConnected().then((hasInternet) async {
@@ -65,7 +60,6 @@ class _ClientInfoState extends State<ClientInfo> {
           String response = await HttpService().init(request, _keyScaffold);
           if (response != "") {
             List jResponse = json.decode(response);
-            // ProfileModel responseModel = ProfileModel.fromJson(jResponse);
             print('Profile $jResponse');
             List<ClientInformationModel> dataList = jResponse
                 .map((e) => ClientInformationModel.fromJson(e))
@@ -76,13 +70,15 @@ class _ClientInfoState extends State<ClientInfo> {
                   "DATA : ${userModel!.careComments} ${userModel!.riskNotification} ${userModel!.clientGoals}");
               userName = userModel!.fullname ?? "";
               _controllerCareComment.text = userModel!.careComments ?? "";
-              _controllerRiskNotification.text =
-                  userModel!.riskNotification ?? "";
+              _controllerRiskNotification.text = userModel!.riskNotification ?? "";
               _controllerClientGoals.text = userModel!.clientGoals ?? "";
+              _controllerProvidedComments.text = userModel!.careNotesClient ?? "";
             } else {
-              showSnackBarWithText(
-                  _keyScaffold.currentState, "Data Not Available!");
+              showSnackBarWithText(_keyScaffold.currentState, "Data Not Available!");
             }
+            setState(() {
+
+            });
 
             print('res $dataList');
           } else {
@@ -141,8 +137,8 @@ class _ClientInfoState extends State<ClientInfo> {
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
                   fontSized: 12,
-                  minLine: 5,
-                  maxLine: 5,
+                  minLine: 7,
+                  maxLine: 7,
                   isReadOnly: true,
                 ),
                 const SizedBox(height: space),
@@ -158,8 +154,8 @@ class _ClientInfoState extends State<ClientInfo> {
                   backgroundColor: colorWhite,
                   isReadOnly: true,
                   fontSized: 12,
-                  minLine: 5,
-                  maxLine: 5,
+                  minLine: 7,
+                  maxLine: 7,
                 ),
                 const SizedBox(height: space),
                 ThemedText(
@@ -174,19 +170,24 @@ class _ClientInfoState extends State<ClientInfo> {
                   backgroundColor: colorWhite,
                   isReadOnly: true,
                   fontSized: 12,
-                  minLine: 5,
-                  maxLine: 5,
+                  minLine: 7,
+                  maxLine: 7,
                 ),
-                const SizedBox(height: spaceVertical * 3),
-                SizedBox(
-                  height: 50,
-                  child: ThemedButton(
-                    title: "Close",
-                    padding: EdgeInsets.zero,
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                const SizedBox(height: space),
+                ThemedText(
+                  text: "Client Provided Comments:",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                const SizedBox(height: spaceBetween),
+                ThemedTextField(
+                  controller: _controllerProvidedComments,
+                  borderColor: colorGreyBorderD3,
+                  backgroundColor: colorWhite,
+                  isReadOnly: true,
+                  fontSized: 12,
+                  minLine: 7,
+                  maxLine: 7,
                 ),
               ],
             ),

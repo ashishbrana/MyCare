@@ -4,6 +4,7 @@ class LabeledCheckbox extends StatefulWidget {
   final bool? value;
   final String label;
   final bool leadingCheckbox;
+  final bool isReadOnly;
   final ValueChanged<bool?>? onChanged;
 
   const LabeledCheckbox({
@@ -12,6 +13,7 @@ class LabeledCheckbox extends StatefulWidget {
     this.onChanged,
     this.label = '',
     this.leadingCheckbox = true,
+    this.isReadOnly = false
   }) : super(key: key);
 
   @override
@@ -41,7 +43,7 @@ class _LabeledCheckboxState extends State<LabeledCheckbox> {
     }
     return InkWell(
       borderRadius: BorderRadius.circular(4),
-      onTap: () => _onCheckedChanged(),
+      onTap:  !widget.isReadOnly ? () => _onCheckedChanged() : ()=>{},
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: widgets,
@@ -52,7 +54,7 @@ class _LabeledCheckboxState extends State<LabeledCheckbox> {
   Widget _buildCheckbox(BuildContext context) {
     return Checkbox(
       value: value,
-      onChanged: (v) => _onCheckedChanged(),
+      onChanged: !widget.isReadOnly ? (v) => _onCheckedChanged() : null ,
     );
   }
 

@@ -1,16 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/models/DSNListModel.dart';
 import 'package:rcare_2/screen/home/notes/DNSNotesDetails.dart';
-import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
-import 'package:rcare_2/utils/WidgetMethods.dart';
-
-
 import '../../appconstant/API.dart';
 import '../../appconstant/ApiUrls.dart';
 import '../../utils/ColorConstants.dart';
@@ -18,9 +13,9 @@ import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
+import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
-import 'TimeSheetDetail.dart';
-import 'models/CareWorkerModel.dart';
+
 
 class DNSList extends StatefulWidget {
   final int userId;
@@ -37,6 +32,7 @@ class _DNSListState extends State<DNSList> {
   List<DSNListModel> dataList = [];
 
   int selectedExpandedIndex = -1;
+  int lastSelectedRow = -1;
   var userid = Preferences().getPrefInt(Preferences.prefUserID);
 
   @override
@@ -50,13 +46,13 @@ class _DNSListState extends State<DNSList> {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
+      (await Preferences().getPrefInt(Preferences.prefAccountType))
+          .toString(),
       'rosterid': /*"27339",*/ widget.rosterID.toString(),
-      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
-      'todate': DateFormat("yyyy/MM/dd").format(toDate),
+      'fromdate': fromDate.shortDate(),
+      'todate': toDate.shortDate(),
       'userid': widget.userId.toString(),
       'isCareworkerSpecific': "1",
     };
@@ -107,24 +103,10 @@ class _DNSListState extends State<DNSList> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
+      appBar: buildAppBar(context, title: "Daily Support Needs"),
       backgroundColor: colorLiteBlueBackGround,
       body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
-            decoration: BoxDecoration(
-              color: colorGreen,
-              borderRadius: boxBorderRadius,
-            ),
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(3),
-            child: ThemedText(
-              text: "Daily Support Needs",
-              color: colorWhite,
-              fontSize: 12,
-              textAlign: TextAlign.center,
-            ),
-          ),
           Expanded(
             child: ListView.builder(
               itemCount: dataList.length,
@@ -135,7 +117,9 @@ class _DNSListState extends State<DNSList> {
                 return Container(
                   margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
                   decoration: BoxDecoration(
-                    color: colorWhite,
+                    color: lastSelectedRow == index
+                        ? Colors.grey.withOpacity(0.2)
+                        : colorWhite,
                     borderRadius: boxBorderRadius,
                   ),
                   child: Column(
@@ -165,25 +149,27 @@ class _DNSListState extends State<DNSList> {
                                                       children: [
                                                         TextSpan(
                                                           text:
-                                                              "${model.sscname} ",
+                                                          "${model.sscname} ",
                                                           style:
-                                                              const TextStyle(
-                                                            color:
-                                                                colorGreyText,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            fontSize: 14,
+                                                          const TextStyle(
+                                                            fontSize: 15,
+                                                            color: Colors
+                                                                .blueAccent,
+                                                            fontWeight: FontWeight
+                                                                .bold,
+
                                                           ),
                                                         ),
                                                         TextSpan(
                                                           text:
-                                                              "\nNote Writer: ${model.notewriter}",
+                                                          "\nNote Writer: ${model
+                                                              .notewriter}",
                                                           style:
-                                                              const TextStyle(
+                                                          const TextStyle(
                                                             color:
-                                                                colorGreyLiteText,
+                                                            colorGreyLiteText,
                                                             fontWeight:
-                                                                FontWeight.w400,
+                                                            FontWeight.w400,
                                                             fontSize: 14,
                                                           ),
                                                         ),
@@ -195,7 +181,8 @@ class _DNSListState extends State<DNSList> {
                                             ),
                                             const SizedBox(height: 8),
                                             Container(
-                                              width: MediaQuery.of(context)
+                                              width: MediaQuery
+                                                  .of(context)
                                                   .size
                                                   .width,
                                               height: 1,
@@ -204,19 +191,12 @@ class _DNSListState extends State<DNSList> {
                                             const SizedBox(height: 3),
                                             Row(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 InkWell(
                                                   onTap: () {
                                                     setState(() {
-                                                      if (selectedExpandedIndex !=
-                                                          index) {
-                                                        selectedExpandedIndex =
-                                                            index;
-                                                      } else {
-                                                        selectedExpandedIndex =
-                                                            -1;
-                                                      }
+                                                      updateSelection(index);
                                                     });
                                                   },
                                                   child: const SizedBox(
@@ -232,9 +212,9 @@ class _DNSListState extends State<DNSList> {
                                                 Expanded(
                                                   child: Row(
                                                     mainAxisSize:
-                                                        MainAxisSize.min,
+                                                    MainAxisSize.min,
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.start,
+                                                    MainAxisAlignment.start,
                                                     children: [
                                                       /* const SizedBox(width: 5),
                                                       const FaIcon(
@@ -248,17 +228,22 @@ class _DNSListState extends State<DNSList> {
                                                         child: Text(
                                                           "${model.taskname}",
                                                           style:
-                                                              const TextStyle(
+                                                          const TextStyle(
                                                             color:
-                                                                colorGreyText,
+                                                            colorGreyText,
                                                             fontSize: 12,
                                                           ),
                                                         ),
                                                       ),
                                                       const SizedBox(width: 10),
                                                       Icon(
-                                                        Icons.check_circle_rounded,
-                                                        color: model.taskcompleted == true ? colorRed : colorOrange,
+                                                        Icons
+                                                            .check_circle_rounded,
+                                                        color: (model
+                                                            .taskcompleted ??
+                                                            false)
+                                                            ? colorGreen
+                                                            : colorOrange,
                                                         size: 22,
                                                       ),
                                                     ],
@@ -279,23 +264,27 @@ class _DNSListState extends State<DNSList> {
                                   ),
                                 ),
                                 if ((getDateTimeFromEpochTime(model.ssdate!) !=
-                                            null &&
-                                        getDateTimeFromEpochTime(model.ssdate!)!
-                                                .isFutureDate ==
-                                            false) &&
+                                    null &&
+                                    getDateTimeFromEpochTime(model.ssdate!)!
+                                        .isFutureDate ==
+                                        false) &&
                                     (widget.userId == model.notewriterid ||
                                         model.notewriterid == 0))
                                   InkWell(
                                     onTap: () {
+                                      setState(() {
+                                        lastSelectedRow = index;
+                                      });
                                       Navigator.push(
                                         keyScaffold.currentContext!,
                                         MaterialPageRoute(
-                                          builder: (context) => DNSNotesDetails(
-                                            dsnListModel: model,
-                                            userId: widget.userId,
-                                            serviceShceduleClientID:
+                                          builder: (context) =>
+                                              DNSNotesDetails(
+                                                dsnListModel: model,
+                                                userId: widget.userId,
+                                                serviceShceduleClientID:
                                                 widget.rosterID,
-                                          ),
+                                              ),
                                         ),
                                       ).then((value) {
                                         if (value != null && value) {
@@ -314,41 +303,31 @@ class _DNSListState extends State<DNSList> {
                               ],
                             ),
                             if (selectedExpandedIndex == index)
+                              Row(
+                                children: [
+                                  const SizedBox(
+                                      width: 7),
+                              Expanded(child:
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(height: 5),
                                   ThemedRichText(
                                     spanList: [
                                       WidgetSpan(
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const SizedBox(
-                                                width: spaceHorizontal / 2),
-                                            const SizedBox(
-                                              width: 25,
-                                              height: 25,
-                                              child: Center(
-                                                child: FaIcon(
-                                                  FontAwesomeIcons.clock,
-                                                  color: colorGreen,
-                                                  size: 16,
-                                                ),
-                                              ),
+                                            const Icon(
+                                              Icons.access_time_outlined,
+                                              color: colorGreen,
+                                              size: 20,
                                             ),
                                             const SizedBox(
                                                 width: spaceHorizontal / 2),
-                                            ThemedText(
-                                              text: "Time: ",
-                                              color: colorBlack,
-                                              fontSize: 12,
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal),
                                             ThemedText(
                                               text:
-                                                  "${model.timefrom ?? ""} - ${model.timeto ?? ""}",
+                                              "${model.timefrom ?? ""} - ${model
+                                                  .timeto ?? ""}",
                                               color: colorBlack,
                                               fontSize: 12,
                                             ),
@@ -361,95 +340,27 @@ class _DNSListState extends State<DNSList> {
                                           ],
                                         ),
                                       ),
-                                      WidgetSpan(
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(
-                                                width: spaceHorizontal / 2),
-                                            const SizedBox(
-                                              width: 25,
-                                              height: 25,
-                                              child: Center(
-                                                child: FaIcon(
-                                                  FontAwesomeIcons.stickyNote,
-                                                  color: colorGreen,
-                                                  size: 16,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal / 2),
-                                            ThemedText(
-                                              text: "Desc:",
-                                              color: colorBlack,
-                                              fontSize: 12,
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal),
-                                            Expanded(
-                                              child: ThemedText(
-                                                text: model
-                                                        .taskdescription ??
-                                                    "",
-                                                color: colorBlack,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal),
-                                          ],
-                                        ),
-                                      ),
-                                      WidgetSpan(
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(
-                                                width: spaceHorizontal / 2),
-                                            const SizedBox(
-                                              width: 25,
-                                              height: 25,
-                                              child: Center(
-                                                child: FaIcon(
-                                                  FontAwesomeIcons.stickyNote,
-                                                  color: colorGreen,
-                                                  size: 16,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal / 2),
-                                            ThemedText(
-                                              text: "Com:",
-                                              color: colorBlack,
-                                              fontSize: 12,
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal),
-                                            Expanded(
-                                              child: ThemedText(
-                                                text:
-                                                    model.taskcompletedcomments ?? "",
-                                                color: colorBlack,
-                                                maxLine: 3,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width: spaceHorizontal),
-                                          ],
-                                        ),
-                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 7),
+                                  buildTextRowWithAlphaIcon(
+                                      "D", model.taskdescription !=
+                                      null &&
+                                      model.taskdescription!
+                                          .isNotEmpty
+                                      ? model.taskdescription!
+                                      : "No Task Details.."),
+                                  const SizedBox(height: 7),
+                                  buildTextRowWithAlphaIcon(
+                                      "C", model.taskcompletedcomments !=
+                                      null &&
+                                      model.taskcompletedcomments!
+                                          .isNotEmpty
+                                      ? model.taskcompletedcomments!
+                                      : "No Task Comments.."),
                                 ],
                               ),
+                                ),],)
                           ],
                         ),
                       ),
@@ -462,5 +373,12 @@ class _DNSListState extends State<DNSList> {
         ],
       ),
     );
+  }
+  updateSelection(int index){
+    if (selectedExpandedIndex == index) {
+      selectedExpandedIndex = -1;
+    } else {
+      selectedExpandedIndex = index;
+    }
   }
 }

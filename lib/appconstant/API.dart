@@ -26,10 +26,10 @@ class HttpRequestModel {
   HttpRequestModel(
       {required this.url,
       required this.method,
-      this.body,
-      this.params,
-      this.headerType,
-      this.authMethod,
+      this.body = '',
+      this.params = '',
+      this.headerType = '',
+      this.authMethod = '',
       this.isDebug = false});
 }
 

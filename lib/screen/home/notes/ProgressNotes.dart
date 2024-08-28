@@ -5,7 +5,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
 import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
-import 'package:rcare_2/utils/WidgetMethods.dart';
 
 
 import '../../../appconstant/API.dart';
@@ -32,6 +31,7 @@ class ProgressNoteState extends State<ProgressNote> {
   List<ProgressNoteModel> tempList = [];
   int selectedExpandedIndex = -1;
 
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +44,7 @@ class ProgressNoteState extends State<ProgressNote> {
 
   getData({required DateTime fromDate, required DateTime toDate}) async {
     // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    int userid =  (await Preferences().getPrefInt(Preferences.prefUserID));
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
@@ -52,8 +53,8 @@ class ProgressNoteState extends State<ProgressNote> {
               .toString(),
       'userid':
           (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
-      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
-      'todate': DateFormat("yyyy/MM/dd").format(toDate),
+      'fromdate': fromDate.shortDate(),
+      'todate': toDate.shortDate(),
       'isCareworkerSpecific': "1",
       'rosterid': "0",
     };
@@ -79,7 +80,16 @@ class ProgressNoteState extends State<ProgressNote> {
             dataList =
                 jResponse.map((e) => ProgressNoteModel.fromJson(e)).toList();
             tempList.clear();
-            tempList.addAll(dataList);
+            for (int k = 0; k < dataList.length; k++) {
+              var model = dataList[k];
+              if(model.isConfidential == true && model.createdBy != userid ) {
+              //  do not add in list
+              }
+              else{
+                tempList.add(model);
+              }
+            }
+           // tempList.addAll(dataList);
             print("models.length : ${dataList.length}");
 
             int accType =
@@ -172,9 +182,10 @@ class ProgressNoteState extends State<ProgressNote> {
                             children: [
                               ThemedText(
                                   text: "${model.serviceName}",
-                                  color: colorBlack,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16),
+                                fontSize: 15,
+                                color: Colors.blueAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
                               ThemedText(
                                   text: "Note Writer: ${model.createdByName}",
                                   color: colorGreyLiteText,

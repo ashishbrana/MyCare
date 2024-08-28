@@ -47,6 +47,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   final TextEditingController _controllerMobile = TextEditingController();
   final TextEditingController _controllerWorkPhone = TextEditingController();
   final TextEditingController _controllerUserName = TextEditingController();
+  final TextEditingController _controllerPrefName = TextEditingController();
 
   ProfileModel? _profileModel;
 
@@ -60,7 +61,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   _getProfileApiCall() async {
-    // String acctype=""+ await Preferences().getPrefString(Preferences.prefAccountType);
     var params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
@@ -95,7 +95,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             if (dataList.isNotEmpty) {
               _profileModel = dataList[0];
               print("DATA : ${dataList[0].fullname}");
-              // userName = _profileModel!.fullname ?? "";
               _controllerFirstName.text = _profileModel!.firstName ?? "";
               _controllerLastName.text = _profileModel!.lastName ?? "";
               _controllerEmail.text = _profileModel!.email ?? "";
@@ -106,6 +105,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               _controllerAddress.text = _profileModel!.address ?? "";
               _controllerMobile.text = _profileModel!.mobileNo ?? "";
               _controllerUserName.text = _profileModel!.userName ?? "";
+              _controllerPrefName.text = _profileModel!.prefName ?? "";
               try {
                 profileImage = Base64Decoder().convert(
                     (_profileModel!.empProfilePic ?? "")
@@ -142,11 +142,19 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     });
   }
 
+  void handleSaveClick() {
+    // Implement the logic to handle the save click here
+    print("Save button clicked!");
+    // Add your save logic here, e.g., saving data, making API calls, etc.
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
-      appBar: buildAppBar(context, title: "Profile"),
+      appBar: buildAppBar(context, title: "Profile" , showActionButton: true , onActionButtonPressed: () {
+        validateAndSaveProfile();
+      }, ),
       body: SafeArea(
         child: Column(
           children: [
@@ -201,16 +209,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                                 : const Center(
                                                     child: Icon(Icons.person),
                                                   ),
-                                          ),
-                                          ThemedText(
-                                            text: "Upload",
-                                            color: colorBlue,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          ThemedText(
-                                            text: "Picture",
-                                            color: colorBlue,
-                                            fontWeight: FontWeight.w600,
                                           ),
                                         ],
                                       ),
@@ -279,6 +277,23 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: space),
+                                        ThemedText(
+                                          text: "Preferred Name",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        const SizedBox(height: spaceBetween),
+                                        SizedBox(
+                                          height: textFiledHeight,
+                                          child: ThemedTextField(
+                                            keyBoardType: TextInputType.emailAddress,
+                                            borderColor: colorGreyBorderD3,
+                                            controller: _controllerPrefName,
+                                            backgroundColor: colorWhite,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: spaceHorizontal),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -456,82 +471,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                                 ),
                               ),
                               const SizedBox(height: spaceVertical),
+
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: spaceHorizontal,
-                      ),
-                      child: SizedBox(
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: ThemedButton(
-                                title: "Cancel",
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                padding: EdgeInsets.zero,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: spaceHorizontal / 2),
-                            Expanded(
-                              child: ThemedButton(
-                                title: "Save",
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                padding: EdgeInsets.zero,
-                                onTap: () {
-                                  if (_controllerFirstName.text
-                                      .trim()
-                                      .isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "First name can not be blank!");
-                                  } else if (_controllerLastName.text
-                                      .trim()
-                                      .isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Last name can not be blank!");
-                                  } else if (_controllerAddress.text
-                                      .trim()
-                                      .isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Address can not be blank!");
-                                  } else if (_controllerSuburb.text
-                                      .trim()
-                                      .isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Suburb filed can not be blank!");
-                                  } else if (_controllerEmail.text
-                                      .trim()
-                                      .isEmpty) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "EmilId can not be blank!");
-                                  } else if (!isValidateEmail(
-                                      _controllerEmail.text)) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Please enter valid email ID");
-                                  } else {
-                                    print("checkurl ="+masterURL);
-                                    _saveProfileApiCall();
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -544,6 +486,48 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         ),
       ),
     );
+  }
+
+  validateAndSaveProfile(){
+    if (_controllerFirstName.text
+        .trim()
+        .isEmpty) {
+      showSnackBarWithText(
+          _keyScaffold.currentState,
+          "First name can not be blank!");
+    } else if (_controllerLastName.text
+        .trim()
+        .isEmpty) {
+      showSnackBarWithText(
+          _keyScaffold.currentState,
+          "Last name can not be blank!");
+    } else if (_controllerAddress.text
+        .trim()
+        .isEmpty) {
+      showSnackBarWithText(
+          _keyScaffold.currentState,
+          "Address can not be blank!");
+    } else if (_controllerSuburb.text
+        .trim()
+        .isEmpty) {
+      showSnackBarWithText(
+          _keyScaffold.currentState,
+          "Suburb filed can not be blank!");
+    } else if (_controllerEmail.text
+        .trim()
+        .isEmpty) {
+      showSnackBarWithText(
+          _keyScaffold.currentState,
+          "EmilId can not be blank!");
+    } else if (!isValidateEmail(
+        _controllerEmail.text)) {
+      showSnackBarWithText(
+          _keyScaffold.currentState,
+          "Please enter valid email ID");
+    } else {
+      print("checkurl ="+masterURL);
+      _saveProfileApiCall();
+    }
   }
 
   _saveProfileApiCall() async {
@@ -566,14 +550,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         "Languages": _profileModel!.languages,
         "EmrgcyContactName": _profileModel!.emrgcyContactName,
         "EmrgcyContactPhone": _profileModel!.emrgcyContactPhone,
-        "PrivateEmail": _profileModel!.privateEmail != null &&
-                _profileModel!.contractorName!.isNotEmpty
-            ? _profileModel!.privateEmail
-            : "null",
-        "ContractorName": _profileModel!.contractorName != null &&
-                _profileModel!.contractorName!.isNotEmpty
-            ? _profileModel!.contractorName
-            : "null",
+        "PrivateEmail": _profileModel!.privateEmail != null && _profileModel!.contractorName!.isNotEmpty ? _profileModel!.privateEmail : "null",
+        "ContractorName": _profileModel!.contractorName != null && _profileModel!.contractorName!.isNotEmpty ? _profileModel!.contractorName : "null",
+      "PrefName" : _controllerPrefName.text
       });
 
       print(body);

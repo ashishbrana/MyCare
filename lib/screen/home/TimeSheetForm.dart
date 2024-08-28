@@ -20,7 +20,6 @@ import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
 import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
-import 'HomeScreen.dart';
 import 'models/ConfirmedResponseModel.dart';
 import 'notes/NotesDetails.dart';
 
@@ -46,40 +45,32 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   double diffHours = 0;
   int breakMin = 0;
 
-  int origionalMins = 0;
+  int originalMins = 0;
 
   int startBreakMin = 0;
-  int endBrakMin = 0;
+  int endBreakMin = 0;
   int travelMin = 0;
   late DateTime sDate;
   String fromHourService = "00";
   final TextEditingController _controllerFromService = TextEditingController();
   String fromMinuteService = "00";
 
-  // final TextEditingController _controllerFromMinuteService = TextEditingController();
   String toHourService = "00";
   final TextEditingController _controllerToService = TextEditingController();
   String toMinuteService = "00";
 
-  // final TextEditingController _controllerToMinuteService = TextEditingController();
 
-  String hourLaunch = "00";
-  final TextEditingController _controllerHourLaunch = TextEditingController();
-  String minuteLaunch = "00";
+  String hourLunch = "00";
+  final TextEditingController _controllerHourLunch = TextEditingController();
+  String minuteLunch = "00";
 
-  // final TextEditingController _controllerMinuteLaunch = TextEditingController();
+  String fromHourLunch = "00";
+  final TextEditingController _controllerFromLunch = TextEditingController();
+  String fromMinuteLunch = "00";
 
-  String fromHourLaunch = "00";
-  final TextEditingController _controllerFromLaunch = TextEditingController();
-  String fromMinuteLaunch = "00";
-
-  // final TextEditingController _controllerFromMinuteLaunch = TextEditingController();
-
-  String toHourLaunch = "00";
-  final TextEditingController _controllerToLaunch = TextEditingController();
-  String toMinuteLaunch = "00";
-
-  // final TextEditingController _controllerToMinuteLaunch = TextEditingController();
+  String toHourLunch = "00";
+  final TextEditingController _controllerToLunch = TextEditingController();
+  String toMinuteLunch = "00";
 
   final TextEditingController _controllerServiceType = TextEditingController();
   final TextEditingController _controllerHours = TextEditingController();
@@ -95,7 +86,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   final TextEditingController _controllerTimeSheetComments =
       TextEditingController();
 
-  bool isIncludeLaunchBrake = false;
+  bool isIncludeLunchBrake = false;
   bool isRiskAlert = false;
 
   List<String> hourList = List.generate(23, (index) => index.toString().padLeft(2, '0'));
@@ -150,31 +141,30 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       totalWorkMin = (widget.model.tSHours!.toDouble() * 60).toInt();
     }
 
-    isIncludeLaunchBrake = widget.model.tSLunchBreakSetting ?? false;
+    isIncludeLunchBrake = widget.model.tSLunchBreakSetting ?? false;
     if (widget.model.tSLunchBreak != null &&
         widget.model.tSLunchBreak!.split(":").isNotEmpty) {
-      _controllerHourLaunch.text = widget.model.tSLunchBreak!;
+      _controllerHourLunch.text = widget.model.tSLunchBreak!;
       if (widget.model.tSLunchBreak!.split(":").length > 1) {
-        // _controllerMinuteLaunch.text = widget.model.tSLunchBreak!.split(":")[1];
       }
     }
     if (widget.model.tSLunchBreakFrom != null &&
         widget.model.tSLunchBreakFrom!.split(":").isNotEmpty) {
-      _controllerFromLaunch.text = widget.model.tSLunchBreakFrom!;
+      _controllerFromLunch.text = widget.model.tSLunchBreakFrom!;
     } else {
-      _controllerFromLaunch.text = "00:00";
+      _controllerFromLunch.text = "00:00";
     }
     if (widget.model.tSLunchBreakTo != null &&
         widget.model.tSLunchBreakTo!.split(":").isNotEmpty) {
-      _controllerToLaunch.text = widget.model.tSLunchBreakTo!;
+      _controllerToLunch.text = widget.model.tSLunchBreakTo!;
     } else {
-      _controllerToLaunch.text = "00:00";
+      _controllerToLunch.text = "00:00";
     }
 
     if (widget.model.tSHours != null) {
       _controllerHours.text =
           getTimeStringFromDouble(widget.model.tSHours!.toDouble());
-      origionalMins = (widget.model.tSHours! * 60).toInt();
+      originalMins = (widget.model.tSHours! * 60).toInt();
     }
     if (widget.model.tSHoursDiff != null) {
       diffHours = widget.model.tSHoursDiff!.toDouble();
@@ -203,6 +193,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     isRiskAlert = false;
     _controllerTimeSheetComments.text = widget.model.tSComments ?? "";
     setState(() {});
+  }
+
+  resetBreak(){
+    breakMin = 0;
+    _controllerFromLunch.text = "${get2CharString(breakMin)}:${get2CharString(breakMin)}";
+    _controllerToLunch.text = "${get2CharString(breakMin)}:${get2CharString(breakMin)}";
+    String diff = findDurationDifference(_controllerFromLunch.text, _controllerToLunch.text);
+    _controllerHourLunch.text = diff;
+    calculateHours();
   }
 
   @override
@@ -235,32 +234,40 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               title: sDate.isToday ? "Save/Logoff" : "Save",
                               fontSize: 14,
                               onTap: () async {
-                                if (widget.model.tSConfirm == false) {
 
+                                TimeOfDay startTime = TimeOfDay(hour: fromHour, minute: fromMin);
+                                TimeOfDay endTime = TimeOfDay(hour: toHour, minute: toMin);
+                                TimeOfDay breakStartTime = TimeOfDay(hour: (startBreakMin/60).toInt(), minute: startBreakMin%60);
+                                TimeOfDay breakEndTime = TimeOfDay(hour: (endBreakMin/60).toInt(), minute: endBreakMin%60);
+
+                                if (widget.model.tSConfirm == false) {
                                   int startMinTs = (fromHour * 60) + fromMin;
                                   int endMinTs = (toHour * 60) + toMin;
                                   if(endMinTs < startMinTs){
                                     endMinTs = endMinTs+1440;
                                   }
-
-
-
                                   if(startMinTs == endMinTs){
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
-                                        "Please enter valid Untile Time",
+                                        "Please enter valid Until Time",
                                         color: colorRed);
                                     return;
                                   }
-
-                                  if (isIncludeLaunchBrake && endBrakMin == 0) {
-                                    showSnackBarWithText(
-                                        _keyScaffold.currentState,
-                                        "Please enter valid lunch break",
-                                        color: colorRed);
-                                    return;
+                                  if (isIncludeLunchBrake) {
+                                    bool isValid = validateTimes(
+                                      startTime: startTime,
+                                      endTime: endTime,
+                                      breakStartTime: breakStartTime,
+                                      breakEndTime: breakEndTime,
+                                    );
+                                      if (!isValid) {
+                                        showSnackBarWithText(
+                                            _keyScaffold.currentState,
+                                            "Please enter valid lunch break",
+                                            color: colorRed);
+                                        return;
+                                      }
                                   }
-
                                   if (isRiskAlert &&
                                       _controllerTimeSheetComments
                                           .text.isEmpty) {
@@ -276,12 +283,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                           .text.isEmpty) {
                                     showSnackBarWithText(
                                         _keyScaffold.currentState,
-                                        "Comments are required if hours are differemt",
+                                        "Comments are required if hours are different",
                                         color: colorRed);
                                     return;
                                   }
                                 }
-
                                 if (widget.model.tSConfirm == true) {
                                   if (isRiskAlert &&
                                       _controllerTimeSheetComments
@@ -330,7 +336,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                 fontSize: 14,
                                 onTap: () async {
                                   print(widget.model.resName);
-                                  if (widget.model.resName != "Group Service") {
+                                  if (!widget.model.isGroupService) {
                                     String fullName = await Preferences()
                                         .getPrefString(
                                             Preferences.prefUserFullName);
@@ -369,18 +375,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               ),
                             ),
                           const SizedBox(width: spaceHorizontal),
-                          Expanded(
-                            // height: textFiledHeight,
-                            child: ThemedButton(
-                              padding: EdgeInsets.zero,
-                              title: "Cancel",
-                              fontSize: 14,
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: spaceHorizontal),
                         ],
                       ),
                     ),
@@ -408,6 +402,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
+                    if(widget.model.isGroupService)
+                      const SizedBox(height: spaceVertical / 2),
+                    if(widget.model.isGroupService)
+                      ThemedText(
+                        text: widget.model.groupName ?? "",
+                        color: colorBlack,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
                     const SizedBox(height: spaceVertical / 2),
                     ThemedText(
                       text: widget.model.serviceName ?? "",
@@ -464,21 +467,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 5),
-                        // Container(height: 20, width: 1, color: colorDivider),
-                        // const SizedBox(width: 5),
-                        // const Icon(
-                        //   CupertinoIcons.time,
-                        //   color: colorGreen,
-                        //   size: 14,
-                        // ),
-                        // const SizedBox(width: 5),
-                        // Text(
-                        //   "${widget.model.totalHours}hrs",
-                        //   style: const TextStyle(
-                        //       color: colorBlack,
-                        //       fontSize: 12,
-                        //       fontWeight: FontWeight.w500),
-                        // ),
                       ],
                     ),
                     const SizedBox(height: spaceVertical / 2),
@@ -534,19 +522,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         width: MediaQuery.of(context).size.width * .9,
                         color: colorDivider),
                     const SizedBox(height: spaceVertical),
-                    /*  SizedBox(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * .85,
-                      child: ThemedButton(
-                        title: "Cancel",
-                        padding: EdgeInsets.zero,
-                        fontSize: 16,
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: spaceVertical / 1.5),*/
                   ],
                 ),
               ),
@@ -667,14 +642,14 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         ),
                         Radio<bool>(
                           value: true,
-                          groupValue: isIncludeLaunchBrake,
+                          groupValue: isIncludeLunchBrake,
                           activeColor: colorGreen,
                           onChanged: widget.model.tSConfirm == true
                               ? null
                               : (bool? value) {
                                   if (value != null) {
                                     setState(() {
-                                      isIncludeLaunchBrake = value;
+                                      isIncludeLunchBrake = value;
                                     });
                                   }
                                 },
@@ -682,7 +657,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         InkWell(
                           onTap: () {
                             setState(() {
-                              isIncludeLaunchBrake = true;
+                              isIncludeLunchBrake = true;
                             });
                           },
                           child: ThemedText(
@@ -694,23 +669,29 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                         ),
                         Radio<bool>(
                           value: false,
-                          groupValue: isIncludeLaunchBrake,
+                          groupValue: isIncludeLunchBrake,
                           activeColor: colorGreen,
                           onChanged: widget.model.tSConfirm == true
                               ? null
                               : (bool? value) {
                                   if (value != null) {
                                     setState(() {
-                                      isIncludeLaunchBrake = value;
+                                      isIncludeLunchBrake = value;
+                                      resetBreak();
                                     });
                                   }
                                 },
                         ),
                         InkWell(
                           onTap: () {
-                            setState(() {
-                              isIncludeLaunchBrake = false;
-                            });
+                            try {
+                              resetBreak();
+                              setState(() {
+                                isIncludeLunchBrake = false;
+                              });
+                            } catch (e) {
+                              print("An error occurred: $e");
+                            }
                           },
                           child: ThemedText(
                             text: "No",
@@ -722,75 +703,11 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       ],
                     ),
                     const SizedBox(height: spaceBetween),
-                    if (isIncludeLaunchBrake)
+                    if (isIncludeLunchBrake)
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ThemedRichText(spanList: [
-                                      getTextSpan(
-                                        text: "TS Launch Break",
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        fontColor: colorBlack,
-                                      ),
-                                      getTextSpan(
-                                        text: "*",
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        fontColor: colorRed,
-                                      ),
-                                    ]),
-                                    const SizedBox(height: spaceBetween),
-                                    SizedBox(
-                                      height: textFiledHeight,
-                                      child: ThemedTextField(
-                                        controller: _controllerHourLaunch,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: spaceHorizontal),
-                                        borderColor: colorGreyBorderD3,
-                                        backgroundColor: colorGreyE8,
-                                        isReadOnly: true,
-                                        onTap: () {},
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              /* const SizedBox(width: spaceHorizontal / 2),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ThemedText(
-                                      text: "",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    SizedBox(
-                                      height: textFiledHeight,
-                                      child: ThemedTextField(
-                                        controller: _controllerMinuteLaunch,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: spaceHorizontal),
-                                        borderColor: colorGreyBorderD3,
-                                        backgroundColor: colorWhite,
-                                        isReadOnly: true,
-                                        onTap: () {},
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )*/
-                            ],
-                          ),
                           const SizedBox(height: spaceBetween),
                           Row(
                             children: [
@@ -801,7 +718,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   children: [
                                     ThemedRichText(spanList: [
                                       getTextSpan(
-                                        text: "TS Launch From",
+                                        text: "TS Lunch From",
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         fontColor: colorBlack,
@@ -817,7 +734,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     SizedBox(
                                       height: textFiledHeight,
                                       child: ThemedTextField(
-                                        controller: _controllerFromLaunch,
+                                        controller: _controllerFromLunch,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: spaceHorizontal),
                                         borderColor: colorGreyBorderD3,
@@ -828,7 +745,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                             : () async {
                                                 showTimePickerDialog(
                                                   initialTimeText:
-                                                      _controllerFromLaunch
+                                                      _controllerFromLunch
                                                           .text,
                                                   onTimePick: (hours, minutes) {
                                                     int tempstartBreakMin =
@@ -864,15 +781,15 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                           tempstartBreakMin;
                                                     }
 
-                                                    _controllerFromLaunch.text =
+                                                    _controllerFromLunch.text =
                                                         "${get2CharString(hours)}:${get2CharString(minutes)}";
                                                     String diff =
                                                         findDurationDifference(
-                                                            _controllerFromLaunch
+                                                            _controllerFromLunch
                                                                 .text,
-                                                            _controllerToLaunch
+                                                            _controllerToLunch
                                                                 .text);
-                                                    _controllerHourLaunch.text =
+                                                    _controllerHourLunch.text =
                                                         diff;
                                                     setState(() {});
                                                   },
@@ -891,7 +808,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   children: [
                                     ThemedRichText(spanList: [
                                       getTextSpan(
-                                        text: "TS Launch To",
+                                        text: "TS Lunch To",
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         fontColor: colorBlack,
@@ -907,7 +824,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     SizedBox(
                                       height: textFiledHeight,
                                       child: ThemedTextField(
-                                        controller: _controllerToLaunch,
+                                        controller: _controllerToLunch,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: spaceHorizontal),
                                         borderColor: colorGreyBorderD3,
@@ -918,9 +835,9 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                             : () async {
                                                 showTimePickerDialog(
                                                   initialTimeText:
-                                                      _controllerToLaunch.text,
+                                                      _controllerToLunch.text,
                                                   onTimePick: (hours, minutes) {
-                                                    int teampendBrakMin =
+                                                    int teampendBreakMin =
                                                         (hours * 60) + minutes;
                                                     int startMinTs =
                                                         (fromHour * 60) + fromMin;
@@ -930,12 +847,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                  if(endMinTs < startMinTs){
                                                    endMinTs = endMinTs+1440;
                                                    }
-                                                    if(teampendBrakMin < startBreakMin){
-                                                      teampendBrakMin = teampendBrakMin+1440;
+                                                    if(teampendBreakMin < startBreakMin){
+                                                      teampendBreakMin = teampendBreakMin+1440;
                                                     }
                                                     print(startBreakMin.toString());
                                                     print(endMinTs.toString());
-                                                    print(teampendBrakMin.toString());
+                                                    print(teampendBreakMin.toString());
 
                                                     if (startBreakMin == 0 && endMinTs > 1440) {
                                                       showSnackBarWithText(
@@ -948,12 +865,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
 
                                                     print(startBreakMin.toString());
                                                     print(endMinTs.toString());
-                                                    print(teampendBrakMin.toString());
+                                                    print(teampendBreakMin.toString());
                                                     print(startMinTs.toString());
 
-                                                    if (teampendBrakMin <
+                                                    if (teampendBreakMin <
                                                             startBreakMin ||
-                                                        teampendBrakMin <
+                                                        teampendBreakMin <
                                                             startMinTs) {
                                                       showSnackBarWithText(
                                                           _keyScaffold
@@ -962,25 +879,19 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                                           color: colorRed);
                                                       return;
                                                     } else {
-                                                      endBrakMin =
-                                                          teampendBrakMin;
+                                                      endBreakMin =
+                                                          teampendBreakMin;
                                                     }
 
-                                                    _controllerToLaunch.text =
+                                                    _controllerToLunch.text =
                                                         "${get2CharString(hours)}:${get2CharString(minutes)}";
-                                                   breakMin = endBrakMin - startBreakMin;
+                                                   breakMin = endBreakMin - startBreakMin;
                                                     print(breakMin.toString());
                                                     int h = (breakMin/60).toInt();
                                                     int m = (breakMin%60).toInt();
                                                     print(h.toString());
                                                     print(m.toString());
-                                                    _controllerHourLaunch.text =  "${get2CharString(h)}:${get2CharString(m)}";
-                                                   /* String diff =
-                                                        findDurationDifference(
-                                                            _controllerFromLaunch
-                                                                .text,
-                                                            _controllerToLaunch
-                                                                .text);*/
+                                                    _controllerHourLunch.text =  "${get2CharString(h)}:${get2CharString(m)}";
                                                     calculateHours();
 
                                                     setState(() {});
@@ -994,7 +905,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                               ),
                             ],
                           ),
-                          /*  const SizedBox(height: spaceBetween),
+                          const SizedBox(height: spaceBetween),
                           Row(
                             children: [
                               Expanded(
@@ -1004,7 +915,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                   children: [
                                     ThemedRichText(spanList: [
                                       getTextSpan(
-                                        text: "TS Launch To",
+                                        text: "TS Lunch Break",
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         fontColor: colorBlack,
@@ -1019,48 +930,21 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                                     const SizedBox(height: spaceBetween),
                                     SizedBox(
                                       height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: toHourLaunch,
-                                        dataString: hourList,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            toHourLaunch = value;
-                                            findDurationDifference();
-                                          });
-                                        },
+                                      child: ThemedTextField(
+                                        controller: _controllerHourLunch,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: spaceHorizontal),
+                                        borderColor: colorGreyBorderD3,
+                                        backgroundColor: colorGreyE8,
+                                        isReadOnly: true,
+                                        onTap: () {},
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: spaceHorizontal / 2),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ThemedText(
-                                      text: "",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    SizedBox(
-                                      height: textFiledHeight,
-                                      child: ThemedDropDown(
-                                        defaultValue: toMinuteLaunch,
-                                        dataString: minuteList,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            toMinuteLaunch = value;
-                                            findDurationDifference();
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
                             ],
-                          ),*/
+                          ),
                           const SizedBox(height: spaceBetween),
                         ],
                       ),
@@ -1404,18 +1288,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                       controller: _controllerTimeSheetComments,
                     ),
                     const SizedBox(height: spaceBetween),
-                    const SizedBox(height: spaceBetween),
-                    /* SizedBox(
-                      height: 50,
-                      child: ThemedButton(
-                        title: "Save",
-                        padding: EdgeInsets.zero,
-                        onTap: () {
-                          saveTimeSheet();
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: spaceBetween),*/
                   ],
                 ),
               ),
@@ -1427,11 +1299,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   }
 
   calculateHours() {
+    print(calculateHours);
     print(fromHour);
     print(fromMin);
     print(toHour);
     print(toMin);
-    print(origionalMins);
+    print(originalMins);
     print(breakMin);
 
     int diff = ((toHour * 60) + toMin) - ((fromHour * 60) + fromMin);
@@ -1445,8 +1318,8 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
     _controllerHours.text =
         "${get2CharString(totalHours)}:${get2CharString(totalMin)}";
     print(diff);
-    print(origionalMins);
-    double diffMin = ((((diff - breakMin) - origionalMins) * 100) / 60) / 100;
+    print(originalMins);
+    double diffMin = ((((diff - breakMin) - originalMins) * 100) / 60) / 100;
     print(diffMin);
     String stdiffMin = diffMin.toStringAsFixed(2);
     diffHours = double.parse(stdiffMin);
@@ -1476,44 +1349,44 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
   }
 
   String findDurationDifference(String dataFromString, String dataToString) {
-    int fromHourLaunch = dataFromString.isNotEmpty
+    int fromHourLunch = dataFromString.isNotEmpty
         ? int.tryParse(dataFromString.split(":").first) ?? TimeOfDay.now().hour
         : TimeOfDay.now().hour;
-    int fromMinuteLaunch = dataFromString.isNotEmpty
+    int fromMinuteLunch = dataFromString.isNotEmpty
         ? int.tryParse(dataFromString.split(":").last) ?? TimeOfDay.now().minute
         : TimeOfDay.now().minute;
-    int toHourLaunch = dataToString.isNotEmpty
+    int toHourLunch = dataToString.isNotEmpty
         ? int.tryParse(dataToString.split(":").first) ?? TimeOfDay.now().hour
         : TimeOfDay.now().hour;
-    int toMinuteLaunch = dataToString.isNotEmpty
+    int toMinuteLunch = dataToString.isNotEmpty
         ? int.tryParse(dataToString.split(":").last) ?? TimeOfDay.now().minute
         : TimeOfDay.now().minute;
 
     Duration difference = DateTime(DateTime.now().year, DateTime.now().month,
-            DateTime.now().day, toHourLaunch, toMinuteLaunch)
+            DateTime.now().day, toHourLunch, toMinuteLunch)
         .difference(DateTime(DateTime.now().year, DateTime.now().month,
-            DateTime.now().day, fromHourLaunch, fromMinuteLaunch));
+            DateTime.now().day, fromHourLunch, fromMinuteLunch));
     int hour = difference.inHours;
     int minute = difference.inMinutes;
     breakMin = (hour * 60) + minute;
 
     setState(() {
       if (hour >= 0) {
-        hourLaunch = hour < 10 ? "0$hour" : hour.toString();
+        hourLunch = hour < 10 ? "0$hour" : hour.toString();
         if (minute >= 0) {
-          minuteLaunch = (minute % 60) < 10
+          minuteLunch = (minute % 60) < 10
               ? "0${(minute % 60)}"
               : (minute % 60).toString();
         } else {
-          minuteLaunch = "00";
+          minuteLunch = "00";
         }
       } else {
-        hourLaunch = "00";
-        minuteLaunch = "00";
+        hourLunch = "00";
+        minuteLunch = "00";
       }
     });
-    print("Launch : $hourLaunch:$minuteLaunch");
-    return "$hourLaunch:$minuteLaunch";
+    print("Lunch : $hourLunch:$minuteLunch");
+    return "$hourLunch:$minuteLunch";
   }
 
   get2CharString(int data) {
@@ -1526,11 +1399,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
         try {
           getOverlay(context);
 
-          int tsconfirm = 0;
-          if (widget.model.tSConfirm != null) {
-            tsconfirm = widget.model.tSConfirm! ? 1 : 0;
-          }
-
           String body = json.encode({
             'auth_code':
                 (await Preferences().getPrefString(Preferences.prefAuthCode)),
@@ -1542,11 +1410,12 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
                 : "0",
             'userId':
                 widget.model.empID != null ? widget.model.empID.toString() : 0,
-            'shiftComments': _controllerTimeSheetComments.text + " ",
+            'shiftComments': _controllerTimeSheetComments.text.trim(),
             'riskAlert': isRiskAlert.toString(),
             'tsId': widget.model.timesheetID != null
                 ? widget.model.timesheetID.toString()
                 : "0",
+            "SSCId" : widget.model.serviceShceduleClientID
           });
           print(body);
 
@@ -1594,49 +1463,30 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
           }
 
           String body = json.encode({
-            'auth_code':
-                (await Preferences().getPrefString(Preferences.prefAuthCode)),
-            'timesheetID': widget.model.timesheetID != null
-                ? widget.model.timesheetID.toString()
-                : "0",
-            'RosterID': widget.model.rosterID != null
-                ? widget.model.rosterID.toString()
-                : "0",
+            'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
+            'timesheetID': widget.model.timesheetID != null ? widget.model.timesheetID.toString() : "0",
+            'RosterID': widget.model.rosterID != null ? widget.model.rosterID.toString() : "0",
             'TSFrom': "1899-12-30 ${_controllerFromService.text}",
             'TSUntil': "1899-12-30 ${_controllerToService.text}",
-            'TSLunchBreakSetting': isIncludeLaunchBrake.toString(),
-            'TSLunchBreak': isIncludeLaunchBrake
-                ? "${_controllerHourLaunch.text}"
-                : "00.00",
-            'TSLBFrom': isIncludeLaunchBrake
-                ? "1899-12-30 ${_controllerFromLaunch.text}"
-                : "1899-12-30 00:00",
-            'TSLBTo': isIncludeLaunchBrake
-                ? "1899-12-30 ${_controllerToLaunch.text}"
-                : "1899-12-30 00:00",
+            'TSLunchBreakSetting': isIncludeLunchBrake.toString(),
+            'TSLunchBreak': isIncludeLunchBrake ? _controllerHourLunch.text : "00.00",
+            'TSLBFrom': isIncludeLunchBrake ? "1899-12-30 ${_controllerFromLunch.text}" : "1899-12-30 00:00",
+            'TSLBTo': isIncludeLunchBrake ? "1899-12-30 ${_controllerToLunch.text}" : "1899-12-30 00:00",
             'TSHours':timeToDecimal(totalWorkMin),
             'TSTravelDistance': _controllerTravelDistance.text.isEmpty ? "0.0" : _controllerTravelDistance.text,
-            'TSComments': _controllerTimeSheetComments.text + " ",
+            'TSComments': "${_controllerTimeSheetComments.text} ",
             'TSConfirm': tsconfirm,
             'TSHoursDiff': 0.0, //not in use
             'TSTravelDistanceDiff': "0.0", //not in use
             'TSTravelTime': timeToDecimal(travelMin),
             'tsHoursDifference': diffHours,
-            'empID':
-                widget.model.empID != null ? widget.model.empID.toString() : 0,
-            'RosterDate': DateFormat("dd/MM/yyyy")
-                .format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
+            'empID': widget.model.empID != null ? widget.model.empID.toString() : 0,
+            'RosterDate': DateFormat("dd/MM/yyyy").format(getDateTimeFromEpochTime(widget.model.serviceDate!)!),
             'RiskAlert': isRiskAlert.toString(),
-            'clientID': widget.model.rESID != null
-                ? widget.model.rESID.toString()
-                : "0",
+            'clientID': widget.model.rESID != null ? widget.model.rESID.toString() : "0",
             'TSClientTravelDistance': _controllerClientTravelDistance.text.isEmpty ?  "0.0" : _controllerClientTravelDistance.text,
-            'ssEmployeeID': widget.model.servicescheduleemployeeID != null
-                ? widget.model.servicescheduleemployeeID.toString()
-                : "0",
-            'servicetypeid': widget.model.tsservicetype != null
-                ? widget.model.tsservicetype.toString()
-                : "0",
+            'ssEmployeeID': widget.model.servicescheduleemployeeID != null ? widget.model.servicescheduleemployeeID.toString() : "0",
+            'servicetypeid': widget.model.tsservicetype != null ? widget.model.tsservicetype.toString() : "0",
             'fundingSourceName': widget.model.fundingsourcename,
           });
           print(body);
@@ -1649,7 +1499,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
               Uri.parse("$masterURL$endSaveTimesheet"),
               headers: {"Content-Type": "application/json"},
               body: body);
-          // response = await HttpService().init(request, _keyScaffold);
           log("Response $endSaveTimesheet : ${response.body}");
           if (response != null) {
             var jResponse = json.decode(response.body.toString());
@@ -1757,7 +1606,6 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       'Location': address,
       'SaveTimesheet': "true",
     };
-    print("params : ${params}");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -1771,9 +1619,7 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
         try {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
-          if (response != null && response != "") {
-            // print('res ${response}');
-
+          if (response.trim().isNotEmpty) {
             if (json.decode(response)["status"] == 1) {
               showSnackBarWithText(_keyScaffold.currentState, "Success",
                   color: colorGreen);
@@ -1797,6 +1643,48 @@ class _TimeSheetFormState extends State<TimeSheetForm> {
       }
     });
   }
+
+  bool validateTimes({
+    required TimeOfDay startTime,
+    required TimeOfDay endTime,
+    required TimeOfDay breakStartTime,
+    required TimeOfDay breakEndTime,
+  }) {
+    // Convert TimeOfDay to Duration for easier comparison
+    Duration start = Duration(hours: startTime.hour, minutes: startTime.minute);
+    Duration end = Duration(hours: endTime.hour, minutes: endTime.minute);
+    Duration breakStart = Duration(hours: breakStartTime.hour, minutes: breakStartTime.minute);
+    Duration breakEnd = Duration(hours: breakEndTime.hour, minutes: breakEndTime.minute);
+
+    // Handle overnight cases by adding 24 hours if end time or break end time is earlier than start time
+    if (end <= start) {
+      end += Duration(hours: 24);
+    }
+    if (breakStart <= start) {
+      breakStart += Duration(hours: 24);
+    }
+    if (breakEnd <= breakStart) {
+      breakEnd += Duration(hours: 24);
+    }
+
+    // Ensure start time is before end time
+    if (start >= end) {
+      return false;
+    }
+
+    // Ensure break start time is between start time and end time
+    if (breakStart <= start || breakStart >= end) {
+      return false;
+    }
+
+    // Ensure break end time is between break start time and end time
+    if (breakEnd <= breakStart || breakEnd >= end) {
+      return false;
+    }
+
+    return true;
+  }
+  
 }
 
 String timeToDecimal(int minute) {

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:rcare_2/utils/ColorConstants.dart';
 import 'package:rcare_2/utils/Constants.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
@@ -18,8 +17,9 @@ import 'models/ClientDocModel.dart';
 class ClientDocument extends StatefulWidget {
   final String id;
   final String resId;
+  final String clientName;
 
-  const ClientDocument({super.key, required this.id, required this.resId});
+  const ClientDocument({super.key, required this.id, required this.resId, required this.clientName});
 
   @override
   State<ClientDocument> createState() => _ClientDocumentState();
@@ -44,7 +44,7 @@ class _ClientDocumentState extends State<ClientDocument> {
       'type': "ClientDocs",
       'userid': widget.resId,
       'compcode':
-          (await Preferences().getPrefString(Preferences.prefComepanyCode))
+          (await Preferences().getPrefString(Preferences.prefCompanyCode))
               .toString(),
       'id': widget.id,
     };
@@ -62,8 +62,6 @@ class _ClientDocumentState extends State<ClientDocument> {
           String response = await HttpService().init(request, _keyScaffold);
           if (response != null && response != "") {
             List jResponse = json.decode(response);
-            // ProfileModel responseModel = ProfileModel.fromJson(jResponse);
-            print('Profile ${jResponse}');
             dataList =
                 jResponse.map((e) => ClientDocModel.fromJson(e)).toList();
           } else {
@@ -93,6 +91,25 @@ class _ClientDocumentState extends State<ClientDocument> {
       body: Container(
         child: Column(
           children: [
+            const SizedBox(height: space),
+            Container(
+              margin: const EdgeInsets.only(left: 12.0), // Adjust the right margin value as needed
+              child: Row(
+                children: [
+                  ThemedText(
+                    text: "Client Name : ",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  ThemedText(
+                    text: widget.clientName,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: space),
             Expanded(
               child: ListView.builder(
                 itemCount: dataList.length,
@@ -128,20 +145,6 @@ class _ClientDocumentState extends State<ClientDocument> {
                     ),
                   );
                 },
-              ),
-            ),
-            SizedBox(
-              height: 50,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-                child: ThemedButton(
-                  title: "Close",
-                  padding: EdgeInsets.zero,
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
               ),
             ),
             const SizedBox(height: spaceVertical),

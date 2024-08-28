@@ -45,6 +45,8 @@ class ClientInformationModel {
   String? birthDateValue;
   String? empProfilePic;
   String? clientGoals;
+  String? careNotesClient;
+
 
   ClientInformationModel(
       {this.iD,
@@ -92,7 +94,10 @@ class ClientInformationModel {
         this.riskNotification,
         this.birthDateValue,
         this.empProfilePic,
-        this.clientGoals});
+        this.clientGoals,
+        this.careNotesClient
+      }
+      );
 
   ClientInformationModel.fromJson(Map<String, dynamic> json) {
     iD = json['ID'];
@@ -141,6 +146,8 @@ class ClientInformationModel {
     birthDateValue = json['BirthDateValue'];
     // empProfilePic = json['EmpProfilePic'];
     clientGoals = json['ClientGoals'];
+    careNotesClient = json['CareNotesClient'];
+
   }
 
   Map<String, dynamic> toJson() {
@@ -191,6 +198,7 @@ class ClientInformationModel {
     data['BirthDateValue'] = this.birthDateValue;
     data['EmpProfilePic'] = this.empProfilePic;
     data['ClientGoals'] = this.clientGoals;
+    data['CareNotesClient'] = this.careNotesClient;
     return data;
   }
 }

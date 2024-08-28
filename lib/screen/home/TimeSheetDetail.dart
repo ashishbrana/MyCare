@@ -32,10 +32,34 @@ class TimeSheetDetail extends StatefulWidget {
 }
 
 class _TimeSheetDetailState extends State<TimeSheetDetail> {
+  String timeSheetTitle = "";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    final Map<int, String> titlesMap = {
+      1: "Unconfirmed Shift",
+      0: "Confirmed Shift",
+      2: "Timesheet Details",
+      3: "Available Shift",
+      5: "Service Details",
+    };
+
+    timeSheetTitle = titlesMap[widget.indexSelectedFrom] ?? "Default Title";
+
+    if (titlesMap.containsKey(widget.indexSelectedFrom)) {
+      timeSheetTitle = titlesMap[widget.indexSelectedFrom]!;
+    } else {
+      print("option default");
+      // Handle the default case if needed
+      // timeSheetTitle = someDefaultValue;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, title: "TimeSheet Detail"),
+      appBar: buildAppBar(context, title: timeSheetTitle),
       body: Container(
         width: MediaQuery.of(context).size.width,
         child: Column(
@@ -47,6 +71,15 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
+            if(widget.model.isGroupService)
+              const SizedBox(height: spaceVertical / 2),
+            if(widget.model.isGroupService)
+              ThemedText(
+                text: widget.model.groupName ?? "",
+                color: colorBlack,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
             const SizedBox(height: spaceVertical / 2),
             ThemedText(
               text: widget.model.serviceName ?? "",
@@ -54,6 +87,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
+
             const SizedBox(height: spaceVertical / 2),
             Container(
                 height: 1,
@@ -270,7 +304,7 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
                     padding: EdgeInsets.zero,
                     fontSize: 16,
                     onTap: () async {
-                      if (widget.model.resName != "Group Service") {
+                      if (!widget.model.isGroupService) {
                         String fullName = await Preferences()
                             .getPrefString(Preferences.prefUserFullName);
                         print(fullName);
@@ -313,18 +347,6 @@ class _TimeSheetDetailState extends State<TimeSheetDetail> {
               if (widget.indexSelectedFrom != 3 &&
                   widget.indexSelectedFrom != 1)
                 const SizedBox(height: spaceVertical / 1.5),
-            SizedBox(
-              height: 50,
-              width: MediaQuery.of(context).size.width * .85,
-              child: ThemedButton(
-                title: "Cancel",
-                padding: EdgeInsets.zero,
-                fontSize: 16,
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
           ],
         ),
       ),

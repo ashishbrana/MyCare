@@ -13,6 +13,7 @@ const MaterialColor colorPrimary = MaterialColor(0xFF1E3050, {
   900: Color(0xFF1E3050),
 });
 
+const Color splashBlue = Color(0xFF1a153c);
 const Color colorGreen = Color(0xFF24AE91);
 const Color colorLiteGreen = Color(0xFF92e2d1);
 const Color colorRed = Color(0xFFCD252D);
@@ -42,5 +43,15 @@ const Color colorTransparent = Color(0x00000000);
 
 
 const Color colorFontColor = Color(0xEE1E2853);
+
+
+const Color black = Color(0xff626262);
+const Color radiantWhite = Color(0xffffffff);
+const Color white = Color(0xfff0f0f0);
+const Color bluishGrey = Color(0xffdddee9);
+const Color navyBlue = Color(0xff6471e9);
+const Color lightNavyBlue = Color(0xffb3b9ed);
+const Color red = Color(0xfff96c6c);
+const Color grey = Color(0xffe0e0e0);
 
 

@@ -15,6 +15,7 @@ class ProgressNoteListByNoteIdModel {
   String? createdByName;
   String? clientRating;
   String? createdOn;
+  bool? isConfidential;
 
   ProgressNoteListByNoteIdModel(
       {this.noteID,
@@ -32,7 +33,9 @@ class ProgressNoteListByNoteIdModel {
         this.serviceassessmentformName,
         this.createdByName,
         this.clientRating,
-        this.createdOn});
+        this.createdOn,
+        this.isConfidential
+      });
 
   ProgressNoteListByNoteIdModel.fromJson(Map<String, dynamic> json) {
     noteID = json['NoteID'];
@@ -51,6 +54,7 @@ class ProgressNoteListByNoteIdModel {
     createdByName = json['CreatedByName'];
     clientRating = json['ClientRating'];
     createdOn = json['CreatedOn'];
+    isConfidential = json['isConfidential'];
   }
 
   Map<String, dynamic> toJson() {
@@ -71,6 +75,7 @@ class ProgressNoteListByNoteIdModel {
     data['CreatedByName'] = this.createdByName;
     data['ClientRating'] = this.clientRating;
     data['CreatedOn'] = this.createdOn;
+    data['isConfidential'] = this.isConfidential;
     return data;
   }
 }

@@ -19,6 +19,7 @@ class ProfileModel {
   String? emrgcyContactPhone;
   String? privateEmail;
   String? userName;
+  String? prefName;
   String? password;
   String? contractorName;
   String? empProfilePic;
@@ -44,6 +45,7 @@ class ProfileModel {
         this.emrgcyContactPhone,
         this.privateEmail,
         this.userName,
+        this.prefName,
         this.password,
         this.contractorName,
         this.empProfilePic});
@@ -72,6 +74,7 @@ class ProfileModel {
     password = json['Password'];
     contractorName = json['ContractorName'];
     empProfilePic = json['EmpProfilePic'];
+    prefName = json['PrefName'];
   }
 
   Map<String, dynamic> toJson() {
@@ -99,6 +102,7 @@ class ProfileModel {
     data['Password'] = this.password;
     data['ContractorName'] = this.contractorName;
     data['EmpProfilePic'] = this.empProfilePic;
+    data['PrefName'] = this.prefName;
     return data;
   }
 }

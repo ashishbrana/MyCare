@@ -1,3 +1,5 @@
+import '../../../utils/methods.dart';
+
 class GroupServiceModel {
   int? servicescheduleCLientID;
   int? noteID;
@@ -17,6 +19,9 @@ class GroupServiceModel {
   String? resAddress;
   bool isCompleted = false;
   bool isSelected = false;
+  String? description;
+  String? assessmentcomments;
+  int? serviceScheduleType;
 
   GroupServiceModel(
       {this.servicescheduleCLientID,
@@ -34,7 +39,11 @@ class GroupServiceModel {
       this.rESID,
       this.resHomePhone,
       this.resMobilePhone,
-      this.resAddress});
+      this.resAddress,
+      this.description,
+      this.assessmentcomments,
+      this.serviceScheduleType
+      });
 
   GroupServiceModel.fromJson(Map<String, dynamic> json) {
     servicescheduleCLientID = json['servicescheduleCLientID'];
@@ -54,6 +63,9 @@ class GroupServiceModel {
     resHomePhone = json['ResHomePhone'];
     resMobilePhone = json['ResMobilePhone'];
     resAddress = json['ResAddress'];
+    description = json['description'];
+    assessmentcomments = json['assessmentcomments'];
+    serviceScheduleType = json['serviceScheduleType'];
     isCompleted = (noteID != null && noteID != 0);
   }
 
@@ -75,6 +87,18 @@ class GroupServiceModel {
     data['ResHomePhone'] = this.resHomePhone;
     data['ResMobilePhone'] = this.resMobilePhone;
     data['ResAddress'] = this.resAddress;
+    data['description'] = this.description;
+    data['assessmentcomments'] = this.assessmentcomments;
+    data['serviceScheduleType'] = this.serviceScheduleType;
     return data;
+  }
+}
+extension GroupServiceModelExtension on GroupServiceModel {
+  bool allowAddNote() {
+    return (getDateTimeFromEpochTime(serviceDate!) !=
+        null &&
+        getDateTimeFromEpochTime(serviceDate!)!
+            .isFutureDate ==
+            false);
   }
 }

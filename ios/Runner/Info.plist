@@ -29,13 +29,15 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>This app has been use to camera.</string>
+	<string>This app requires access to your camera to allow you to attach phots along with notes and update profile picture</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app uses Face ID to quickly and securely verify your identity to all access to application.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Your location is used for determining the nearest bus stop to your current location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used for determining the nearest bus stop to your current location.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app has been use to media.</string>
+	<string>This app requires access to your camera to allow you to attach phots along with notes and update profile picture</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

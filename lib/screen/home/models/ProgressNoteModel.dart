@@ -13,7 +13,7 @@ class ProgressNoteModel {
   String? description;
   int? clientID;
   String? clientsignature;
-  Null? noteImagebase64;
+  String? noteImagebase64;
   int? createdBy;
   String? createdByName;
   String? clientRating;
@@ -21,6 +21,9 @@ class ProgressNoteModel {
   int? serviceScheduleEmpID;
   int? tSid;
   String? serviceDate;
+  int? serviceScheduleType;
+  String? groupName;
+  bool? isConfidential;
 
   ProgressNoteModel(
       {this.clientName,
@@ -44,7 +47,10 @@ class ProgressNoteModel {
         this.createdOn,
         this.serviceScheduleEmpID,
         this.tSid,
-        this.serviceDate
+        this.serviceDate,
+        this.serviceScheduleType,
+        this.groupName,
+        this.isConfidential,
       });
 
   ProgressNoteModel.fromJson(Map<String, dynamic> json) {
@@ -70,6 +76,9 @@ class ProgressNoteModel {
     serviceScheduleEmpID = json['ServiceScheduleEmpID'];
     tSid = json['TSid'];
     serviceDate = json["ServiceDate"];
+    serviceScheduleType = json['serviceScheduleType'];
+    groupName = json["groupName"];
+    isConfidential = json["isConfidential"];
   }
 
   Map<String, dynamic> toJson() {
@@ -96,6 +105,10 @@ class ProgressNoteModel {
     data['ServiceScheduleEmpID'] = this.serviceScheduleEmpID;
     data['TSid'] = this.tSid;
     data['ServiceDate'] = this.serviceDate;
+    data['groupName'] = this.groupName;
+    data['serviceScheduleType'] = this.serviceScheduleType;
+    data['isConfidential'] = this.isConfidential;
+
     return data;
   }
 }

@@ -11,6 +11,7 @@ import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
+import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
 import 'HomeScreen.dart';
 
@@ -34,34 +35,39 @@ class ProgressNoteListByNoteId extends StatefulWidget {
 }
 
 class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
+
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
   List<ProgressNoteModel> dataList = [];
+  List<ProgressNoteModel> filteredList = [];
 
   int selectedExpandedIndex = -1;
+  int lastSelectedRow = -1;
+
+  final TextEditingController _controllerSearch = TextEditingController();
+  FocusScopeNode focusNode = FocusScopeNode();
+  FocusScopeNode focusNavigatorNode = FocusScopeNode();
 
   @override
   void initState() {
     super.initState();
-    print("INITSTATE");
     getData();
   }
 
   getData() async {
-    // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
+    print("notelist");
+    int userid =  (await Preferences().getPrefInt(Preferences.prefUserID));
     Map<String, dynamic> params = {
-      'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
-      'accountType':
-          (await Preferences().getPrefInt(Preferences.prefAccountType))
-              .toString(),
-      'fromdate': DateFormat("yyyy/MM/dd").format(fromDate),
-      'todate': DateFormat("yyyy/MM/dd").format(toDate),
+      'auth_code': (await Preferences().getPrefString(
+          Preferences.prefAuthCode)),
+      'accountType': (await Preferences().getPrefInt(
+          Preferences.prefAccountType)).toString(),
+      'fromdate': fromDate.shortDate(),
+      'todate': toDate.shortDate(),
       'userid': widget.userId.toString(),
       'NoteID': widget.noteID.toString(),
       'RosterID': widget.rosterID.toString(),
       'isCareworkerSpecific': "1",
     };
-    print("params : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -76,13 +82,26 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
           if (response != null && response != "") {
-            // print('res ${response}');
-
             List jResponse = json.decode(response);
-            print("jResponse $jResponse");
+
             dataList =
                 jResponse.map((e) => ProgressNoteModel.fromJson(e)).toList();
-            print("models.length : ${dataList.length}");
+            filteredList.clear();
+            for (int k = 0; k < dataList.length; k++) {
+              var model = dataList[k];
+              print(userid);
+              print(model.createdBy);
+              if(model.isConfidential == true && model.createdBy != userid ) {
+                //  do not add in list
+              }
+              else{
+                filteredList.add(model);
+              }
+            }
+
+
+           // filteredList.addAll(dataList);
+
 
             setState(() {});
           } else {
@@ -103,38 +122,124 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
     });
   }
 
+  Widget createStyledContainer(String labelText, BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
+      decoration: BoxDecoration(
+        color: colorGreen,
+        borderRadius: BorderRadius.circular(8), // Adjust the radius as needed
+      ),
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
+      padding: const EdgeInsets.all(3),
+      child: ThemedText(
+        text: labelText,
+        color: colorWhite,
+        fontSize: 12,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  void performSearch(String searchString) {
+
+    filteredList = searchString.isNotEmpty && searchString.length > 1
+          ? dataList
+          .where((model) =>
+      model.clientName?.toLowerCase().contains(searchString.toLowerCase()) ==
+          true ||
+          model.clientName?.toLowerCase().contains(searchString.toLowerCase()) ==
+              true)
+          .toList()
+          : List.from(dataList);
+
+      setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
+      appBar: buildAppBar(context, title: "Progress Notes"),
       backgroundColor: colorLiteBlueBackGround,
       body: Column(
+
         children: [
+          const SizedBox(height: 8),
           Container(
-            margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
-            decoration: BoxDecoration(
-              color: colorGreen,
-              borderRadius: boxBorderRadius,
+
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 10),
+              child: FocusScope(
+                node: focusNode,
+                child: ThemedTextField(
+                  borderColor: colorPrimary,
+                  controller: _controllerSearch,
+                  // currentFocusNode: focusNode,
+                  preFix: const  Icon(
+                    Icons.search,
+                    size: 28, // Adjust the size as needed
+                    color: Color(0XFFBBBECB), // Adjust the color as needed
+                  ),
+                  sufFix: SizedBox(
+                    height: 40,
+                    width: 40,
+                    child: InkWell(
+                      onTap: () {
+                        _controllerSearch.text = "";
+                        performSearch(_controllerSearch.text);
+                      },
+                      child: Icon(
+                        _controllerSearch.text.isNotEmpty ? Icons.cancel : null,
+                        size: 20, // Adjust the size as needed
+                        color: Color(0XFFBBBECB), // Adjust the color as needed
+                      ),
+                    ),
+                  ),
+                  padding: EdgeInsets.zero,
+                  hintText: "Search...",
+                  onTap: () {
+                    setState(() {
+                      lastSelectedRow = -1;
+                    });
+                    focusNavigatorNode.unfocus();
+                    focusNode.requestFocus();
+                  },
+                  onChanged: (string) {
+                    performSearch(string);
+                  },
+                ),
+              )),
+          if(filteredList.isNotEmpty && filteredList.first.serviceScheduleType == 2)
+            Container(
+              margin: const EdgeInsets.only(
+                top: spaceVertical,
+                right: spaceHorizontal * 1.5,
+                left: spaceHorizontal * 1.5,
+              ),
+              child:
+              ThemedText(
+                text:
+                "${dataList[0].groupName}",
+                fontSize: 15,
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(3),
-            child: ThemedText(
-              text: "Progress Note",
-              color: colorWhite,
-              fontSize: 12,
-              textAlign: TextAlign.center,
-            ),
-          ),
           Expanded(
             child: ListView.builder(
-              itemCount: dataList.length,
+              itemCount: filteredList.length,
               primary: true,
               itemBuilder: (context, index) {
-                ProgressNoteModel model = dataList[index];
+                ProgressNoteModel model = filteredList[index];
                 return Container(
                   margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
                   decoration: BoxDecoration(
-                    color: colorWhite,
+                    color: lastSelectedRow == index
+                        ? Colors.grey.withOpacity(0.2)
+                        : colorWhite,
                     borderRadius: boxBorderRadius,
                   ),
                   child: Column(
@@ -154,13 +259,13 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       ThemedText(
                                         text: "${model.serviceName} ",
-                                        color: colorBlack,
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 14,
+                                        fontSize: 15,
+                                        color: Colors.blueAccent,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                       ThemedRichText(spanList: [
                                         getTextSpan(
@@ -179,14 +284,17 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                       const SizedBox(height: 8),
                                       Container(
                                         width:
-                                            MediaQuery.of(context).size.width,
+                                        MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width,
                                         height: 1,
                                         color: colorGreyBorderD3,
                                       ),
                                       const SizedBox(height: 3),
                                       Row(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           InkWell(
                                             onTap: () {
@@ -216,10 +324,10 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                   WidgetSpan(
                                                     child: Row(
                                                       mainAxisSize:
-                                                          MainAxisSize.min,
+                                                      MainAxisSize.min,
                                                       mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
+                                                      MainAxisAlignment
+                                                          .start,
                                                       children: [
                                                         const SizedBox(
                                                             width: 5),
@@ -227,15 +335,17 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                           FontAwesomeIcons
                                                               .calendarDays,
                                                           color: colorGreen,
-                                                          size: 14,
+                                                          size: 18,
                                                         ),
                                                         const SizedBox(
                                                             width: 5),
                                                         Text(
-                                                            formatServiceDate(model.noteDate),
-                                                          style: TextStyle(
+                                                          formatServiceDate(
+                                                              model.noteDate),
+                                                          style:
+                                                          const TextStyle(
                                                             color:
-                                                                colorGreyText,
+                                                            colorGreyText,
                                                             fontSize: 12,
                                                           ),
                                                         ),
@@ -245,7 +355,7 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                           width: 1,
                                                           height: 25,
                                                           color:
-                                                              colorGreyBorderD3,
+                                                          colorGreyBorderD3,
                                                         ),
                                                       ],
                                                     ),
@@ -253,29 +363,18 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                   WidgetSpan(
                                                     child: Row(
                                                       mainAxisSize:
-                                                          MainAxisSize.min,
+                                                      MainAxisSize.min,
                                                       mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
+                                                      MainAxisAlignment
+                                                          .start,
                                                       children: [
-                                                        /*const SizedBox(
-                                                          width: 30,
-                                                          height: 30,
-                                                        ),
                                                         const SizedBox(
                                                             width: 5),
-                                                        const Icon(
-                                                          CupertinoIcons.time,
-                                                          color: colorGreen,
-                                                          size: 14,
-                                                        ),*/
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        const Text(
-                                                          "Progress Note",
-                                                          style: TextStyle(
+                                                         Text(
+                                                          model.subject ?? "Progress Note",
+                                                          style: const TextStyle(
                                                             color:
-                                                                colorGreyText,
+                                                            colorGreyText,
                                                             fontSize: 12,
                                                           ),
                                                         ),
@@ -285,7 +384,7 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                           width: 1,
                                                           height: 25,
                                                           color:
-                                                              colorGreyBorderD3,
+                                                          colorGreyBorderD3,
                                                         ),
                                                         const SizedBox(
                                                             width: 5),
@@ -299,7 +398,7 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                           const SizedBox(width: 5),
                                           Container(
                                             width: 1,
-                                            height: 30,
+                                            height: 20,
                                             color: colorGreyBorderD3,
                                           ),
                                         ],
@@ -309,31 +408,40 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                 ),
                                 InkWell(
                                   onTap: () {
+                                    setState(() {
+                                      lastSelectedRow = index;
+                                    });
                                     Navigator.of(keyScaffold.currentContext ??
-                                            context)
+                                        context)
                                         .push(
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             ProgressNoteDetails(
-                                          // model: model,
-                                          userId:
+                                              // model: model,
+                                              userId:
                                               model.serviceScheduleEmpID ?? 0,
-                                          clientId: model.clientID ?? 0,
-                                          servicescheduleemployeeID:
+                                              clientId: model.clientID ?? 0,
+                                              servicescheduleemployeeID:
                                               model.serviceScheduleEmpID ?? 0,
-                                          serviceShceduleClientID:
+                                              serviceShceduleClientID:
                                               model.servicescheduleCLientID ??
                                                   0,
-                                          noteId: model.noteID ?? 0,
-                                          serviceName: model.serviceName ?? "",
-                                          clientName: model.clientName,
-                                          noteWriter: model.createdByName ?? "",
-                                          serviceDate: getDateTimeFromEpochTime(
+                                              noteId: model.noteID ?? 0,
+                                              serviceName: model.serviceName ??
+                                                  "",
+                                              clientName: model.clientName,
+                                              noteWriter: model.createdByName ??
+                                                  "",
+                                              serviceDate: getDateTimeFromEpochTime(
                                                   model.serviceDate ?? "") ??
-                                              DateTime.now(),
-                                        ),
+                                                  DateTime.now(),
+                                            ),
                                       ),
-                                    );
+                                    ).then((value) {
+                                      if (value != null) {
+                                        getData();
+                                      }
+                                    });
                                   },
                                   child: const Align(
                                     child: Icon(
@@ -346,16 +454,21 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                               ],
                             ),
                             if (selectedExpandedIndex == index)
+                              Row(
+                                children: [
+                                  const SizedBox(
+                                    width: 7,
+                                    height: 7,
+                                  ),
+                              Expanded(
+                              child:
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const SizedBox(
-                                        width: 30,
-                                        height: 30,
-                                      ),
+
                                       Expanded(
                                         child: RichText(
                                           text: TextSpan(
@@ -363,19 +476,21 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                               WidgetSpan(
                                                 child: Row(
                                                   mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  MainAxisSize.min,
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.start,
+                                                  MainAxisAlignment.start,
                                                   children: [
-                                                    const SizedBox(width: 5),
                                                     const Icon(
-                                                      Icons.timer,
+                                                      Icons
+                                                          .access_time_outlined,
                                                       color: colorGreen,
-                                                      size: 14,
+                                                      size: 20,
                                                     ),
                                                     const SizedBox(width: 5),
                                                     Text(
-                                                      "${model.timeFrom ?? ""} - ${model.timeTo ?? ""}",
+                                                      "${model.timeFrom ??
+                                                          ""} - ${model
+                                                          .timeTo ?? ""}",
                                                       style: const TextStyle(
                                                         color: colorGreyText,
                                                         fontSize: 14,
@@ -384,7 +499,7 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                     const SizedBox(width: 5),
                                                     Container(
                                                       width: 1,
-                                                      height: 25,
+                                                      height: 20,
                                                       color: colorGreyBorderD3,
                                                     ),
                                                     const SizedBox(width: 5),
@@ -394,19 +509,21 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                               WidgetSpan(
                                                 child: Row(
                                                   mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  MainAxisSize.min,
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.start,
+                                                  MainAxisAlignment.start,
                                                   children: [
                                                     const SizedBox(width: 5),
                                                     const Icon(
-                                                      Icons.timer,
+                                                      Icons.timelapse,
                                                       color: colorGreen,
-                                                      size: 14,
+                                                      size: 20,
                                                     ),
                                                     const SizedBox(width: 5),
                                                     Text(
-                                                      "Total Hours: ${model.totalHours ?? ""}hrs",
+                                                      "${model
+                                                          .totalHours ??
+                                                          ""}hrs",
                                                       style: const TextStyle(
                                                         color: colorGreyText,
                                                         fontSize: 14,
@@ -415,38 +532,7 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                                     const SizedBox(width: 5),
                                                     Container(
                                                       width: 1,
-                                                      height: 25,
-                                                      color: colorGreyBorderD3,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                  ],
-                                                ),
-                                              ),
-                                              WidgetSpan(
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: [
-                                                    const SizedBox(width: 5),
-                                                    const Icon(
-                                                      Icons.timer,
-                                                      color: colorGreen,
-                                                      size: 14,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      "Created By: ${model.createdByName ?? ""}",
-                                                      style: const TextStyle(
-                                                        color: colorGreyText,
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Container(
-                                                      width: 1,
-                                                      height: 25,
+                                                      height: 20,
                                                       color: colorGreyBorderD3,
                                                     ),
                                                     const SizedBox(width: 5),
@@ -460,8 +546,30 @@ class _ProgressNoteListByNoteIdState extends State<ProgressNoteListByNoteId> {
                                     ],
                                   ),
                                   const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: buildTextRowWithAlphaIcon(
+                                            "D",
+                                            model.description?.trim() ??
+                                                "No description"),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: buildTextRowWithAlphaIcon(
+                                            "A",
+                                            model.assessmentComment?.trim() ??
+                                                "No assessment comment"),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
+                              ),],),
                           ],
                         ),
                       ),

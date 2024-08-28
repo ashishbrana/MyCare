@@ -1,3 +1,5 @@
+import '../../../utils/methods.dart';
+
 class DSNListModel {
   int? id;
   int? sscid;
@@ -69,4 +71,11 @@ class DSNListModel {
     data['sscname'] = this.sscname;
     return data;
   }
+
+  bool get isFutureDate =>
+     (getDateTimeFromEpochTime(ssdate!) !=
+        null &&
+        getDateTimeFromEpochTime(ssdate!)!
+            .isFutureDate);
+
 }

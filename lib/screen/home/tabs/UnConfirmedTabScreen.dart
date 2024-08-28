@@ -5,12 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/utils/Constants.dart';
-import 'package:rcare_2/utils/Preferences.dart';
 import 'package:rcare_2/utils/ThemedWidgets.dart';
 
 import '../../../utils/ColorConstants.dart';
-import '../../../utils/ConstantStrings.dart';
-import '../../../utils/methods.dart';
 import '../HomeScreen.dart';
 import '../models/ConfirmedResponseModel.dart';
 
@@ -188,13 +185,13 @@ class UnConfirmedTabScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 5),
-                                FaIcon(
+                                const FaIcon(
                                   FontAwesomeIcons.calendarDays,
                                   color: colorGreen,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
+                                const Text(
                                   "Mon, 16-10-2023",
                                   style: TextStyle(
                                     color: colorGreyText,
@@ -208,13 +205,13 @@ class UnConfirmedTabScreen extends StatelessWidget {
                                   color: colorGreyBorderD3,
                                 ),
                                 const SizedBox(width: 5),
-                                Icon(
+                                const Icon(
                                   CupertinoIcons.time,
                                   color: colorGreen,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
+                                const Text(
                                   "1hrs",
                                   style: TextStyle(
                                     color: colorGreyText,
@@ -248,13 +245,13 @@ class UnConfirmedTabScreen extends StatelessWidget {
                                   height: 30,
                                 ),
                                 const SizedBox(width: 5),
-                                Icon(
+                                const Icon(
                                   Icons.timer,
                                   color: colorGreen,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
+                                const Text(
                                   "12:50:00 - 13:50:00",
                                   style: TextStyle(
                                     color: colorGreyText,

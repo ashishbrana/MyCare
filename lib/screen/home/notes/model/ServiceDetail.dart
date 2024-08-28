@@ -10,19 +10,23 @@ class ServiceDetail {
   String? createdOn;
   int? serviceScheduleEmpID;
   int? tSid;
+  String? groupName;
+  int? serviceScheduleType;
 
   ServiceDetail(
       {this.clientName,
-        this.serviceName,
-        this.noteDate,
-        this.noteID,
-        this.servicescheduleCLientID,
-        this.clientID,
-        this.createdBy,
-        this.createdByName,
-        this.createdOn,
-        this.serviceScheduleEmpID,
-        this.tSid});
+      this.serviceName,
+      this.noteDate,
+      this.noteID,
+      this.servicescheduleCLientID,
+      this.clientID,
+      this.createdBy,
+      this.createdByName,
+      this.createdOn,
+      this.serviceScheduleEmpID,
+      this.tSid,
+      this.serviceScheduleType,
+      this.groupName});
 
   ServiceDetail.fromJson(Map<String, dynamic> json) {
     clientName = json['ClientName'];
@@ -36,6 +40,8 @@ class ServiceDetail {
     createdOn = json['CreatedOn'];
     serviceScheduleEmpID = json['ServiceScheduleEmpID'];
     tSid = json['TSid'];
+    serviceScheduleType = json['serviceScheduleType'];
+    groupName = json['groupName'];
   }
 
   Map<String, dynamic> toJson() {
@@ -51,6 +57,8 @@ class ServiceDetail {
     data['CreatedOn'] = this.createdOn;
     data['ServiceScheduleEmpID'] = this.serviceScheduleEmpID;
     data['TSid'] = this.tSid;
+    data['serviceScheduleType'] = this.serviceScheduleType;
+    data['groupName'] = this.groupName;
     return data;
   }
 }

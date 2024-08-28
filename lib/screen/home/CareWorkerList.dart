@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/HomeScreen.dart';
-import 'package:rcare_2/utils/WidgetMethods.dart';
 
 import '../../appconstant/API.dart';
 import '../../appconstant/ApiUrls.dart';
@@ -14,6 +12,7 @@ import '../../utils/ConstantStrings.dart';
 import '../../utils/Constants.dart';
 import '../../utils/Preferences.dart';
 import '../../utils/ThemedWidgets.dart';
+import '../../utils/WidgetMethods.dart';
 import '../../utils/methods.dart';
 import 'models/CareWorkerModel.dart';
 import 'models/ConfirmedResponseModel.dart';
@@ -39,6 +38,9 @@ class _CareWorkerListState extends State<CareWorkerList> {
   List<CareWorkerModel> dataList = [];
 
   int selectedExpandedIndex = -1;
+  int lastSelectedRow = -1;
+  int userId = 0;
+
 
   @override
   void initState() {
@@ -48,12 +50,12 @@ class _CareWorkerListState extends State<CareWorkerList> {
   }
 
   getData() async {
-    // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'RosterID': widget.rosterID.toString(),
+      'usertype': "2",
     };
     print("params : $params");
     isConnected().then((hasInternet) async {
@@ -70,13 +72,11 @@ class _CareWorkerListState extends State<CareWorkerList> {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
           if (response != null && response != "") {
-            // print('res ${response}');
 
             List jResponse = json.decode(response);
             print("jResponse $jResponse");
             dataList =
                 jResponse.map((e) => CareWorkerModel.fromJson(e)).toList();
-            print("models.length : ${dataList.length}");
 
             setState(() {});
           } else {
@@ -101,24 +101,26 @@ class _CareWorkerListState extends State<CareWorkerList> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
+      appBar: buildAppBar(context, title: "Care Workers"),
       backgroundColor: colorLiteBlueBackGround,
       body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
-            decoration: BoxDecoration(
-              color: colorGreen,
-              borderRadius: boxBorderRadius,
+          if(widget.model.isGroupService)
+            Container(
+              margin: const EdgeInsets.only(
+                top: spaceVertical,
+                right: spaceHorizontal * 1.5,
+                left: spaceHorizontal * 1.5,
+              ),
+              child:
+              ThemedText(
+                text:
+                "${widget.model.groupName}",
+                fontSize: 15,
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(3),
-            child: ThemedText(
-              text: "CareWorkers",
-              color: colorWhite,
-              fontSize: 12,
-              textAlign: TextAlign.center,
-            ),
-          ),
           Expanded(
             child: ListView.builder(
               itemCount: dataList.length,
@@ -128,7 +130,9 @@ class _CareWorkerListState extends State<CareWorkerList> {
                 return Container(
                   margin: const EdgeInsets.only(top: 8, right: 15, left: 15),
                   decoration: BoxDecoration(
-                    color: colorWhite,
+                    color: lastSelectedRow == index
+                        ? Colors.grey.withOpacity(0.2)
+                        : colorWhite,
                     borderRadius: boxBorderRadius,
                   ),
                   child: Column(
@@ -155,30 +159,32 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                 children: [
                                                   TextSpan(
                                                     text:
-                                                        "${model.careWorkerName} ",
+                                                        "${model.careWorkerName} - ",
                                                     style: const TextStyle(
-                                                      color: colorGreyText,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
+                                                        fontSize: 15,
+                                                        color: Colors.blueAccent,
+                                                        fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                   TextSpan(
                                                     text: model.serviceType,
                                                     style: const TextStyle(
-                                                      color: colorGreyLiteText,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 14,
+                                                        fontSize: 15,
+                                                        color: Colors.blueAccent,
+                                                        fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
                                           ),
-                                          if (model.noteID != 0)
+                                          if (model.showNoteIcon(widget.userId) && !widget.model.isGroupService)
                                             InkWell(
                                               onTap: () {
+                                                setState(() {
+                                                  lastSelectedRow = index;
+                                                });
+
                                                 Navigator.push(
                                                   keyScaffold.currentContext!,
                                                   MaterialPageRoute(
@@ -219,21 +225,9 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                 // FontAwesomeIcons.notesMedical,
                                                 Icons.note_alt_outlined,
                                                 size: 22,
+                                                color: colorGreen,
                                               ),
                                             ),
-
-                                          /*const SizedBox(width: spaceHorizontal / 2),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius: BorderRadius.circular(5),
-                                            ),
-                                            child: const Icon(
-                                              CupertinoIcons.person_crop_circle,
-                                              color: Colors.white,
-                                              size: 16,
-                                            ),
-                                          ),*/
                                         ],
                                       ),
                                       const SizedBox(height: 8),
@@ -293,7 +287,7 @@ class _CareWorkerListState extends State<CareWorkerList> {
                                                             width: 5),
                                                         Text(
                                                             formatServiceDate(model.serviceDate),
-                                                          style: TextStyle(
+                                                          style: const TextStyle(
                                                             color:
                                                                 colorGreyText,
                                                             fontSize: 14,
@@ -409,7 +403,20 @@ class _CareWorkerListState extends State<CareWorkerList> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 5),
+                                if (model.isPrivate(widget.userId) == false)
+                                const SizedBox(height: 7),
+                                if (model.isPrivate(widget.userId) == false)
+                                buildTextRowWithAlphaIcon("D", model.getDescription(widget.userId)),
+                                if (model.isPrivate(widget.userId) == false)
+                                const SizedBox(height: 7),
+                                if (model.isPrivate(widget.userId) == false)
+                                buildTextRowWithAlphaIcon("A",  model.assessmentComments !=
+                                    null &&
+                                    model.assessmentComments!
+                                        .isNotEmpty
+                                    ? model.assessmentComments!
+                                    : "No assessment comment provided."),
+                                const SizedBox(height: 7),
                                 ThemedRichText(
                                   spanList: [
                                     getTextSpan(

@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
 import 'package:rcare_2/screen/home/notes/model/ServiceDetail.dart';
-import 'package:rcare_2/utils/Images.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -25,11 +24,9 @@ import '../../../utils/WidgetMethods.dart';
 import '../../../utils/methods.dart';
 import '../models/GroupServiceResponseModel.dart';
 import '../models/ProgressNoteListByNoteIdModel.dart';
-import '../models/ProgressNoteModel.dart';
 import 'model/NoteDocModel.dart';
 
 class ProgressNoteDetails extends StatefulWidget {
-  // final ProgressNoteModel model;
   final int userId;
   final int clientId;
   int noteId;
@@ -63,15 +60,17 @@ class ProgressNoteDetails extends StatefulWidget {
 class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
+  String groupName = "";
+  int serviceScheduleType = 2;
   DateTime serviceTypeDateTime = DateTime.now();
   int userId = 0;
   String _assesmentScale = "1";
   final TextEditingController _serviceType = TextEditingController();
   final TextEditingController _subject = TextEditingController();
   final TextEditingController _disscription = TextEditingController();
-
-  // final TextEditingController _assesment_scale = TextEditingController();
   final TextEditingController _assesment_comment = TextEditingController();
+
+
 
   final SignatureController _controllerSignature = SignatureController(
     penStrokeWidth: 5,
@@ -91,6 +90,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
   bool isPast = false;
   bool allowEdit = false;
+  bool isConfidential = false;
 
   @override
   void initState() {
@@ -100,6 +100,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
         getServiceDetail();
       } else {
         getData();
+        getServiceDetail();
+        if(isGroupNote()){
+          print("================");
+          print(widget.selectedGroupServiceList?.first.groupname ?? "");
+          groupName = widget.selectedGroupServiceList?.first.groupname ?? "";
+          serviceScheduleType = 2;
+        }
       }
     } else {
       //Fill model with defalt value and save with noteid = 0
@@ -141,34 +148,30 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
           if (response != "") {
-            // print('res ${response}');
             List<ServiceDetail> serivceList = [];
 
             List jResponse = json.decode(response);
-            print("jResponse $endAvailableShifts $jResponse");
             serivceList =
                 jResponse.map((e) => ServiceDetail.fromJson(e)).toList();
-            print("availableDataList : ${serivceList.length}");
             if (serivceList.isNotEmpty) {
               serviceDetail = serivceList.first;
             }
 
             if (serviceDetail != null && widget.noteId != 0) {
-              if (this.serviceDetail != null) {
+              if (serviceDetail != null) {
                 final serviceDetail = this.serviceDetail;
                 print(serviceDetail?.createdByName);
                 model?.createdByName = serviceDetail?.createdByName;
                 widget.serviceName = serviceDetail!.serviceName!;
-                widget.noteWriter = serviceDetail!.createdByName!;
+                widget.noteWriter = serviceDetail.createdByName!;
               }
               getData();
             } else {
-              if (this.serviceDetail != null) {
+              if (serviceDetail != null) {
                 final serviceDetail = this.serviceDetail;
-                print(serviceDetail?.createdByName);
                 model?.createdByName = serviceDetail?.createdByName;
                 widget.serviceName = serviceDetail!.serviceName!;
-                widget.noteWriter = serviceDetail!.createdByName!;
+                widget.noteWriter = serviceDetail.createdByName!;
               }
             }
             setState(() {});
@@ -191,15 +194,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 
   getData() async {
-    // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
-    userId = await Preferences().getPrefInt(Preferences.prefUserID) as int;
+    userId = await Preferences().getPrefInt(Preferences.prefUserID);
     Map<String, dynamic> params = {
       'auth_code':
           (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'NoteID': widget.noteId.toString(),
     };
-    print("params : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -217,13 +218,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-            print("jResponse $jResponse");
-            print(userId);
             model = jResponse
                 .map((e) => ProgressNoteListByNoteIdModel.fromJson(e))
                 .toList()[0];
             if (model != null) {
-              if (model!.clientsignature != null) {
+              if (model?.clientsignature?.trim().isNotEmpty ?? false) {
                 getClientSignatureData(model!.clientsignature!);
               }
               if (model!.noteID != 0) {
@@ -238,28 +237,18 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
 
               isPast = widget.serviceDate.isPassed;
               allowEdit = (model!.createdBy ?? userId) == userId;
-              print("isPast : $allowEdit");
-              print("isPast : $isPast");
 
               _subject.text = model!.subject ?? "";
 
               _disscription.text = model!.description ?? "";
               _assesmentScale = (model!.asessmentScale ?? 0).toString();
               _assesment_comment.text = model!.asessmentComment ?? "";
-
+              isConfidential = model!.isConfidential ?? false;
               if(model!.clientRating == null || model!.clientRating!.isEmpty){
                 model!.clientRating = "0";
               }
 
               clientRating = int.parse(model!.clientRating ?? "0");
-              print("isPast : $clientRating");
-              if (this.serviceDetail != null) {
-                final serviceDetail = this.serviceDetail;
-            //    model?.createdByName = serviceDetail?.createdByName;
-              //  widget.serviceName = serviceDetail!.serviceName!;
-              }
-
-              // print("models.length : ${dataList.length}");
             }
             setState(() {});
           } else {
@@ -281,14 +270,11 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 
   getClientSignatureData(String imageName) async {
-    // userName = await Preferences().getPrefString(Preferences.prefUserFullName);
     Map<String, dynamic> params = {
-      'auth_code':
-          (await Preferences().getPrefString(Preferences.prefAuthCode)),
+      'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
       'userid': widget.userId.toString(),
       'clientSignature': imageName,
     };
-    print("params : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
@@ -303,10 +289,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           String response = await HttpService().init(request, _keyScaffold);
           removeOverlay();
           if (response != "") {
-            // print('res ${response}');
 
             List jResponse = json.decode(response);
-            //  print("jResponse $jResponse");
             signatureModel = jResponse
                 .map((e) => ClientSignatureModel.fromJson(e))
                 .toList()[0];
@@ -321,10 +305,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             }
             setState(() {});
           }
-          /*else {
-            showSnackBarWithText(
-                _keyScaffold.currentState, stringSomeThingWentWrong);
-          }*/
+
           removeOverlay();
         } catch (e) {
           print("ERROR : $e");
@@ -340,19 +321,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
   }
 
   getNoteDocs(DateTime noteDate, String clientName, int noteid) async {
-    Map<String, dynamic> params = {
-      'NoteDate': DateFormat("dd/MM/yy").format(noteDate),
-      'clientName': clientName,
-      'noteid': noteid.toString(),
-    };
+
     var uri =  "https://$baseUrl/$nestedUrl$endGetNoteDocs?NoteDate=${DateFormat("dd/MM/yy").format(noteDate)}&clientName=$clientName&noteid=${noteid.toString()}";
     var encoded = Uri.encodeFull(uri);
-    print("paramsendGetNoteDocs : $params");
     isConnected().then((hasInternet) async {
       if (hasInternet) {
         HttpRequestModel request = HttpRequestModel(
             url:encoded,
-            //getUrl(endGetNoteDocs, params: params).toString(),
             authMethod: '',
             body: '',
             headerType: '',
@@ -419,7 +394,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             // print('res ${response}');
 
             List jResponse = json.decode(response);
-            print("jResponse $jResponse");
             signatureModel = jResponse
                 .map((e) => ClientSignatureModel.fromJson(e))
                 .toList()[0];
@@ -455,12 +429,35 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     });
   }
 
+  void validateAndSaveProfile() async {
+    if (_disscription.text.isEmpty) {
+      showSnackBarWithText(_keyScaffold.currentState,
+          "Description can not be blank",
+          color: colorRed);
+      return;
+    }
+    if(isGroupNote()){
+      await saveNoteGroupApiCall();
+    }
+    else{
+      await saveNoteApiCall();
+    }
+  }
+
+  String getTitleForDetail() {
+    return serviceDetail?.serviceScheduleType == 2
+          ? "${serviceDetail?.groupName ?? ""} - ${serviceDetail?.serviceName ?? ""}"
+          : "${serviceDetail?.serviceName ?? ""}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
       backgroundColor: colorLiteBlueBackGround,
-      appBar: buildAppBar(context, title: "Progress Notes Detail"),
+      appBar: buildAppBar(context, title: "Progress Note" , showActionButton: allowEdit , onActionButtonPressed: () {
+        validateAndSaveProfile();
+      },),
       body: SingleChildScrollView(
         child: Container(
           color: colorWhite,
@@ -471,53 +468,13 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: textFiledHeight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (allowEdit) Expanded(
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Save",
-                        fontSize: 14,
-                        onTap: () async {
-                          if (_disscription.text.isEmpty) {
-                            showSnackBarWithText(_keyScaffold.currentState,
-                                "Description can not be blank",
-                                color: colorRed);
-                            return;
-                          }
-                          if(isGroupNote()){
-                            await saveNoteGroupApiCall();
-                          }
-                          else{
-                            await saveNoteApiCall();
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: spaceHorizontal),
-                    Expanded(
-                      // height: textFiledHeight,
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Cancel",
-                        fontSize: 14,
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
               ThemedText(
-                text: "Service Schedule Client ${widget.serviceName ?? ""}",
-                color: colorFontColor,
+                text: getTitleForDetail(),
                 fontSize: 18,
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
               ),
+
               const SizedBox(height: 10),
               ThemedText(
                 text:
@@ -525,9 +482,72 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 color: colorFontColor,
                 fontSize: 18,
               ),
+              if(!isGroupNote())
+              const SizedBox(height: spaceBetween),
+              if(!isGroupNote())
+              Row(
+                children: [
+                  ThemedText(
+                    text: "Confidential :",
+                    color: colorFontColor,
+                    fontSize: 18,
+                  ),
+                  Radio<bool>(
+                    value: true,
+                    groupValue: isConfidential,
+                    activeColor: colorGreen,
+                    onChanged: (bool? value) {
+                      if (value != null) {
+                        setState(() {
+                          isConfidential = value;
+                        });
+                      }
+                    },
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isConfidential = true;
+                      });
+                    },
+                    child: ThemedText(
+                      text: "Yes",
+                      color: colorBlack,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Radio<bool>(
+                    value: false,
+                    groupValue: isConfidential,
+                    activeColor: colorGreen,
+                    onChanged: (bool? value) {
+                      if (value != null) {
+                        setState(() {
+                          isConfidential = value;
+                        });
+                      }
+                    },
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isConfidential = false;
+                      });
+                    },
+                    child: ThemedText(
+                      text: "No",
+                      color: colorBlack,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
+
               ThemedText(
-                text: "Note Date(dd-mm-yyyy)*",
+                text: "Note Date*",
                 color: colorFontColor,
                 fontSize: 18,
               ),
@@ -549,12 +569,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                     ).then((value) {
                       if (value != null) {
                         setState(() {
-                          serviceTypeDateTime =
-                              DateTime(value.year, value.month, value.day);
-                          ;
-                          _serviceType.text = DateFormat("dd-MM-yyyy").format(
-                            serviceTypeDateTime,
-                          );
+                          serviceTypeDateTime = DateTime(value.year, value.month, value.day);
+                          _serviceType.text = DateFormat("dd-MM-yyyy").format(serviceTypeDateTime);
                         });
                       }
                     });
@@ -655,7 +671,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                               color: colorFontColor,
                               fontSize: 18,
                             ),
-                            Spacer(),
+                            const Spacer(),
                             SizedBox(
                               width: 100,
                               child: ThemedButton(
@@ -814,8 +830,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                                         if (image != null) {
                                           setState(() {
                                             print(image.path);
-                                            selectedImageFilesList
-                                                .add(File(image.path));
+                                            selectedImageFilesList.add(File(image.path));
                                           });
                                         }
                                       },
@@ -872,14 +887,12 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                   itemCount: noteDocList!.length,
                   itemBuilder: (context, index) => InkWell(
                     onTap: () {
-                    //  getNoteImage64(noteDocList![index]);
                       imgPath = "";
                       String path = (noteDocList![index].path ?? "");
 
                       String imageName = noteDocList![index].name ?? "";
                       if(path.isNotEmpty){
-                        imgPath = path+"/"+model!.clientID.toString()+"/notespic/"+imageName;
-                        print(imgPath);
+                        imgPath = "$path/${model!.clientID}/notespic/$imageName";
                         setState(() {
 
                         });
@@ -907,9 +920,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
                 SizedBox(
                   height: 200,
                   width: 300,
-   // https://mycare.mycaresoftware.com/Uploads/client/notes
                   child: Image.network(imgPath),
-
                 ),
               if (selectedImageFilesList.isNotEmpty)
                 const SizedBox(height: spaceVertical),
@@ -943,43 +954,34 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     closeKeyboard();
     isConnected().then((hasInternet) async {
       if (hasInternet) {
-        String noteIds = "";
-        String clientId = "";
-        String serviceScheduleClientId = "";
-        String ssEmployeeId = "";
 
-          noteIds = (model!.noteID ?? 0).toString();
-          serviceScheduleClientId = widget.serviceShceduleClientID.toString();
-          clientId = widget.clientId.toString();
-          ssEmployeeId = widget.servicescheduleemployeeID.toString();
-
+        String noteIds = (model!.noteID ?? 0).toString();
+        String serviceScheduleClientId = widget.serviceShceduleClientID.toString();
+        String clientId = widget.clientId.toString();
+        String ssEmployeeId = widget.servicescheduleemployeeID.toString();
 
         try {
           getOverlay(context);
-          // response = await HttpService().init(request, _keyScaffold);
           Uint8List? signature = await _controllerSignature.toPngBytes();
           String stri =
               "iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAAABGdBTUEAALGPC/xhBQAAAPNJREFUeF7t1MEJgDAQRNHtvylLsYQcPYianETCBvQk6HvwOxgmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgC84pEv7g7abrV3LoNI1t6YWnLLR6r9lxzQqO6cshwUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADviKj9UU7A+mOSSQAAAABJRU5ErkJggg==";
           String strBody = json.encode({
             "NoteID": noteIds,
-            "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
+            "NoteDate": DateTime.now().shortDate(),
             "AssessmentScale": _assesmentScale.toString(),
-            "AssessmentComment":
-                _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
-            "Description":
-                _disscription.text.isNotEmpty ? _disscription.text : "",
+            "AssessmentComment": _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
+            "Description": _disscription.text.isNotEmpty ? _disscription.text : "",
             "Subject": _subject.text,
             "img": 0,
             "userID": (await Preferences().getPrefInt(Preferences.prefUserID)).toString(),
             "clientID": clientId,
             "ServiceScheduleClientID": serviceScheduleClientId,
-            "bit64Signature": _controllerSignature.isNotEmpty
-                ? (signature != null ? "${base64.encode(signature)}" : "")
-                : "",
+            "bit64Signature": _controllerSignature.isNotEmpty ? (signature != null ? "${base64.encode(signature)}" : "") : "",
             "ClientRating": clientRating.toString(),
             "ssClientIds": "",
             "GroupNote": 0,
             "ssEmployeeID": ssEmployeeId,
+            "isConfidential": isConfidential,
           });
           log(strBody);
           if (strBody.isEmpty) {
@@ -997,8 +999,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
               widget.noteId = int.parse(jres["message"]);
-
-              print("Response : savedetail with =  ${widget.noteId}");
               showSnackBarWithText(_keyScaffold.currentState, "Success",
                   color: colorGreen);
               if (selectedImageFilesList.isEmpty) {
@@ -1031,10 +1031,8 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
     closeKeyboard();
     isConnected().then((hasInternet) async {
       if (hasInternet) {
-        String noteIds = "";
         String clientId = "";
         String serviceScheduleClientId = "";
-          noteIds = "0";
           for (GroupServiceModel model in widget.selectedGroupServiceList!) {
             if (model.noteID != null) {
               clientId +=
@@ -1050,7 +1048,7 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
           String strBody = json.encode({
             'auth_code': (await Preferences().getPrefString(Preferences.prefAuthCode)),
             "NoteID": 0,
-            "NoteDate": DateFormat("yyyy/MM/dd").format(DateTime.now()),
+            "NoteDate": DateTime.now().shortDate(),
             "AssessmentScale": _assesmentScale.toString(),
             "AssessmentComment": _assesment_comment.text.isEmpty ? "" : _assesment_comment.text,
             "Description": _disscription.text.isNotEmpty ? _disscription.text : "",
@@ -1074,9 +1072,6 @@ class _ProgressNoteDetailsState extends State<ProgressNoteDetails> {
             var jResponse = json.decode(response.body.toString());
             var jres = json.decode(jResponse["d"]);
             if (jres["status"] == 1) {
-            //  widget.noteId = int.parse(jres["message"]);
-
-           //   print("Response : savedetail with =  ${widget.noteId}");
               showSnackBarWithText(_keyScaffold.currentState, "Note created successfully",
                   color: colorGreen);
               Navigator.pop(context, true);

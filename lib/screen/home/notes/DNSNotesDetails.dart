@@ -4,12 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:rcare_2/screen/home/notes/NotesDetails.dart';
 import 'package:rcare_2/screen/home/notes/model/ClientSignatureModel.dart';
-import 'package:rcare_2/utils/Images.dart';
 import 'package:signature/signature.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -19,13 +14,11 @@ import '../../../appconstant/ApiUrls.dart';
 import '../../../utils/ColorConstants.dart';
 import '../../../utils/ConstantStrings.dart';
 import '../../../utils/Constants.dart';
-import '../../../utils/Preferences.dart';
 import '../../../utils/ThemedWidgets.dart';
 import '../../../utils/WidgetMethods.dart';
 import '../../../utils/methods.dart';
 import '../models/DSNListModel.dart';
 import '../models/ProgressNoteListByNoteIdModel.dart';
-import '../models/ProgressNoteModel.dart';
 import 'model/NoteDocModel.dart';
 
 class DNSNotesDetails extends StatefulWidget {
@@ -48,12 +41,9 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
   final GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
 
   DateTime serviceTypeDateTime = DateTime.now();
-  String _assesmentScale = "1";
   final TextEditingController _taskHeader = TextEditingController();
   final TextEditingController _taskDetails = TextEditingController();
   final TextEditingController _taskComments = TextEditingController();
-
-  // final TextEditingController _assesment_scale = TextEditingController();
   final TextEditingController _noteWriter = TextEditingController();
 
   final SignatureController _controllerSignature = SignatureController(
@@ -86,12 +76,35 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
     setState(() {});
   }
 
+  void validateAndSave() async {
+    print(
+        "widget.dsnListModel!.timefrom ${widget.dsnListModel!.toJson()}");
+    print(
+        "widget.dsnListModel!.timefrom ${widget.dsnListModel!.timeto}");
+    if (widget.dsnListModel != null &&
+        widget.dsnListModel!.timefrom != null) {
+      DateTime date = getDateTimeFromEpochTime(
+          widget.dsnListModel!.ssdate!)!;
+      if (date.isBefore(DateTime.now()) || date.isToday) {
+        await saveDNSApiCall();
+      } else {
+        showSnackBarWithText(_keyScaffold.currentState,
+            "You are not allowed to complete DSN for future date!");
+      }
+    } else {
+      showSnackBarWithText(_keyScaffold.currentState,
+          "You are not allowed to complete DSN for future date!");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _keyScaffold,
       backgroundColor: colorLiteBlueBackGround,
-      appBar: buildAppBar(context, title: "DNS Notes Detail"),
+      appBar: buildAppBar(context, title: "DNS Notes Detail" , showActionButton: true , onActionButtonPressed: () {
+        validateAndSave();
+      },),
       body: SingleChildScrollView(
         child: Container(
           color: colorWhite,
@@ -102,64 +115,7 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: textFiledHeight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Save",
-                        fontSize: 14,
-                        onTap: () async {
-                          // if(_taskComments.text.isEmpty){
-                          //   showSnackBarWithText(_keyScaffold.currentState, "Description can not be blank",
-                          //       color: colorRed);
-                          //   return;
-                          // }
-
-                          print(
-                              "widget.dsnListModel!.timefrom ${widget.dsnListModel!.toJson()}");
-                          print(
-                              "widget.dsnListModel!.timefrom ${widget.dsnListModel!.timeto}");
-                          if (widget.dsnListModel != null &&
-                              widget.dsnListModel!.timefrom != null) {
-                            DateTime date = getDateTimeFromEpochTime(
-                                widget.dsnListModel!.ssdate!)!;
-                            if (date.isBefore(DateTime.now()) || date.isToday) {
-                              await saveDNSApiCall();
-                            } else {
-                              showSnackBarWithText(_keyScaffold.currentState,
-                                  "You are not allowed to complete DSN for future date!");
-                            }
-                          } else {
-                            showSnackBarWithText(_keyScaffold.currentState,
-                                "You are not allowed to complete DSN for future date!");
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: spaceHorizontal),
-                    Expanded(
-                      // height: textFiledHeight,
-                      child: ThemedButton(
-                        padding: EdgeInsets.zero,
-                        title: "Cancel",
-                        fontSize: 14,
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              if (getDateTimeFromEpochTime(widget.dsnListModel.ssdate!) !=
-                      null &&
-                  getDateTimeFromEpochTime(widget.dsnListModel.ssdate!)!
-                      .isFutureDate)
+              if (widget.dsnListModel.isFutureDate)
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   child: Container(
@@ -173,12 +129,20 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                     ),
                   ),
                 ),
+              if (widget.dsnListModel.isFutureDate)
               const SizedBox(height: 10),
               ThemedText(
                 text:
-                    "Service Schedule Client ${widget.dsnListModel.sscname ?? ""}",
-                color: colorFontColor,
+                    "${widget.dsnListModel.sscname ?? ""}",
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.bold,
                 fontSize: 16,
+              ),
+              const SizedBox(height: 4),
+              ThemedText(
+                text: "Note Writer : ${widget.dsnListModel.notewriter ?? ""}",
+                color: colorFontColor,
+                fontSize: 15,
               ),
               const SizedBox(height: 10),
               ThemedText(
@@ -206,19 +170,17 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
                 color: colorFontColor,
                 fontSize: 15,
               ),
-              SizedBox(
-                height: textFiledHeight,
-                child: ThemedTextField(
+               ThemedTextField(
                   padding: EdgeInsets.symmetric(horizontal: spaceHorizontal),
                   borderColor: colorGreyBorderD3,
                   backgroundColor: colorWhite,
-                  isReadOnly: isCompleted,
-                  minLine: 2,
-                  maxLine: 2,
+                 // isReadOnly: isCompleted,
+                 isReadOnly: true,
+                  minLine: 6,
+                  maxLine: 6,
                   fontSized: 15,
                   labelTextColor: colorBlack,
                   controller: _taskDetails,
-                ),
               ),
               const SizedBox(height: 10),
               Row(
@@ -292,28 +254,14 @@ class _DNSNotesDetailsState extends State<DNSNotesDetails> {
               ),
               ThemedTextField(
                 padding: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-                minLine: 4,
-                maxLine: 4,
+                minLine: 6,
+                maxLine: 6,
                 borderColor: colorGreyBorderD3,
                 fontSized: 15,
                 labelTextColor: colorBlack,
                 backgroundColor: colorWhite,
                 isReadOnly: false,
                 controller: _taskComments,
-              ),
-              const SizedBox(height: 10),
-              ThemedText(
-                text: "Note Writes*",
-                color: colorFontColor,
-                fontSize: 15,
-              ),
-              ThemedTextField(
-                padding: const EdgeInsets.symmetric(horizontal: spaceHorizontal),
-                borderColor: colorGreyBorderD3,
-                backgroundColor: colorWhite,
-                isReadOnly: true,
-                fontSized: 15,
-                controller: _noteWriter,
               ),
             ],
           ),
